@@ -3,7 +3,12 @@ package financas
 import (
 	"goravel/app/core"
 	"goravel/app/http/requests"
+	"image/color"
 	"time"
+
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
 )
 type TrackerDiario struct {
     Valorizacao float64 `json:"valorizacao"`
@@ -158,6 +163,9 @@ func (self *CalcularJuros) setTaxaSelic() error {
 }
 type ResultadoSimulacao struct {
     Anos []TrackerAnual `json:"anos"`
+    Meses []TrackerMensal `json:"meses"`
+    Semestres []TrackerSemestral `json:"semestres"`
+    Dias []TrackerDiario `json:"dias"`
     Valorizacao float64 `json:"valorizacao"`
     ValorFinal float64 `json:"valor_final"`
     ValorInicial float64 `json:"valor_inicial"`
@@ -176,7 +184,82 @@ func newResultadoSimulacao(dataInicial time.Time, dataFinal time.Time, valorInic
 func (self *ResultadoSimulacao) adicionaGasto(gasto float64) {
     self.Gasto += gasto
 }
+func (self *ResultadoSimulacao) SetMeses() {
+    for _, ano := range self.Anos {
+        for _, semestre := range ano.Semestres {
+            for _, mes := range semestre.Meses {
+                self.Meses = append(self.Meses, TrackerMensal{
+                    Valorizacao: mes.Valorizacao,
+                    ResultadoComValorizacao: mes.ResultadoComValorizacao,
+                    Aporte: mes.Aporte,
+                    DataInicial: mes.DataInicial,
+                    DataFinal: mes.DataFinal,
+                })
+            }
+        }
+    }
+}
+func (self *ResultadoSimulacao) SetDias() {
+    for _, ano := range self.Anos {
+        for _, semestre := range ano.Semestres {
+            for _, mes := range semestre.Meses {
+                for _, dia := range mes.Dias {
+                    self.Dias = append(self.Dias, TrackerDiario{
+                        Valorizacao: dia.Valorizacao,
+                        ResultadoComValorizacao: dia.ResultadoComValorizacao,
+                        Data: dia.Data,
+                    })
+                }
+            }
+        }
+    }
+}
+func (self *ResultadoSimulacao) Plot(tipo string) error {
+    if tipo == "mes" {
+        var valorizacoes []float64
+        var datas []string
+        for _, mes := range self.Meses {
+            valorizacoes = append(valorizacoes, mes.Valorizacao)
+            datas = append(datas, mes.DataFinal)
+        }
+        p := plot.New()
+        p.Title.Text = "Valorizacao dos dias"
+        p.X.Label.Text = "Dias"
+        p.Y.Label.Text = "Valorização"
+        p.Add(plotter.NewGrid())
 
+        pontos := make(plotter.XYs, len(valorizacoes))
+        for i, valor := range valorizacoes {
+            pontos[i].X = float64(i)
+            pontos[i].Y = valor
+        }
+        linha, err := plotter.NewLine(pontos)
+        if err != nil {
+            return err
+        }
+        linha.Color = color.RGBA{R: 255, A: 255}
+        linha.Width = vg.Points(2)
+        p.Add(linha)
+        p.NominalX(datas...)
+        if err := p.Save(100*vg.Centimeter, 50*vg.Centimeter, "grafico_meses.png"); err != nil {
+            return err
+        }
+    }
+    return nil
+}
+func (self *ResultadoSimulacao) SetSemestres() {
+    for _, ano := range self.Anos {
+        for _, semestre := range ano.Semestres {
+            self.Semestres = append(self.Semestres, TrackerSemestral{
+                Valorizacao: semestre.Valorizacao,
+                ResultadoComValorizacao: semestre.ResultadoComValorizacao,
+                Aporte: semestre.Aporte,
+                DataInicial: semestre.DataInicial,
+                DataFinal: semestre.DataFinal,
+            })
+        }
+    }
+}
 func (self *ResultadoSimulacao) adicionaValorizacao(valorizacao float64) {
     self.Valorizacao += valorizacao
 }
