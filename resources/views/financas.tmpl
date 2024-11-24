@@ -11,6 +11,31 @@
 html {
     box-sizing: border-box;
 }
+/* Estilo da barra de rolagem */
+::-webkit-scrollbar {
+  width: 8px; /* Largura da barra vertical */
+  height: 8px; /* Altura da barra horizontal */
+}
+
+/* Estilo do fundo da barra de rolagem */
+::-webkit-scrollbar-track {
+  background: #f0f0f0; /* Cor de fundo */
+  border-radius: 4px; /* Cantos arredondados */
+}
+
+/* Estilo da parte que se move (polegar) */
+::-webkit-scrollbar-thumb {
+  background: #888; /* Cor do polegar */
+  border-radius: 4px; /* Cantos arredondados */
+}
+
+/* Estilo ao passar o mouse sobre o polegar */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Cor mais escura ao hover */
+}
+.max-height-tabela {
+    max-height: 800px
+}
     </style>
     <body class="bg-pretoTransparente" >
         <div class="flex flex-col text-white justify-center items-center p-4">
@@ -36,61 +61,68 @@ html {
                     <button id="calcular" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Calcular</button>
                 </div>
             </div>
-            <div class="flex flex-col justify-center items-center w-5/6 border border-white">
+            <div id="wrapperGraficos" class="flex flex-col hidden justify-center items-center w-5/6">
                 <h1 class=" text-4xl p-2 text-azul">Resultado!</h1>
-                <div id="alvo-calculo" class="flex flex-col w-full border border-red-500 h-fit rounded-appMajor">
-                    <h1 class="text-4xl text-azul text-center">Anos</h1>
-                    <div class="flex border border-blue-500 w-full justify-around">
-                        <div class="border border-green-500 flex flex-col">
-                            <h2 class="w-full text-center">10/11/2024 - 10/11/2026</h2>
-                            <span>Valorização: R$ 500,00</span>
-                            <span>Resultado: R$ 19.000,00</span>
-                            <span>Valor gasto: R$ 19.000,00</span>
-                            <div class="flex w-full justify-center items-center">
-                                <button class="expandir rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="button">Expandir</button>
+                <button id="dias-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de dias</button>
+                <button id="meses-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de meses</button>
+                <button id="semestres-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de semestres</button>
+                <button id="anos-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de anos</button>
+
+                <div id="grafico" class="absolute hidden rounded-appMinor bg-preto overflow-x-auto max-height-tabela">
+                    <div class="flex w-full flex-col">
+                        <div class="flex w-full justify-end p-3">
+                            <!--<div id="fecharGrafico" class="w-fit cursor-pointer">-->
+                            <div id="fecharGrafico" class="absolute top-2 right-2 w-fit cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 100 100">
+                                    <line x1="10" y1="10" x2="90" y2="90" stroke="white" stroke-width="10" />
+                                    <line x1="90" y1="10" x2="10" y2="90" stroke="white" stroke-width="10" />
+                                </svg>
                             </div>
                         </div>
-                        <div class="border border-yellow-500 flex flex-col">
-                            <h2 class="w-full text-center">10/11/2025 - 10/11/2026</h2>
-                            <span>Valorização: R$ 500,00</span>
-                            <span>Resultado: R$ 19.000,00</span>
-                            <span>Valor gasto: R$ 19.000,00</span>
-                            <div class="flex w-full justify-center items-center">
-                                <button class="expadir rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="button">Expandir</button>
-                            </div>
+                        <div class="flex w-full" id="resultadoGrafico">
+
                         </div>
                     </div>
-                    <!--
-                    <div class="flex border border-blue-500 w-full justify-around">
-                        <div class="border border-yellow-500 flex flex-col">
-                            <h2 class="w-full text-center">10/11/2025 - 10/05/2026</h2>
-                            <span>Valorização: R$ 15,00</span>
-                            <span>Resultado: R$ 1.000,00</span>
-                            <span>Valor gasto: R$ 5.000,00</span>
-                            <span>Valor aporte: R$ 500,00</span>
-                            <div class="flex w-full justify-center items-center">
-                                <button class="expadir rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="button">Vizualizar meses</button>
-                            </div>
-                        </div>
-                        <div class="border border-yellow-500 flex flex-col">
-                            <h2 class="w-full text-center">10/11/2025 - 10/12/2025</h2>
-                            <span>Valorização: R$ 15,00</span>
-                            <span>Resultado: R$ 1.000,00</span>
-                            <span>Valor gasto: R$ 5.000,00</span>
-                            <span>Valor aporte: R$ 500,00</span>
-                            <div class="flex w-full justify-center items-center">
-                                <button class="expadir rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="button">Vizualizar meses</button>
-                            </div>
-                        </div>
-                        <div class="border border-yellow-500 flex flex-col">
-                            <h2 class="w-full text-center">10/11/2025</h2>
-                            <span>Valorização: R$ 15,00</span>
-                            <span>Resultado: R$ 1.000,00</span>
-                        </div>
-                    </div>
-                    -->
                 </div>
+<!--
+                    <div class="relative overflow-x-auto">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">
+                                        Data
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        Valorização
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        Resultado
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        12/10/2024
+                                    </th>
+                                    <td class="px-6 py-4">
+                                        R$ 2.5
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        R$ 8.502,00
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+-->
             </div>
         </div>
+        <script>
+
+        </script>
+        <script src="public/scripts/dados.js" type="module"></script>
+        <script src="public/scripts/financas.js" type="module"></script>
+    </body>
 </html>
 {{ end }}

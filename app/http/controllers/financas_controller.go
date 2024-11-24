@@ -20,7 +20,7 @@ func NewFinancasController() *FinancasController {
 func (r *FinancasController) Index(ctx http.Context) http.Response {
 	return nil
 }
-func (r *FinancasController) Calcular(ctx http.Context) http.Response {
+func (_ *FinancasController) Calcular(ctx http.Context) http.Response {
     var postCalcularJuros requests.PostCalcularJuros
     errors, err := ctx.Request().ValidateRequest(&postCalcularJuros)
     if err != nil {
@@ -45,6 +45,8 @@ func (r *FinancasController) Calcular(ctx http.Context) http.Response {
     }
     rendimento := service.Calcular()
     rendimento.SetMeses()
+    rendimento.SetDias()
+    rendimento.SetSemestres()
     if err := rendimento.Plot("mes"); err != nil {
         println(err.Error())
     }

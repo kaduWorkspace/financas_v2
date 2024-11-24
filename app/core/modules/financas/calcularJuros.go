@@ -270,7 +270,7 @@ func (self *ResultadoSimulacao) finalizarSimulacao(dataFinal time.Time, resultad
     self.calcularDiferenca()
 }
 func (self *ResultadoSimulacao) calcularDiferenca() {
-    self.Diferenca = self.ValorFinal - self.ValorInicial
+    self.Diferenca = self.ValorFinal - self.Gasto
 }
 func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     resultadoSimulacao := newResultadoSimulacao(self.dataInicial, self.dataFinal, self.ValorInicial)
