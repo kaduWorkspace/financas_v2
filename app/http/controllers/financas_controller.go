@@ -50,5 +50,6 @@ func (_ *FinancasController) Calcular(ctx http.Context) http.Response {
     if err := rendimento.Plot("mes"); err != nil {
         println(err.Error())
     }
+    rendimento.Chart()
     return ctx.Response().Success().Json(rendimento)
 }

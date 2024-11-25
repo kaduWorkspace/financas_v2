@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -67,4 +69,18 @@ func ConverterJson[v any](input string, destination *v) error {
 	}
 
 	return nil
+}
+func DiasNoAno(data string) (int, error) {
+	partes := strings.Split(data, "/")
+	if len(partes) != 3 {
+		return 0, fmt.Errorf("data inválida, o formato deve ser dd/mm/yyyy")
+	}
+	ano, err := strconv.Atoi(partes[2])
+	if err != nil {
+		return 0, fmt.Errorf("ano inválido: %v", err)
+	}
+	if (ano%4 == 0 && ano%100 != 0) || (ano%400 == 0) {
+		return 366, nil
+	}
+	return 365, nil
 }

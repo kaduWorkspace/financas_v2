@@ -1,11 +1,14 @@
 package financas
 
 import (
+	"bytes"
 	"goravel/app/core"
 	"goravel/app/http/requests"
 	"image/color"
 	"time"
 
+	"github.com/go-echarts/go-echarts/v2/charts"
+	"github.com/go-echarts/go-echarts/v2/opts"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
@@ -106,6 +109,7 @@ type CalcularJuros struct {
     TipoFrequenciaAumentoAporte  string `json:"tipo_frequencia_aumento_aporte" form:"tipo_frequencia_aumento_aporte"`
     ValorAumentoAporte    float64  `json:"valor_aumento_aporte" form:"valor_aumento_aporte"`
     TaxaSelic float64 `json:"taxa_selic_diario"`
+    taxaAnual float64
     dataInicial time.Time
     dataFinal time.Time
     TrackerAnual TrackerAnual `json:"tracker_anual"`
@@ -132,11 +136,12 @@ func New(input requests.PostCalcularJuros) (CalcularJuros, error) {
     self.setTaxaSelic()
     return self, nil
 }
+
 func (self *CalcularJuros) setTaxaSelic() error {
     result, err := core.HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
     if err != nil {
-        taxaAnual := 11.25
-        self.TaxaSelic = float64((taxaAnual / 365) / 100)
+        self.taxaAnual = 11.25
+        self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
         return err
     }
     type RetornoBancoCentralApi struct {
@@ -149,15 +154,15 @@ func (self *CalcularJuros) setTaxaSelic() error {
     }
     var bodyRes RetornoBancoCentralApiWrapper
     if err := core.ConverterJson(result, &bodyRes); err != nil {
-        taxaAnual := 11.25
-        self.TaxaSelic = float64((taxaAnual / 365) / 100)
+        self.taxaAnual = 11.25
+        self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
     }
     if len(bodyRes.Conteudo) == 0 {
-        taxaAnual := 11.25
-        self.TaxaSelic = float64((taxaAnual / 365) / 100)
+        self.taxaAnual = 11.25
+        self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
     } else {
-        taxaAnual := bodyRes.Conteudo[0].MetaSelic
-        self.TaxaSelic = taxaAnual / 365 / 100
+        self.taxaAnual = bodyRes.Conteudo[0].MetaSelic
+        self.TaxaSelic = self.taxaAnual / 365 / 100
     }
     return nil
 }
@@ -171,8 +176,8 @@ type ResultadoSimulacao struct {
     ValorInicial float64 `json:"valor_inicial"`
     Gasto float64 `json:"gastos"`
     Diferenca float64 `json:"diferenca"`
-    DataInicial string `json:"data_final"`
-    DataFinal string `json:"data_inicial"`
+    DataInicial string `json:"data_inicial"`
+    DataFinal string `json:"data_final"`
 }
 func newResultadoSimulacao(dataInicial time.Time, dataFinal time.Time, valorInicial float64) ResultadoSimulacao {
     return ResultadoSimulacao {
@@ -241,11 +246,142 @@ func (self *ResultadoSimulacao) Plot(tipo string) error {
         linha.Width = vg.Points(2)
         p.Add(linha)
         p.NominalX(datas...)
-        if err := p.Save(100*vg.Centimeter, 50*vg.Centimeter, "grafico_meses.png"); err != nil {
+        if err := p.Save(100*vg.Centimeter, 50*vg.Centimeter, "./public/graficos/grafico_meses.png"); err != nil {
             return err
         }
     }
     return nil
+}
+type Graficos struct {
+    MesesValorizacoes string
+    DiasValorizacoes string
+    AnosValorizacoes string
+    SemestresValorizacoes string
+}
+
+func (self *ResultadoSimulacao) Chart() (error, Graficos) {
+    var resultado Graficos
+    graficoMeses := charts.NewBar()
+    var dadosGraficoMes []opts.BarData
+    var meses []string
+    for _, mes := range self.Meses {
+        dadosGraficoMes = append(dadosGraficoMes, opts.BarData{
+            Value: mes.Valorizacao,
+        })
+        meses = append(meses, mes.DataFinal)
+    }
+
+    graficoMeses.SetGlobalOptions(
+        charts.WithTitleOpts(opts.Title{
+            Title: "",
+        }),
+		charts.WithXAxisOpts(opts.XAxis{
+			Name: "Mês",
+		}),
+		charts.WithYAxisOpts(opts.YAxis{
+			Name: "Valorização",
+		}),
+    )
+    graficoMeses.SetXAxis(meses).AddSeries("Valorização primeiro set", dadosGraficoMes)
+    var buffer bytes.Buffer
+    if err :=  graficoMeses.Render(&buffer);err != nil {
+        println("Não foi possivel criar o gráfico de valorizacao mensais")
+        return err, resultado
+    }
+    resultado.MesesValorizacoes = buffer.String()
+    println("Grafico mêses Criado!")
+
+    graficoDias := charts.NewBar()
+    var dadosGraficoDia []opts.BarData
+    var dias []string
+    for _, dia := range self.Dias {
+        dadosGraficoDia = append(dadosGraficoDia, opts.BarData{
+            Value: dia.Valorizacao,
+        })
+        dias = append(dias, dia.Data)
+    }
+
+    graficoDias.SetGlobalOptions(
+        charts.WithTitleOpts(opts.Title{
+            Title: "",
+        }),
+		charts.WithXAxisOpts(opts.XAxis{
+			Name: "Dia",
+		}),
+		charts.WithYAxisOpts(opts.YAxis{
+			Name: "Valorização",
+		}),
+    )
+    graficoDias.SetXAxis(dias).AddSeries("Valorização do dia", dadosGraficoDia)
+    var bufferDias bytes.Buffer
+    if err :=  graficoDias.Render(&bufferDias);err != nil {
+        println("Não foi possivel criar o gráfico de valorizacao diarias")
+        return err, resultado
+    }
+    resultado.DiasValorizacoes = buffer.String()
+    println("Grafico mêses Criado!")
+
+
+    graficoSemestres := charts.NewBar()
+    var dadosGraficoSemestre []opts.BarData
+    var semestres []string
+    for _, semestre := range self.Semestres {
+        dadosGraficoSemestre = append(dadosGraficoSemestre, opts.BarData{
+            Value: semestre.Valorizacao,
+        })
+        semestres = append(semestres, semestre.DataInicial)
+    }
+
+    graficoSemestres.SetGlobalOptions(
+        charts.WithTitleOpts(opts.Title{
+            Title: "",
+        }),
+		charts.WithXAxisOpts(opts.XAxis{
+			Name: "Semestre",
+		}),
+		charts.WithYAxisOpts(opts.YAxis{
+			Name: "Valorização",
+		}),
+    )
+    graficoSemestres.SetXAxis(semestres).AddSeries("Valorização dos semestres", dadosGraficoSemestre)
+    var bufferSemestres bytes.Buffer
+    if err :=  graficoSemestres.Render(&bufferSemestres);err != nil {
+        println("Não foi possivel criar o gráfico de valorizacao semestres")
+        return err, resultado
+    }
+    resultado.SemestresValorizacoes = buffer.String()
+    println("Grafico mêses Criado!")
+
+    graficoAnos := charts.NewBar()
+    var dadosGraficoAno []opts.BarData
+    var anos []string
+    for _, ano := range self.Anos {
+        dadosGraficoAno = append(dadosGraficoAno, opts.BarData{
+            Value: ano.Valorizacao,
+        })
+        anos = append(anos, ano.DataInicial)
+    }
+
+    graficoAnos.SetGlobalOptions(
+        charts.WithTitleOpts(opts.Title{
+            Title: "",
+        }),
+		charts.WithXAxisOpts(opts.XAxis{
+			Name: "Ano",
+		}),
+		charts.WithYAxisOpts(opts.YAxis{
+			Name: "Valorização",
+		}),
+    )
+    graficoAnos.SetXAxis(anos).AddSeries("Valorização dos anos", dadosGraficoAno)
+    var bufferAnos bytes.Buffer
+    if err :=  graficoAnos.Render(&bufferAnos);err != nil {
+        println("Não foi possivel criar o gráfico de valorizacao anos")
+        return err, resultado
+    }
+    resultado.AnosValorizacoes = buffer.String()
+    println("Grafico anos Criado!")
+    return nil, resultado
 }
 func (self *ResultadoSimulacao) SetSemestres() {
     for _, ano := range self.Anos {
@@ -256,6 +392,7 @@ func (self *ResultadoSimulacao) SetSemestres() {
                 Aporte: semestre.Aporte,
                 DataInicial: semestre.DataInicial,
                 DataFinal: semestre.DataFinal,
+                Gasto: semestre.Gasto,
             })
         }
     }
@@ -263,9 +400,8 @@ func (self *ResultadoSimulacao) SetSemestres() {
 func (self *ResultadoSimulacao) adicionaValorizacao(valorizacao float64) {
     self.Valorizacao += valorizacao
 }
-func (self *ResultadoSimulacao) finalizarSimulacao(dataFinal time.Time, resultado float64, anos []TrackerAnual) {
+func (self *ResultadoSimulacao) finalizarSimulacao(resultado float64, anos []TrackerAnual) {
     self.Anos = anos
-    self.DataFinal = core.FormataData(dataFinal)
     self.ValorFinal = resultado
     self.calcularDiferenca()
 }
@@ -289,9 +425,9 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     trackerSemestralAtual := newTrackerSemestral(dataAtual, self.AporteSemestral)
     trackerAnualAtual :=  newTrackerAnual(dataAtual)
 
-    trackerAnualAtual.adicionaGasto(self.AporteMensal)
+    /*trackerAnualAtual.adicionaGasto(self.AporteMensal)
     trackerSemestralAtual.adicionaGasto(self.AporteMensal)
-    resultadoSimulacao.adicionaGasto(self.AporteMensal)
+    resultadoSimulacao.adicionaGasto(self.AporteMensal)*/
     for !dataAtual.After(self.dataFinal) {
         dataAtual = dataAtual.AddDate(0, 0, 1)
         valorizacao := self.TaxaSelic * resultado
@@ -353,6 +489,6 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
             trackerAnuais = append(trackerAnuais, trackerAnualAtual)
         }
     }
-    resultadoSimulacao.finalizarSimulacao(dataAtual, resultado, trackerAnuais)
+    resultadoSimulacao.finalizarSimulacao(resultado, trackerAnuais)
     return resultadoSimulacao
 }
