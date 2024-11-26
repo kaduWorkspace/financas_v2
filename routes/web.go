@@ -12,6 +12,10 @@ func Web() {
 			"version": support.Version,
 		})
 	})
+	facades.Route().Get("/stream-video", func(ctx http.Context) http.Response {
+		return ctx.Response().View().Make("stream.tmpl")
+	})
+
     facades.Route().Get("/financas", func(ctx http.Context) http.Response {
         return ctx.Response().View().Make("financas.tmpl")
     })
