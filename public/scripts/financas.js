@@ -1,4 +1,5 @@
 import {dados} from './dados.js'
+import { montarGrafico } from './grafico.js'
 console.log({dados})
 const divGraficos = document.getElementById('grafico')
 const wrapperMain = document.getElementById("wrapperGraficos")
@@ -59,7 +60,7 @@ document.getElementById('calcular').addEventListener('click', async event => {
         //dados = [];
         return;
     }
-    infoGeral.innerHTML = gerarResultadoInfo(dados.rendimento)
+    infoGeral.innerHTML = gerarResultadoInfo(dados)
     if(wrapperMain.classList.contains('hidden')) wrapperMain.classList.toggle('hidden')
 })
 const formatarValorMonetario = (valor) => `${(Math.floor(valor*100)/100).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}`;
@@ -70,7 +71,7 @@ const montaLinhaTabela = (dados) => `<tr class="bg-white border-b dark:bg-gray-8
 document.getElementById('dias-grafico').addEventListener('click', event => {
     if(divGraficos.classList.contains('hidden')) divGraficos.classList.toggle('hidden')
     const cabecalho = montaCabecalhoTabela(["Data", "Valorização", "Resultado"])
-    const dados_ = dados.rendimento.dias.reduce((acc, curr) => {
+    const dados_ = dados.dias.reduce((acc, curr) => {
         const {data, valorizacao, resultado_com_valorizacao} = curr
         acc.push([data, formatarValorMonetario(valorizacao), formatarValorMonetario(resultado_com_valorizacao)])
         return acc
@@ -88,13 +89,39 @@ document.getElementById('dias-grafico').addEventListener('click', event => {
             </table>
         </div>
     `
-    infoPeriodo.innerHTML = gerarResultadoInfo(dados.rendimento)
+    infoPeriodo.innerHTML = gerarResultadoInfo(dados)
+    new Chart(document.getElementById('chartjs'), {
+        type: 'line',
+        data: {
+            labels: dados.dias.map(dia => dia.data),
+            datasets: [
+                {
+                    label: 'Valorização diaria',
+                    data: dados.dias.map(dia => dia.valorizacao),
+                    borderWidth: 1
+                },
+                {
+                    label: 'Resultado',
+                    data: dados.dias.map(dia => dia.resultado_com_valorizacao),
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    montarGrafico("chartjs", dados.dias.map(item => item.valorizacao), dados.dias.map(dia => dia.data));
     document.getElementById('resultadoGrafico').innerHTML = tabela
 })
 document.getElementById('meses-grafico').addEventListener('click', event => {
     if(divGraficos.classList.contains('hidden')) divGraficos.classList.toggle('hidden')
     const cabecalho = montaCabecalhoTabela(["Data", "Valorização", "Resultado"])
-    const dados_ = dados.rendimento.meses.reduce((acc, curr) => {
+    const dados_ = dados.meses.reduce((acc, curr) => {
         const {data_inicial, data_final, valorizacao, resultado_com_valorizacao} = curr
         acc.push([`${data_inicial} - ${data_final}`, formatarValorMonetario(valorizacao), formatarValorMonetario(resultado_com_valorizacao)])
         return acc
@@ -112,15 +139,38 @@ document.getElementById('meses-grafico').addEventListener('click', event => {
             </table>
         </div>
     `
-
-    infoPeriodo.innerHTML = gerarResultadoInfo(dados.rendimento)
-    document.getElementById("grafico-teste").innerHTML = dados.graficos.MesesValorizacoes
+    new Chart(document.getElementById('chartjs'), {
+        type: 'line',
+        data: {
+            labels: dados.meses.map(mes => mes.data_final),
+            datasets: [
+                {
+                    label: 'Valorização',
+                    data: dados.meses.map(mes => mes.valorizacao),
+                    borderWidth: 1
+                },
+                {
+                    label: 'Resultado',
+                    data: dados.meses.map(mes => mes.resultado_com_valorizacao),
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    infoPeriodo.innerHTML = gerarResultadoInfo(dados)
     document.getElementById('resultadoGrafico').innerHTML = tabela
 })
 document.getElementById('semestres-grafico').addEventListener('click', event => {
     if(divGraficos.classList.contains('hidden')) divGraficos.classList.toggle('hidden')
     const cabecalho = montaCabecalhoTabela(["Data", "gasto", "Valorização", "Resultado"])
-    const dados_ = dados.rendimento.semestres.reduce((acc, curr) => {
+    const dados_ = dados.semestres.reduce((acc, curr) => {
         const {data_inicial, data_final, valorizacao, resultado_com_valorizacao, gasto} = curr
         acc.push([`${data_inicial} - ${data_final}`, formatarValorMonetario(gasto),formatarValorMonetario(valorizacao), formatarValorMonetario(resultado_com_valorizacao)])
         return acc
@@ -138,13 +188,38 @@ document.getElementById('semestres-grafico').addEventListener('click', event => 
             </table>
         </div>
     `
-    infoPeriodo.innerHTML = gerarResultadoInfo(dados.rendimento)
+    new Chart(document.getElementById('chartjs'), {
+        type: 'line',
+        data: {
+            labels: dados.semestres.map(semestre => semestre.data_final),
+            datasets: [
+                {
+                    label: 'Valorização',
+                    data: dados.semestres.map(semestre => semestre.valorizacao),
+                    borderWidth: 1
+                },
+                {
+                    label: 'Resultado',
+                    data: dados.semestres.map(semestre => semestre.resultado_com_valorizacao),
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    infoPeriodo.innerHTML = gerarResultadoInfo(dados)
     document.getElementById('resultadoGrafico').innerHTML = tabela
 })
 document.getElementById('anos-grafico').addEventListener('click', event => {
     if(divGraficos.classList.contains('hidden')) divGraficos.classList.toggle('hidden')
     const cabecalho = montaCabecalhoTabela(["Data", "gasto", "Valorização", "Resultado"])
-    const dados_ = dados.rendimento.anos.reduce((acc, curr) => {
+    const dados_ = dados.anos.reduce((acc, curr) => {
         const {data_inicial, data_final, valorizacao, resultado_com_valorizacao, gasto} = curr
         acc.push([`${data_inicial} - ${data_final}`, formatarValorMonetario(gasto),formatarValorMonetario(valorizacao), formatarValorMonetario(resultado_com_valorizacao)])
         return acc
@@ -162,7 +237,7 @@ document.getElementById('anos-grafico').addEventListener('click', event => {
             </table>
         </div>
     `
-    infoPeriodo.innerHTML = gerarResultadoInfo(dados.rendimento)
+    infoPeriodo.innerHTML = gerarResultadoInfo(dados)
     document.getElementById('resultadoGrafico').innerHTML = tabela
 })
 document.getElementById('fecharGrafico').addEventListener('click', event => {

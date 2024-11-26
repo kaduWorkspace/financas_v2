@@ -6,37 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title></title>
         <link href="public/css/main.css" rel="stylesheet">
+        <link href="public/css/financas.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
-    <style>
-html {
-    box-sizing: border-box;
-}
-/* Estilo da barra de rolagem */
-::-webkit-scrollbar {
-  width: 8px; /* Largura da barra vertical */
-  height: 8px; /* Altura da barra horizontal */
-}
-
-/* Estilo do fundo da barra de rolagem */
-::-webkit-scrollbar-track {
-  background: #f0f0f0; /* Cor de fundo */
-  border-radius: 4px; /* Cantos arredondados */
-}
-
-/* Estilo da parte que se move (polegar) */
-::-webkit-scrollbar-thumb {
-  background: #888; /* Cor do polegar */
-  border-radius: 4px; /* Cantos arredondados */
-}
-
-/* Estilo ao passar o mouse sobre o polegar */
-::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Cor mais escura ao hover */
-}
-.max-height-tabela {
-    max-height: 500px
-}
-    </style>
     <body class="bg-pretoTransparente" >
         <div class="flex flex-col text-white justify-center items-center p-4">
             <div class="flex flex-col w-5/6 h-2/4 justify-around items-center rounded-appMajor p-4 border-azul border">
@@ -93,6 +65,9 @@ html {
 
                         </div>
                         <h1 class="text-4xl">Gráfico</h1>
+                        <div class="flex w-2/3">
+                            <canvas id="chartjs"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
