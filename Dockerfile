@@ -1,30 +1,27 @@
-# Use uma imagem base oficial do Golang para construir o projeto
-FROM golang:1.20 AS builder
+FROM golang:alpine AS builder
 
-# Defina o diretório de trabalho dentro do container
-WORKDIR /app
+ENV GO111MODULE=on \
+    CGO_ENABLED=0  \
+    GOARCH="amd64" \
+    GOOS=linux
 
-# Copie o código do projeto para o diretório de trabalho
+WORKDIR /build
 COPY . .
+COPY privkey.pem /etc/certificates/
+COPY fullchain.pem /etc/certificates/
 
-# Baixe as dependências do projeto (módulos Go)
 RUN go mod tidy
+RUN go build --ldflags "-extldflags -static" -o main .
 
-# Compile o projeto
-RUN go build -o meu-aplicativo
+FROM alpine:latest
 
-# Segunda etapa: criar uma imagem final menor para execução
-FROM debian:bullseye-slim
+WORKDIR /www
 
-# Defina o diretório de trabalho da imagem final
-WORKDIR /app
+COPY --from=builder /build/main /www/
+COPY --from=builder /build/database/ /www/database/
+COPY --from=builder /build/public/ /www/public/
+COPY --from=builder /build/storage/ /www/storage/
+COPY --from=builder /build/resources/ /www/resources/
+COPY --from=builder /build/.env /www/.env
 
-# Copie o binário compilado da etapa anterior
-COPY --from=builder /app/meu-aplicativo .
-
-# Expõe a porta onde o servidor vai rodar (substitua pela porta correta, ex: 8080)
-EXPOSE 3000
-
-# Comando para rodar o aplicativo
-CMD ["./goravel"]
-
+ENTRYPOINT ["/www/main"]
