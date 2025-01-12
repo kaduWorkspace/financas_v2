@@ -21,7 +21,7 @@ func main() {
     facades.Route().Static("/public", "./public")
 	// Start http server by facades.Route().
 	go func() {
-		if err := facades.Route().Run(); err != nil {
+		if err := facades.Route().RunTLSWithCert("127.0.0.1", "fullchain.pem", "privkey.pem"); err != nil {
 			facades.Log().Errorf("Route Run error: %v", err)
 		}
 	}()
