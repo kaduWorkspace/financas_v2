@@ -47,9 +47,5 @@ func (_ *FinancasController) Calcular(ctx http.Context) http.Response {
     rendimento.SetMeses()
     rendimento.SetDias()
     rendimento.SetSemestres()
-    if err := rendimento.Plot("mes"); err != nil {
-        println(err.Error())
-    }
-    rendimento.Chart()
     return ctx.Response().Success().Json(rendimento)
 }
