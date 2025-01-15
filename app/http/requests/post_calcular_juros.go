@@ -45,6 +45,9 @@ func (r *PostCalcularJuros) ValidarData() error {
     if timeFinal.Before(timeInicial) {
         return errors.New("Data inicial deve ser menor do que data final!")
     }
+    if (timeFinal.Year() - timeInicial.Year()) > 10 {
+        return errors.New("Limite de 10 anos excedido")
+    }
 	return nil
 }
 
