@@ -1,6 +1,4 @@
-import {dados} from './dados.js'
 import { montarGrafico } from './grafico.js'
-console.log({dados})
 const divGraficos = document.getElementById('grafico')
 const wrapperMain = document.getElementById("wrapperGraficos")
 const tipoAumentoFrequenciaInput = document.getElementById('tipo-aumento-frequencia')
@@ -26,7 +24,9 @@ tipoAumentoFrequenciaInput.addEventListener('input', event => {
 //let dados = [];
 const calcular = async ({valor_inicial, tipo_frequencia_aumento_aporte, aporte_mensal, aporte_semestral, data_final, tipo_frequencia_aporte, valor_aumento_aporte}) => {
     let dataIni = new Date()
-    const data_inicial = `${dataIni.getDate()}/${dataIni.getMonth() + 1}/${dataIni.getFullYear()}`
+    let mes = dataIni.getMonth() + 1;
+    mes = mes > 9 ? mes : `0${mes}`
+    const data_inicial = `${dataIni.getDate()}/${mes}/${dataIni.getFullYear()}`
     const body = {
         valor_inicial,
         aporte_mensal,
@@ -55,9 +55,8 @@ const buscarValoresInput = () => {
     }, {})
 }
 document.getElementById('calcular').addEventListener('click', async event => {
-//    dados = await calcular(buscarValoresInput())
+    const dados = await calcular(buscarValoresInput())
     if(!dados) {
-        //dados = [];
         return;
     }
     infoGeral.innerHTML = gerarResultadoInfo(dados)
