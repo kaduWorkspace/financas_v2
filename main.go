@@ -21,9 +21,16 @@ func main() {
     facades.Route().Static("/public", "./public")
 	// Start http server by facades.Route().
 	go func() {
-        if err := facades.Route().RunTLSWithCert("0.0.0.0:3000","/etc/certificates/fullchain.pem", "/etc/certificates/privkey.pem"); err != nil {
-			facades.Log().Errorf("Route Run error: %v", err)
-		}
+        enviroment := facades.Config().Env("APP_ENV")
+        if(enviroment == "prod") {
+            if err := facades.Route().RunTLSWithCert("0.0.0.0:3000","/etc/certificates/fullchain.pem", "/etc/certificates/privkey.pem"); err != nil {
+                facades.Log().Errorf("Route Run error: %v", err)
+            }
+        } else {
+            if err := facades.Route().Run("0.0.0.0:3000"); err != nil {
+                facades.Log().Errorf("Route Run error: %v", err)
+            }
+        }
 	}()
 
 	// Listen for the OS signal
