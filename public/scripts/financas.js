@@ -5,6 +5,7 @@ const tipoAumentoFrequenciaInput = document.getElementById('tipo-aumento-frequen
 const valorAumentoAporte = document.getElementById('valor_aumento_aporte')
 const infoPeriodo = document.getElementById('resultadoGeralInfoPeriodo')
 const infoGeral = document.getElementById('resultadoGeralInfo')
+let dados = []
 function formatarData(data) {
     if (!(data instanceof Date)) {
         data = new Date(data);
@@ -21,7 +22,6 @@ tipoAumentoFrequenciaInput.addEventListener('input', event => {
     }
     else valorAumentoAporte.classList.remove('hidden')
 })
-//let dados = [];
 const calcular = async ({valor_inicial, tipo_frequencia_aumento_aporte, aporte_mensal, aporte_semestral, data_final, tipo_frequencia_aporte, valor_aumento_aporte}) => {
     let dataIni = new Date()
     let mes = dataIni.getMonth() + 1;
@@ -55,7 +55,7 @@ const buscarValoresInput = () => {
     }, {})
 }
 document.getElementById('calcular').addEventListener('click', async event => {
-    const dados = await calcular(buscarValoresInput())
+    dados = await calcular(buscarValoresInput())
     if(!dados) {
         return;
     }
