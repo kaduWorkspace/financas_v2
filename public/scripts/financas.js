@@ -3,9 +3,11 @@ const divGraficos = document.getElementById('grafico')
 const wrapperMain = document.getElementById("wrapperGraficos")
 const tipoAumentoFrequenciaInput = document.getElementById('tipo-aumento-frequencia')
 const valorAumentoAporte = document.getElementById('valor_aumento_aporte')
+const valorAumentoAporteWrapper = document.getElementById('valor_aumento_aporte_wrapper')
 const infoPeriodo = document.getElementById('resultadoGeralInfoPeriodo')
 const infoGeral = document.getElementById('resultadoGeralInfo')
-import {dados} from "./dados.js"
+//import {dados} from "./dados.js"
+let dados = []
 function formatarData(data) {
     if (!(data instanceof Date)) {
         data = new Date(data);
@@ -17,10 +19,10 @@ function formatarData(data) {
 }
 tipoAumentoFrequenciaInput.addEventListener('input', event => {
     if(tipoAumentoFrequenciaInput.value == "false") {
-        valorAumentoAporte.classList.add('hidden')
+        valorAumentoAporteWrapper.classList.add('hidden')
         valorAumentoAporte.value = ""
     }
-    else valorAumentoAporte.classList.remove('hidden')
+    else valorAumentoAporteWrapper.classList.remove('hidden')
 })
 const calcular = async ({valor_inicial, tipo_frequencia_aumento_aporte, aporte_mensal, aporte_semestral, data_final, tipo_frequencia_aporte, valor_aumento_aporte}) => {
     let dataIni = new Date()
@@ -55,10 +57,11 @@ const buscarValoresInput = () => {
     }, {})
 }
 document.getElementById('calcular').addEventListener('click', async event => {
-    /*dados = await calcular(buscarValoresInput())
+    dados = await calcular(buscarValoresInput())
+    console.log({dados})
     if(!dados) {
         return;
-    }*/
+    }
     infoGeral.innerHTML = gerarResultadoInfo(dados)
     if(wrapperMain.classList.contains('hidden')) wrapperMain.classList.toggle('hidden')
 })
@@ -67,6 +70,7 @@ const cabecalhoTabela = titulo => `<th scope="col" class="px-6 py-3">${titulo}</
 const montaCabecalhoTabela = titulos => `<tr>${titulos.map(cabecalhoTabela).join('')}</tr>`
 const montaItemLinha = dado => `<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${dado}</th>`
 const montaLinhaTabela = (dados) => `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">${dados.map(montaItemLinha).join('')}</tr>`
+/*
 document.getElementById('dias-grafico').addEventListener('click', event => {
     if(divGraficos.classList.contains('hidden')) divGraficos.classList.toggle('hidden')
     const cabecalho = montaCabecalhoTabela(["Data", "Valorização", "Resultado"])
@@ -242,6 +246,7 @@ document.getElementById('anos-grafico').addEventListener('click', event => {
 document.getElementById('fecharGrafico').addEventListener('click', event => {
     if(!divGraficos.classList.contains('hidden')) divGraficos.classList.toggle('hidden')
 })
+*/
 function gerarResultadoInfo(dados) {
     return `
     <!-- Responsivo e mais bonito -->
