@@ -5,7 +5,7 @@ const tipoAumentoFrequenciaInput = document.getElementById('tipo-aumento-frequen
 const valorAumentoAporte = document.getElementById('valor_aumento_aporte')
 const infoPeriodo = document.getElementById('resultadoGeralInfoPeriodo')
 const infoGeral = document.getElementById('resultadoGeralInfo')
-let dados = []
+import {dados} from "./dados.js"
 function formatarData(data) {
     if (!(data instanceof Date)) {
         data = new Date(data);
@@ -55,10 +55,10 @@ const buscarValoresInput = () => {
     }, {})
 }
 document.getElementById('calcular').addEventListener('click', async event => {
-    dados = await calcular(buscarValoresInput())
+    /*dados = await calcular(buscarValoresInput())
     if(!dados) {
         return;
-    }
+    }*/
     infoGeral.innerHTML = gerarResultadoInfo(dados)
     if(wrapperMain.classList.contains('hidden')) wrapperMain.classList.toggle('hidden')
 })
@@ -244,34 +244,38 @@ document.getElementById('fecharGrafico').addEventListener('click', event => {
 })
 function gerarResultadoInfo(dados) {
     return `
-    <div id="resultadoGeralInfoPeriodo" class="flex w-full justify-around">
-        <div class="flex flex-col">
-            <span>Valorizacao:</span>
-            <span>Gasto:</span>
-            <span>Diferença:</span>
-            <span>Valor inicial:</span>
-            <span>Valor final:</span>
-        </div>
-        <div class="flex flex-col">
-            <div class="flex justify-between">
-                <span>${formatarValorMonetario(dados.valorizacao)}</span>
-                <img class="w-6 h-6" src="public/images/icons8-up-64.png" alt="">
+    <!-- Responsivo e mais bonito -->
+    <div id="resultadoGeralInfoPeriodo" class="flex w-full justify-center p-4">
+        <div class="grid gap-4 p-4 rounded-lg w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+            <!-- Card 1 -->
+            <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="Valorização">
+                <span class="text-white text-lg font-semibold">${formatarValorMonetario(dados.valorizacao)}</span>
+                <span class="text-gray-400 text-sm">Valorização</span>
             </div>
-            <div class="flex justify-between">
-                <span>${formatarValorMonetario(dados.gastos)}</span>
-                <img class="w-6 h-6" src="public/images/icons8-money-with-wings-48.png" alt="">
+            <!-- Card 2 -->
+            <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                <img class="w-8 h-8 mb-2" src="public/images/icons8-money-with-wings-48.png" alt="Investido">
+                <span class="text-white text-lg font-semibold">${formatarValorMonetario(dados.gastos)}</span>
+                <span class="text-gray-400 text-sm">Investido</span>
             </div>
-            <div class="flex justify-between">
-                <span>${formatarValorMonetario(dados.diferenca)}</span>
-                <img class="w-6 h-6" src="public/images/icons8-plus-48.png" alt="">
+            <!-- Card 3 -->
+            <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                <img class="w-8 h-8 mb-2" src="public/images/icons8-plus-48.png" alt="Lucro">
+                <span class="text-white text-lg font-semibold">${formatarValorMonetario(dados.diferenca)}</span>
+                <span class="text-gray-400 text-sm">Lucro</span>
             </div>
-            <div class="flex justify-between">
-                <span>${formatarValorMonetario(dados.valor_inicial)}</span>
-                <img class="w-6 h-6" src="public/images/icons8-race-flag-64.png" alt="">
+            <!-- Card 4 -->
+            <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                <img class="w-8 h-8 mb-2" src="public/images/icons8-race-flag-64.png" alt="Valor inicial">
+                <span class="text-white text-lg font-semibold">${formatarValorMonetario(dados.valor_inicial)}</span>
+                <span class="text-gray-400 text-sm">Valor inicial</span>
             </div>
-            <div class="flex justify-between">
-                <span>${formatarValorMonetario(dados.valor_final)}</span>
-                <img class="w-6 h-6" src="public/images/icons8-money-48.png" alt="">
+            <!-- Resultado -->
+            <div class="flex flex-col items-center bg-green-700 p-6 rounded-md col-span-1 sm:col-span-2 md:col-span-4 animate-fade-in">
+                <img class="w-10 h-10 mb-3" src="public/images/icons8-money-48.png" alt="Valor final">
+                <span class="text-white text-2xl font-bold">${formatarValorMonetario(dados.valor_final)}</span>
+                <span class="text-white text-lg">Valor final</span>
             </div>
         </div>
     </div>

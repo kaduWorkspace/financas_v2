@@ -8,44 +8,133 @@
         <link href="public/css/main.css" rel="stylesheet">
         <link href="public/css/financas.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+    .animate-fade-in {
+        animation: fade-in 1s ease-in-out forwards;
+    }
+        </style>
     </head>
     <body class="bg-pretoTransparente" >
         <div class="flex flex-col text-white justify-center items-center p-4">
-            <div class="flex flex-col w-5/6 h-2/4 justify-around items-center rounded-appMajor p-4 border-azul border">
-                <h1 class="text-4xl p-2 text-azul">Simule o seu CDB!</h1>
+            <div class="flex flex-col w-5/6 h-2/4 justify-around items-center rounded-appMajor p-4">
+
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-4">
+                        <img src="public/images/icons8-money-48.png" alt="Ícone" class="w-10 h-10 mr-3">
+                        <h1 class="text-3xl font-bold text-gray-300 drop-shadow-md opacity-0 transform scale-90 animate-fade-in">
+                            Simule o seu CDB!
+                        </h1>
+                    </div>
+                </div>
+
                 <div class="flex flex-col w-full items-center">
                     <div class="flex flex-col sm:flex-row w-5/6 justify-center">
-                        <input type="number" name="valor_inicial" class="m-1 sm:w-2/4 w-full bg-neutral-900 rounded-app my-1 p-3" placeholder="R$ Valor inicial" value="">
-                        <input type="number" name="aporte_mensal" class="sm:w-2/4 w-full bg-neutral-900 rounded-app my-1 p-3" placeholder="R$ Aporte mensal" value="">
+                        <input type="number" name="valor_inicial" class="m-1 sm:w-2/4 w-full bg-neutral-900 rounded-lg shadow-md my-1 p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300" placeholder="R$ Valor inicial" value="">
+                        <input type="number" name="aporte_mensal" class="m-1 sm:w-2/4 w-full bg-neutral-900 rounded-lg shadow-md my-1 p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300" placeholder="R$ Aporte mensal" value="">
                     </div>
                     <div class="flex flex-col sm:flex-row w-5/6 justify-center">
-                        <input type="number" name="aporte_semestral" class="m-1 sm:w-2/4 w-full bg-neutral-900 rounded-app my-1 p-3" placeholder="R$ Aporte Semestral" value="">
-                        <input type="date" name="data_final" class="sm:w-2/4 w-full bg-neutral-900 rounded-app my-1 p-3" placeholder="Data final" value="">
+                        <input type="number" name="aporte_semestral" class="m-1 sm:w-2/4 w-full bg-neutral-900 rounded-lg shadow-md my-1 p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300" placeholder="R$ Aporte Semestral" value="">
+                        <input type="date" name="data_final" class="m-1 sm:w-2/4 w-full bg-neutral-900 rounded-lg shadow-md my-1 p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300" placeholder="Data final" value="">
                     </div>
-                    <select name="tipo_frequencia_aumento_aporte" id="tipo-aumento-frequencia" class="w-5/6 bg-neutral-900 rounded-app my-1 p-3" placeholder="Tipo frequência" value="">
+                    <select name="tipo_frequencia_aumento_aporte" id="tipo-aumento-frequencia" class="w-5/6 bg-neutral-900 rounded-lg shadow-md my-1 p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
                         <option value="false">Sem aumento</option>
                         <option value="semestral">Semestral</option>
                         <option value="anual">Anual</option>
                     </select>
-                    <input id="valor_aumento_aporte" type="number" name="valor_aumento_aporte" class="hidden w-5/6 bg-neutral-900 rounded-app my-1 p-3" placeholder="R$ Valor aumento aporte" value="">
+                    <input id="valor_aumento_aporte" type="number" name="valor_aumento_aporte" class="hidden w-5/6 bg-neutral-900 rounded-lg shadow-md my-1 p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300" placeholder="R$ Valor aumento aporte" value="">
                 </div>
-                <div class="w-full flex items-center justify-center">
-                    <button id="calcular" class="rounded-appMinor w-5/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Calcular</button>
-                </div>
+                <button id="calcular" type="submit" class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />
+                    </svg>
+                    Calcular
+                </button>
             </div>
 
             <div id="wrapperGraficos" class="flex flex-col hidden justify-center items-center w-5/6">
                 <div class="flex flex-col">
-                    <h1 class="text-4xl p-2 text-azul">Resultado geral</h1>
+                    <div class="flex flex-col items-center">
+                        <h2 class="text-2xl font-semibold text-gray-300">Resultado geral</h2>
+                        <div class="w-16 h-0.5 bg-gray-500 mt-2"></div>
+                    </div>
                     <div id="resultadoGeralInfo" class="flex w-full justify-around">
+                        <!-- ESTA DIV ABAIXO DEVE SER APAGADA POIS É GERADA NA REQUISICAO -->
+                        <!-- Responsivo e mais bonito
+                        <div id="resultadoGeralInfoPeriodo" class="flex w-full justify-center p-4">
+                            <div class="grid gap-4 p-4 rounded-lg w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                                <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                    <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="Valorização">
+                                    <span class="text-white text-lg font-semibold">R$ 9.882,80</span>
+                                    <span class="text-gray-400 text-sm">Valorização</span>
+                                </div>
+                                <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                    <img class="w-8 h-8 mb-2" src="public/images/icons8-money-with-wings-48.png" alt="Investido">
+                                    <span class="text-white text-lg font-semibold">R$ 37.100,00</span>
+                                    <span class="text-gray-400 text-sm">Investido</span>
+                                </div>
+                                <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                    <img class="w-8 h-8 mb-2" src="public/images/icons8-plus-48.png" alt="Lucro">
+                                    <span class="text-white text-lg font-semibold">R$ 18.732,80</span>
+                                    <span class="text-gray-400 text-sm">Lucro</span>
+                                </div>
+                                <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                    <img class="w-8 h-8 mb-2" src="public/images/icons8-race-flag-64.png" alt="Valor inicial">
+                                    <span class="text-white text-lg font-semibold">R$ 8.350,00</span>
+                                    <span class="text-gray-400 text-sm">Valor inicial</span>
+                                </div>
+                                <div class="flex flex-col items-center bg-green-700 p-6 rounded-md col-span-1 sm:col-span-2 md:col-span-4 animate-fade-in">
+                                    <img class="w-10 h-10 mb-3" src="public/images/icons8-money-48.png" alt="Valor final">
+                                    <span class="text-white text-2xl font-bold">R$ 55.832,80</span>
+                                    <span class="text-white text-lg">Valor final</span>
+                                </div>
+                            </div>
+                        </div>
+                        ESTA DIV ACIMA DEVE SER APAGADA POIS É GERADA NA REQUISICAO -->
                     </div>
                 </div>
-                <button id="dias-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de dias</button>
-                <button id="meses-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de meses</button>
-                <button id="semestres-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de semestres</button>
-                <button id="anos-grafico" class="rounded-appMinor w-3/6 mx-1 bg-azul my-1 text-white p-3" type="submit">Gráfico de anos</button>
 
-                <div id="grafico" class="absolute top-0 hidden bg-preto w-screen overflow-x-auto h-screen">
+                <!--<button id="dias-grafico" type="submit"
+                    class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300 animate-fade-in">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />
+                   </svg>
+                    Gráfico de dias
+                </button>
+                <button id="meses-grafico" type="submit"
+                    class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300 animate-fade-in">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />
+                    </svg>
+                    Gráfico de meses
+                </button>
+                <button id="semestres-grafico" type="submit"
+                    class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300 animate-fade-in">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />
+                    </svg>
+                    Gráfico de semestres
+                </button>
+                <button id="anos-grafico" type="submit"
+                    class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300 animate-fade-in">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />
+                    </svg>
+                    Gráfico de anos
+                </button>-->
+
+
+                <div id="grafico" class="absolute top-0 bg-preto hidden w-screen overflow-x-auto h-screen">
                     <div class="flex w-full flex-col items-center h-screen">
                         <div class="flex w-full justify-end p-3">
                             <!--<div id="fecharGrafico" class="w-fit cursor-pointer">-->
@@ -55,29 +144,29 @@
                                     <line x1="90" y1="10" x2="10" y2="90" stroke="white" stroke-width="10" />
                                 </svg>
                             </div>
-                        </div>
-                        <div id="resultadoGeral" class="flex flex-col">
-                            <h1 class="text-4xl">Resultado geral</h1>
-                            <div id="resultadoGeralInfoPeriodo" class="flex w-full justify-around">
                             </div>
-                        </div>
-                        <h1 class="text-4xl">Tabela</h1>
-                        <div class="flex w-full max-height-tabela flex-col items-center" id="resultadoGrafico">
+                            <div id="resultadoGeral" class="flex flex-col">
+                                <h1 class="text-4xl">Resultado geral</h1>
+                                <div id="resultadoGeralInfoPeriodo" class="flex w-full justify-around">
+                                </div>
+                            </div>
+                            <h1 class="text-4xl">Tabela</h1>
+                            <div class="flex w-full max-height-tabela flex-col items-center" id="resultadoGrafico">
 
-                        </div>
-                        <h1 class="text-4xl">Gráfico</h1>
-                        <div class="flex w-2/3">
-                            <canvas id="chartjs"></canvas>
+                            </div>
+                            <h1 class="text-4xl">Gráfico</h1>
+                            <div class="flex w-2/3">
+                                <canvas id="chartjs"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <script>
+            <script>
 
-        </script>
-        <script src="public/scripts/dados.js" type="module"></script>
-        <script src="public/scripts/financas.js" type="module"></script>
+            </script>
+            <script src="public/scripts/dados.js" type="module"></script>
+            <script src="public/scripts/financas.js" type="module"></script>
     </body>
 </html>
 {{ end }}
