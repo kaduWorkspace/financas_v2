@@ -56,7 +56,7 @@ func (r *PostCalcularJuros) Rules(ctx http.Context) map[string]string {
         "valor_inicial":            "numeric",
         "data_inicial":             "required|string",
         "data_final":               "required|string",
-        "aporte_mensal":            "required|numeric",
+        "aporte_mensal":            "numeric",
         "aporte_semestral":         "numeric",
         "tipo_frequencia_aumento_aporte":   "string|in:semestral,anual",
         "valor_aumento_aporte":     "numeric",
