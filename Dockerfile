@@ -14,8 +14,6 @@ RUN go build --ldflags "-extldflags -static" -o main .
 FROM alpine:latest
 
 WORKDIR /www
-COPY privkey.pem /etc/certificates/privkey.pem
-COPY fullchain.pem /etc/certificates/fullchain.pem
 
 COPY --from=builder /build/main /www/
 COPY --from=builder /build/database/ /www/database/
