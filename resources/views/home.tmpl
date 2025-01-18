@@ -1,0 +1,19 @@
+{{ define "home.tmpl" }}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Home</title>
+        <link href="public/css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form action="/login" method="POST">
+            <input required type="text" name="username" placeholder="Username" value="">
+            <input required type="password" name="password" placeholder="Password" value="">
+            <button type="submit">Logar</button>
+        </form>
+    </body>
+</html>
+{{ end }}
