@@ -39,7 +39,6 @@
                 </div>
 
                 <div class="flex flex-col w-full items-center">
-                    <!-- Linha 1 -->
                     <div class="flex flex-col sm:flex-row w-5/6 justify-center">
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
                             <label for="valor_inicial" class="text-gray-400 text-sm mb-1">
@@ -48,8 +47,8 @@
                             </label>
                             <input id="valor_inicial" type="number" name="valor_inicial"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            placeholder="Insira o valor"
-                            value="">
+                            placeholder="Insira o valor" value="0">
+                            <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_inicial"></span>
                         </div>
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
                             <label for="aporte_mensal" class="text-gray-400 text-sm mb-1">
@@ -58,11 +57,10 @@
                             </label>
                             <input id="aporte_mensal" type="number" name="aporte_mensal"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            placeholder="Insira o valor"
-                            value="">
+                            placeholder="Insira o valor" value="0">
+                            <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_mensal"></span>
                         </div>
                     </div>
-                    <!-- Linha 2 -->
                     <div class="flex flex-col sm:flex-row w-5/6 justify-center">
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
                             <label for="aporte_semestral" class="text-gray-400 text-sm mb-1">
@@ -72,7 +70,8 @@
                             <input id="aporte_semestral" type="number" name="aporte_semestral"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                             placeholder="Insira o valor"
-                            value="">
+                            value="0">
+                            <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_semestral"></span>
                         </div>
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
                             <label for="data_final" class="text-gray-400 text-sm mb-1">
@@ -82,14 +81,14 @@
                             <input id="data_final" type="date" name="data_final"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                             value="">
+                            <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final"></span>
                         </div>
                     </div>
-                    <!-- Linha 3 -->
                     <div class="flex flex-col m-1 w-5/6">
-                        <label for="tipo-aumento-frequencia" class="text-gray-400 text-sm mb-1">
+                        <label for="tipo_aumento_frequencia" class="text-gray-400 text-sm mb-1">
                             Tipo de Frequência de Aumento do Aporte
                         </label>
-                        <select name="tipo_frequencia_aumento_aporte" id="tipo-aumento-frequencia"
+                        <select name="tipo_frequencia_aumento_aporte" id="tipo_aumento_frequencia"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
                             <option value="false">Sem aumento</option>
                             <option value="semestral">Semestral</option>
@@ -104,9 +103,11 @@
                         <input id="valor_aumento_aporte" type="number" name="valor_aumento_aporte"
                         class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                         placeholder="Insira o valor"
-                        value="">
+                        value="0">
+                        <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aumento_aporte"></span>
                     </div>
                 </div>
+
                 <button id="calcular" type="submit" class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />

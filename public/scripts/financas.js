@@ -1,13 +1,14 @@
+const STAGE = "DEV"
+import {dadosDev} from "./dados.js"
+let dados = [];
 import { montarGrafico } from './grafico.js'
 const divGraficos = document.getElementById('grafico')
 const wrapperMain = document.getElementById("wrapperGraficos")
-const tipoAumentoFrequenciaInput = document.getElementById('tipo-aumento-frequencia')
+const tipoAumentoFrequenciaInput = document.getElementById('tipo_aumento_frequencia')
 const valorAumentoAporte = document.getElementById('valor_aumento_aporte')
 const valorAumentoAporteWrapper = document.getElementById('valor_aumento_aporte_wrapper')
 const infoPeriodo = document.getElementById('resultadoGeralInfoPeriodo')
 const infoGeral = document.getElementById('resultadoGeralInfo')
-//import {dados} from "./dados.js"
-let dados = []
 function formatarData(data) {
     if (!(data instanceof Date)) {
         data = new Date(data);
@@ -38,6 +39,7 @@ const calcular = async ({valor_inicial, tipo_frequencia_aumento_aporte, aporte_m
         valor_aumento_aporte,
         data_inicial
     }
+
     if(tipo_frequencia_aumento_aporte && tipo_frequencia_aumento_aporte != "false") body['tipo_frequencia_aumento_aporte'] = tipo_frequencia_aumento_aporte
     const request = await fetch('/calcular-juros', {
         method: "POST",
@@ -47,6 +49,22 @@ const calcular = async ({valor_inicial, tipo_frequencia_aumento_aporte, aporte_m
     const res = await request.json();
     return request.status == 200 ? res : null;
 }
+const inputsPossiveis = [...document.getElementsByTagName('input'),...document.getElementsByTagName('select')]
+inputsPossiveis.forEach(item => {
+    item.addEventListener('input', event => {
+        const errorSpan = document.getElementById(`error_${item.id}`)
+        console.log(event.target.value)
+        errorSpan.classList.add('hidden');
+        let validacao = validarValoresInputs(buscarValoresInput(), false);
+        if(!validacao) return;
+        const validacaoInput = validacao.find(valid => valid[0] == item.name);
+        console.log({validacaoInput, validacao})
+        if(!validacaoInput) return;
+        errorSpan.innerText = validacaoInput[1];
+        errorSpan.classList.remove('hidden')
+        return;
+    });
+})
 const buscarValoresInput = () => {
     return [
         ...document.getElementsByTagName('input'),
@@ -57,14 +75,38 @@ const buscarValoresInput = () => {
     }, {})
 }
 document.getElementById('calcular').addEventListener('click', async event => {
-    dados = await calcular(buscarValoresInput())
-    console.log({dados})
-    if(!dados) {
-        return;
+    const inputs = buscarValoresInput()
+    const validacoes = validarValoresInputs(inputs, true);
+    if(validacoes) {
+        validacoes.forEach(validacao => {
+            const errorSpan = document.getElementById(`error_${validacao[0]}`)
+            errorSpan.innerText = validacao[1];
+            errorSpan.classList.remove('hidden')
+        })
+        return
     }
+    dados = STAGE == "DEV"
+        ? await calcular(buscarValoresInput())
+        : dadosDev;
+    if(!dados) return;
     infoGeral.innerHTML = gerarResultadoInfo(dados)
     if(wrapperMain.classList.contains('hidden')) wrapperMain.classList.toggle('hidden')
 })
+const validarValoresInputs = (inputs, validarNull = false) => {
+    const {valor_inicial, aporte_mensal, aporte_semestral, data_final, tipo_frequencia_aporte, valor_aumento_aporte} = inputs
+    const erros = [];
+    if(valor_inicial < 0 || (validarNull && ["",null,false].includes(valor_inicial))) erros.push(["valor_inicial","Valor inicial inválido"]);
+    if(aporte_mensal < 0 || (validarNull && ["",null,false].includes(aporte_mensal))) erros.push( ["aporte_mensal","Aporte mensal inválido"]);
+    if(aporte_semestral < 0 || (validarNull && ["",null,false].includes(aporte_semestral))) erros.push( ["aporte_semestral","Aporte semestral inválido"]);
+    if(valor_aumento_aporte < 0 || (validarNull && ["",null,false].includes(valor_aumento_aporte))) erros.push( ["valor_aumento_aporte","Aumento inválido"]);
+
+    if(aporte_mensal > 1000000) erros.push(["aporte_mensal","Aporte mensal muito alto"]);
+    if(aporte_semestral > 1000000) erros.push(["aporte_semestral","Aporte semestral muito alto"]);
+    if(valor_aumento_aporte > 100000) erros.push(["valor_aumento_aporte","Aumento muito alto"]);
+
+    if(!data_final) erros.push(["data_final","Data final inválida"]);
+    return erros.length ? erros : false;
+}
 const formatarValorMonetario = (valor) => `${(Math.floor(valor*100)/100).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}`;
 const cabecalhoTabela = titulo => `<th scope="col" class="px-6 py-3">${titulo}</th>`;
 const montaCabecalhoTabela = titulos => `<tr>${titulos.map(cabecalhoTabela).join('')}</tr>`
