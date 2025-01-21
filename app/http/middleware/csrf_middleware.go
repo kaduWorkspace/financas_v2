@@ -10,11 +10,9 @@ import (
 func CsrfMiddleware() http.Middleware {
     app_key := fmt.Sprintf("%s",facades.Config().Env("APP_KEY"))
     csrgGorillaMiddleware := csrf.Protect([]byte(app_key), csrf.Secure(true))
-    facades.Log().Debug("Criando middleware")
 	return func(ctx http.Context) {
         handler := csrgGorillaMiddleware(net_http.HandlerFunc(func(w net_http.ResponseWriter, r *net_http.Request) {
 			token := csrf.Token(r)
-            facades.Log().Debug("Novo token gerado: ", token)
             ctx.Request().Headers().Add("X-CSRF-Token", token)
             ctx.Request().Next()
         }))

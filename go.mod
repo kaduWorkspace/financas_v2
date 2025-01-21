@@ -98,6 +98,8 @@ require (
 	github.com/gookit/goutil v0.6.15 // indirect
 	github.com/gookit/validate v1.5.2 // indirect
 	github.com/goravel/file-rotatelogs/v2 v2.4.2 // indirect
+	github.com/gorilla/csrf v1.7.2 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
