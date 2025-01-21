@@ -15,6 +15,27 @@ import (
 func FormataData(data time.Time) string {
     return data.Format("02/01/2006")
 }
+func FormatarValorMonetario(value float64) string {
+	str := strconv.FormatFloat(value, 'f', 2, 64)
+
+	str = strings.Replace(str, ".", ",", 1)
+
+	parts := strings.Split(str, ",")
+	intPart := parts[0]
+	decimalPart := parts[1]
+
+	var result string
+	count := 0
+	for i := len(intPart) - 1; i >= 0; i-- {
+		result = string(intPart[i]) + result
+		count++
+		if count%3 == 0 && i > 0 {
+			result = "." + result
+		}
+	}
+
+	return result + "," + decimalPart
+}
 func HttpRequest(url string, method string, headers map[string]string, body string) (string, error) {
 	// Define o método padrão como GET, caso nenhum seja passado
 	if method == "" {
