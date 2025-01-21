@@ -56,7 +56,7 @@
                     </ul>
                 </div>
                 {{ end  }}
-                <form action="/calcular" method="POST" class="flex flex-col w-full items-center">
+                <form action="/calcular" method="POST" id="formulario_calcular" class="flex flex-col w-full items-center">
                     <div class="flex flex-col sm:flex-row w-5/6 justify-center">
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
                             <label for="valor_inicial" class="text-gray-400 text-sm mb-1">
@@ -204,15 +204,8 @@
                     </div>
                 </div>
             </div>
-            {{ else }}
-
             {{ end }}
-
-            <script>
-
-            </script>
-            <script src="public/scripts/dados.js" type="module"></script>
-            <script src="public/scripts/financas.js" type="module"></script>
+            <script src="public/scripts/validarInputsFinancas.js" type="module"></script>
     </body>
 </html>
 {{ end }}
