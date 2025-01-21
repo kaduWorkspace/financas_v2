@@ -17,7 +17,6 @@ func main() {
 	// Create a channel to listen for OS signals
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
     facades.Route().Static("/public", "./public")
 	// Start http server by facades.Route().
 	go func() {
