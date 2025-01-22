@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./resources/views/**/*.{html,tmpl,js}"],
+  content: [
+      "./resources/views/**/*.{html,tmpl,js}",
+      "./public/scripts/**/*.js"
+  ],
   theme: {
     extend: {
         textShadow: {

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/goravel/framework/contracts/http"
-	"github.com/gorilla/csrf"
 )
 
 type FinancasController struct {
@@ -69,14 +68,21 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     rendimento.SetMeses()
     rendimento.SetDias()
     rendimento.SetSemestres()
+    rendimentoDadosJson, err := rendimento.ToJson()
+    if err != nil {
+        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
+            "panic": "Erro inexperado!",
+            "data_inicial": currentDate,
+        })
+    }
     return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
         "valorizacao": core.FormatarValorMonetario(rendimento.Valorizacao),
         "valor_investido": core.FormatarValorMonetario(rendimento.Gasto),
         "lucro": core.FormatarValorMonetario(rendimento.Diferenca),
         "valor_inicial": core.FormatarValorMonetario(rendimento.ValorInicial),
         "valor_final": core.FormatarValorMonetario(rendimento.ValorFinal),
-        csrf.TemplateTag: csrf.TemplateField(ctx.Request().Origin().WithContext(ctx)),
         "data_inicial": currentDate,
+        "dados_calculo": rendimentoDadosJson,
     })
 }
 

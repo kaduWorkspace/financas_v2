@@ -2,6 +2,7 @@ package financas
 
 import (
 	"bytes"
+	"encoding/json"
 	"goravel/app/core"
 	"goravel/app/http/requests"
 	"image/color"
@@ -178,6 +179,13 @@ type ResultadoSimulacao struct {
     Diferenca float64 `json:"diferenca"`
     DataInicial string `json:"data_inicial"`
     DataFinal string `json:"data_final"`
+}
+func (self *ResultadoSimulacao) ToJson() (string, error) {
+    jsonData, err := json.Marshal(self)
+    if err != nil {
+        return "", err
+    }
+    return string(jsonData), nil
 }
 func newResultadoSimulacao(dataInicial time.Time, dataFinal time.Time, valorInicial float64) ResultadoSimulacao {
     return ResultadoSimulacao {

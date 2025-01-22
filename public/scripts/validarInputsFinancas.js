@@ -2,7 +2,7 @@ const tipoAumentoFrequenciaInput = document.getElementById('tipo_aumento_frequen
 const valorAumentoAporte = document.getElementById('valor_aumento_aporte')
 const valorAumentoAporteWrapper = document.getElementById('valor_aumento_aporte_wrapper')
 const form = document.getElementById('formulario_calcular')
-const inputsPossiveis = [...document.getElementsByTagName('input'),...document.getElementsByTagName('select')]
+const inputsPossiveis = [...document.getElementsByTagName('input'),...document.getElementsByTagName('select')].filter(input => !input.dataset.ignore_input)
 const buscarValoresInput = () => {
     return inputsPossiveis.reduce((acc, item) => {
             acc[item.name] = item.type == 'number' ? parseInt(item.value) : item.value
