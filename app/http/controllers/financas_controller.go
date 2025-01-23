@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"goravel/app/core"
 	"goravel/app/core/modules/financas"
 	"goravel/app/http/requests"
@@ -27,65 +28,46 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     var postCalcularJuros requests.PostCalcularJuros
     errors, err := ctx.Request().ValidateRequest(&postCalcularJuros)
     currentDate := time.Now().Format("2006-01-02")
+    contexto_view := map[string]any{}
+    contexto_view["data_inicial"] = currentDate
     if err != nil {
-        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-            "panic": "Erro inexperado!",
-            "data_inicial": currentDate,
-        })
+        fmt.Println(err.Error())
+        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
     if errors != nil && len(errors.All()) > 0 {
-        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-            "erros_formulario": errors.All(),
-            "data_inicial": currentDate,
-        })
+        contexto_view["erros_formulario"] = errors.All()
+        return ctx.Response().View().Make("financas.v2.tmpl", contexto_view)
     }
     dateLayout := "2006-01-02"
     dataInicial, err := time.Parse(dateLayout, postCalcularJuros.DataInicial)
     if err != nil  {
-        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-            "panic": "Erro inexperado!",
-            "data_inicial": currentDate,
-        })
-
+        fmt.Println(err.Error())
+        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
     dataFinal, err := time.Parse(dateLayout, postCalcularJuros.DataFinal)
     if err != nil  {
-        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-            "panic": "Erro inexperado!",
-            "data_inicial": currentDate,
-        })
+        fmt.Println(err.Error())
+        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
     postCalcularJuros.DataInicial = dataInicial.Format("02/01/2006")
     postCalcularJuros.DataFinal = dataFinal.Format("02/01/2006")
     service, err := financas.New(postCalcularJuros)
     if err != nil {
-        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-            "panic": "Erro inexperado!",
-            "data_inicial": currentDate,
-        })
+        fmt.Println(err.Error())
+        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
     rendimento := service.Calcular()
     rendimento.SetMeses()
     rendimento.SetDias()
     rendimento.SetSemestres()
     rendimento.SetDadosProcessados()
-    rendimentoDadosJson, err := rendimento.ToJson()
-    if err != nil {
-        return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-            "panic": "Erro inexperado!",
-            "data_inicial": currentDate,
-        })
-    }
-    return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
-        "valorizacao": core.FormatarValorMonetario(rendimento.Valorizacao),
-        "valor_investido": core.FormatarValorMonetario(rendimento.Gasto),
-        "lucro": core.FormatarValorMonetario(rendimento.Diferenca),
-        "valor_inicial": core.FormatarValorMonetario(rendimento.ValorInicial),
-        "valor_final": core.FormatarValorMonetario(rendimento.ValorFinal),
-        "data_inicial": currentDate,
-        "dados_calculo": rendimentoDadosJson,
-        "dados_processados": rendimento.DadosProcessados,
-    })
+    contexto_view["dados_processados"] = rendimento.DadosProcessados
+    contexto_view["valorizacao"] = core.FormatarValorMonetario(rendimento.Valorizacao)
+    contexto_view["valor_investido"] = core.FormatarValorMonetario(rendimento.Gasto)
+    contexto_view["lucro"] = core.FormatarValorMonetario(rendimento.Diferenca)
+    contexto_view["valor_inicial"] = core.FormatarValorMonetario(rendimento.ValorInicial)
+    contexto_view["valor_final"] = core.FormatarValorMonetario(rendimento.ValorFinal)
+    return ctx.Response().View().Make("financas.v2.tmpl", contexto_view)
 }
 
 func (_ *FinancasController) Calcular(ctx http.Context) http.Response {
