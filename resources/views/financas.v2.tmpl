@@ -68,7 +68,7 @@
                             </label>
                             <input id="valor_inicial" type="number" name="valor_inicial"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            placeholder="Insira o valor" value="0">
+                            placeholder="Insira o valor" value="{{ .historico_inputs.ValorInicial }}">
                             <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_inicial"></span>
                         </div>
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
@@ -78,7 +78,7 @@
                             </label>
                             <input id="aporte_mensal" type="number" name="aporte_mensal"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            placeholder="Insira o valor" value="0">
+                            placeholder="Insira o valor" value="{{ .historico_inputs.AporteMensal }}">
                             <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_mensal"></span>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                             <input id="aporte_semestral" type="number" name="aporte_semestral"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                             placeholder="Insira o valor"
-                            value="0">
+                            value="{{ .historico_inputs.AporteSemestral }}">
                             <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_semestral"></span>
                         </div>
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
@@ -101,7 +101,7 @@
                             </label>
                             <input id="data_final" type="date" name="data_final"
                             class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            value="">
+                            value="{{ .historico_inputs.DataFinal }}">
                             <input type="hidden" name="data_inicial" value="{{ .data_inicial }}">
                             <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final"></span>
                         </div>
@@ -125,7 +125,7 @@
                         <input id="valor_aumento_aporte" type="number" name="valor_aumento_aporte"
                         class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                         placeholder="Insira o valor"
-                        value="0">
+                        value="{{ .historico_inputs.ValorAumentoAporte }}">
                         <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aumento_aporte"></span>
                     </div>
                     <input type="hidden" name="gorilla.csrf.Token" value="{{ .csrf }}">
@@ -142,10 +142,6 @@
             {{if .valorizacao  }}
             <div id="wrapperGraficos" class="flex flex-col justify-center items-center w-5/6">
                 <div class="flex flex-col">
-<!--                    <div class="flex flex-col items-center">
-                        <h2 class="text-2xl font-semibold text-gray-300">Resultado geral</h2>
-                        <div class="w-16 h-0.5 bg-gray-500 mt-2"></div>
-</div>-->
                     <div class="flex flex-col sm:flex-row w-full mb-2 justify-center">
                         <div class="flex flex-col m-1 sm:w-2/4 w-full">
                             <label for="periodo" class="text-gray-400 text-sm mb-1">
@@ -373,14 +369,7 @@
 
             <!--<script src="public/scripts/dados.js" type="module"></script>-->
             <!--<script src="public/scripts/dev.js" type="module"></script>-->
-            {{if .dados_calculo }}
 
-            <script type="module">
-                const dados = '{{ .dados_calculo }}';
-                const dados_calculo = JSON.parse(dados);
-                window.dados_calculo = dados_calculo
-            </script>
-            {{end}}
             <script src="public/scripts/grafico.js" type="module"></script>
             <script src="public/scripts/validarInputsFinancas.js" type="module"></script>
     </body>

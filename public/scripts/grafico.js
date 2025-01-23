@@ -64,7 +64,7 @@ const main = async () => {
         semestre:document.getElementById('semestres_resultado_processado'),
         geral:document.getElementById('resultadoGeralInfoPeriodo'),
     };
-    resultado_opcoes.addEventListener('click', (e) => {
+    resultado_opcoes.addEventListener('change', (e) => {
         const {value} = e.target
         Object.values(containers_resultado).forEach(container => {
             if(container.classList.contains('hidden')) return;

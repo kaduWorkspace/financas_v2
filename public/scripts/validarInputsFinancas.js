@@ -42,16 +42,40 @@ inputsPossiveis.forEach(item => {
         return;
     });
 })
-form.addEventListener('submit', event => {
-    event.preventDefault();
-    const validacoes = validarValoresInputs(buscarValoresInput(), true);
-    if(validacoes) {
-        validacoes.forEach(validacao => {
-            const errorSpan = document.getElementById(`error_${validacao[0]}`)
-            errorSpan.innerText = validacao[1];
-            errorSpan.classList.remove('hidden')
-        })
-        return
+document.addEventListener("DOMContentLoaded", () => {
+    // Carrega os valores armazenados
+    if(!form) return
+    for (const input of form.elements) {
+        if (input.name) {
+            const savedValue = sessionStorage.getItem(input.name);
+            if (savedValue) {
+                input.value = savedValue;
+            }
+        }
     }
-    form.submit()
+    // Salva os valores no storage ao digitar
+    form.addEventListener("input", function (event) {
+        const { name, value } = event.target;
+        if (name) {
+            sessionStorage.setItem(name, value);
+        }
+    });
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        const validacoes = validarValoresInputs(buscarValoresInput(), true);
+        if(validacoes) {
+            validacoes.forEach(validacao => {
+                const errorSpan = document.getElementById(`error_${validacao[0]}`)
+                errorSpan.innerText = validacao[1];
+                errorSpan.classList.remove('hidden')
+            })
+            return
+        }
+        inputsPossiveis.filter(input => input.type == "number").forEach(input => {
+            if(input.value === "") {
+                input.value = 0.0
+            }
+        })
+        form.submit()
+    })
 })
