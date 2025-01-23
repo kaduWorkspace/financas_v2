@@ -68,6 +68,7 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     rendimento.SetMeses()
     rendimento.SetDias()
     rendimento.SetSemestres()
+    rendimento.SetDadosProcessados()
     rendimentoDadosJson, err := rendimento.ToJson()
     if err != nil {
         return ctx.Response().View().Make("financas.v2.tmpl", map[string]any{
@@ -83,6 +84,7 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
         "valor_final": core.FormatarValorMonetario(rendimento.ValorFinal),
         "data_inicial": currentDate,
         "dados_calculo": rendimentoDadosJson,
+        "dados_processados": rendimento.DadosProcessados,
     })
 }
 

@@ -167,22 +167,22 @@
                             <div class="grid gap-4 p-4 rounded-lg w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                                 <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
                                     <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="Valorização">
-                                    <span id="display_valorizacao" class="text-white text-lg font-semibold">R$ {{ .valorizacao }}</span>
+                                    <span id="display_valorizacao" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .valorizacao }}</span>
                                     <span class="text-gray-400 text-sm">Valorização</span>
                                 </div>
                                 <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
                                     <img class="w-8 h-8 mb-2" src="public/images/icons8-money-with-wings-48.png" alt="Investido">
-                                    <span id="display_valor_investido" class="text-white text-lg font-semibold">R$ {{ .valor_investido }}</span>
+                                    <span id="display_valor_investido" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .valor_investido }}</span>
                                     <span class="text-gray-400 text-sm">Investido</span>
                                 </div>
                                 <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
                                     <img class="w-8 h-8 mb-2" src="public/images/icons8-plus-48.png" alt="Lucro">
-                                    <span id="diplay_lucro" class="text-white text-lg font-semibold">R$ {{ .lucro }}</span>
+                                    <span id="display_lucro" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .lucro }}</span>
                                     <span class="text-gray-400 text-sm">Lucro</span>
                                 </div>
                                 <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
                                     <img class="w-8 h-8 mb-2" src="public/images/icons8-race-flag-64.png" alt="Valor inicial">
-                                    <span id="display_valor_inicial" class="text-white text-lg font-semibold">R$ {{ .valor_inicial }}</span>
+                                    <span id="display_valor_inicial" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .valor_inicial }}</span>
                                     <span class="text-gray-400 text-sm">Valor inicial</span>
                                 </div>
                                 <div class="flex flex-col items-center bg-green-700 p-6 rounded-md col-span-1 sm:col-span-2 md:col-span-4 animate-fade-in">
@@ -192,6 +192,152 @@
                                 </div>
                             </div>
                         </div>
+                        {{if .dados_processados}}
+                            <div id="dias_resultado_processado" class="flex hidden justify-around sm:flex-col flex-row">
+                                <div class="flex flex-col w-full sm:flex-row sm:mb-2 sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Dia.MaiorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Maior valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Dia.MaiorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Dia.MaiorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                                <div class="flex flex-col w-full sm:flex-row sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Dia.MenorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Menor valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Dia.MenorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Dia.MenorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                            </div>
+                            <div id="meses_resultado_processado" class="flex hidden justify-around sm:flex-col flex-row">
+                                <div class="flex flex-col w-full sm:flex-row sm:mb-2 sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Mes.MaiorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Maior valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Mes.MaiorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Mes.MaiorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                                <div class="flex flex-col w-full sm:flex-row sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Mes.MenorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Menor valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Mes.MenorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Mes.MenorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                            </div>
+                            <div id="semestres_resultado_processado" class="flex hidden justify-around sm:flex-col flex-row">
+                                <div class="flex flex-col w-full sm:flex-row sm:mb-2 sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Semestre.MaiorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Maior valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Semestre.MaiorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Semestre.MaiorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                                <div class="flex flex-col w-full sm:flex-row sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Semestre.MenorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Menor valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Semestre.MenorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Semestre.MenorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                            </div>
+                            <div id="anos_resultado_processado" class="flex hidden justify-around sm:flex-col flex-row">
+                                <div class="flex flex-col w-full sm:flex-row sm:mb-2 sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Ano.MaiorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Maior valorizacao</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Ano.MaiorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado">{{ .dados_processados.Ano.MaiorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                                <div class="flex flex-col w-full sm:flex-row sm:justify-around gap-4">
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Ano.MenorValorizacao.Valorizacao }}</span>
+                                        <span class="text-gray-400 text-sm">Menor valorização</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold valor_resultado_info">{{ .dados_processados.Ano.MenorValorizacao.ResultadoComValorizacao  }}</span>
+                                        <span class="text-gray-400 text-sm">Caixa</span>
+                                   </div>
+                                   <div class="flex flex-col w-full items-center bg-gray-700 p-4 rounded-md animate-fade-in">
+                                        <img class="w-8 h-8 mb-2" src="public/images/icons8-up-64.png" alt="placeholder">
+                                        <span class="text-white text-lg font-semibold">{{ .dados_processados.Ano.MenorValorizacao.Data }}</span>
+                                        <span class="text-gray-400 text-sm">Data</span>
+                                   </div>
+                                </div>
+                            </div>
+                        {{end}}
 
                     </div>
                 </div>

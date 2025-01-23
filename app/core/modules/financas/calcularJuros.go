@@ -3,6 +3,7 @@ package financas
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"goravel/app/core"
 	"goravel/app/http/requests"
 	"image/color"
@@ -31,6 +32,7 @@ type TrackerMensal struct {
     Dias []TrackerDiario `json:"dias"`
     Valorizacao float64 `json:"valorizacao"`
     DataInicial string `json:"data_inicial"`
+    Data string `json:"data"`
     DataFinal string `json:"data_final"`
     ResultadoComValorizacao float64 `json:"resultado_com_valorizacao"`
     Aporte float64 `json:"valor_aporte"`
@@ -53,6 +55,7 @@ type TrackerSemestral struct {
     Meses []TrackerMensal `json:"meses"`
     Valorizacao float64 `json:"valorizacao"`
     DataInicial string `json:"data_inicial"`
+    Data string `json:"data"`
     DataFinal string `json:"data_final"`
     ResultadoComValorizacao float64 `json:"resultado_com_valorizacao"`
     Aporte float64 `json:"valor_aporte"`
@@ -80,6 +83,7 @@ type TrackerAnual struct {
     Semestres []TrackerSemestral `json:"semestres"`
     Valorizacao float64 `json:"valorizacao"`
     DataInicial string `json:"data_inicial"`
+    Data string `json:"data"`
     DataFinal string `json:"data_final"`
     ResultadoComValorizacao float64 `json:"resultado_com_valorizacao"`
     Gasto float64 `json:"gasto"`
@@ -167,10 +171,37 @@ func (self *CalcularJuros) setTaxaSelic() error {
     }
     return nil
 }
+type ResultadoSimulacaoProcessado struct {
+    Dia struct {
+        MaiorValorizacao TrackerDiario `json:"maior_valorizacao"`
+        MenorValorizacao TrackerDiario `json:"menor_valorizacao"`
+    } `json:"dias"`
+    Mes struct {
+        MaiorValorizacao TrackerMensal `json:"maior_valorizacao"`
+        MenorValorizacao TrackerMensal `json:"menor_valorizacao"`
+    } `json:"meses"`
+    Semestre struct {
+        MaiorValorizacao TrackerSemestral `json:"maior_valorizacao"`
+        MenorValorizacao TrackerSemestral `json:"menor_valorizacao"`
+    } `json:"semestres"`
+    Ano struct {
+        MaiorValorizacao TrackerAnual `json:"maior_valorizacao"`
+        MenorValorizacao TrackerAnual `json:"menor_valorizacao"`
+    } `json:"anos"`
+}
+func (self *ResultadoSimulacaoProcessado) ApagarDadosDispensaveis() {
+    self.Mes.MaiorValorizacao.Dias = nil
+    self.Mes.MenorValorizacao.Dias = nil
+    self.Semestre.MaiorValorizacao.Meses = nil
+    self.Semestre.MenorValorizacao.Meses = nil
+    self.Ano.MaiorValorizacao.Semestres = nil
+    self.Ano.MenorValorizacao.Semestres = nil
+}
 type ResultadoSimulacao struct {
     Anos []TrackerAnual `json:"anos"`
     Meses []TrackerMensal `json:"meses"`
     Semestres []TrackerSemestral `json:"semestres"`
+    DadosProcessados ResultadoSimulacaoProcessado `json:"dados_processados"`
     Dias []TrackerDiario `json:"dias"`
     Valorizacao float64 `json:"valorizacao"`
     ValorFinal float64 `json:"valor_final"`
@@ -179,6 +210,49 @@ type ResultadoSimulacao struct {
     Diferenca float64 `json:"diferenca"`
     DataInicial string `json:"data_inicial"`
     DataFinal string `json:"data_final"`
+}
+func (self *ResultadoSimulacao) SetDadosProcessados() {
+    var resultado_processado ResultadoSimulacaoProcessado
+    for _, dia := range self.Dias {
+        if resultado_processado.Dia.MaiorValorizacao.Valorizacao == 0.0 || dia.Valorizacao > resultado_processado.Dia.MaiorValorizacao.Valorizacao {
+            resultado_processado.Dia.MaiorValorizacao = dia
+        }
+        if resultado_processado.Dia.MenorValorizacao.Valorizacao == 0.0 || dia.Valorizacao < resultado_processado.Dia.MenorValorizacao.Valorizacao {
+            resultado_processado.Dia.MenorValorizacao = dia
+        }
+    }
+    for _, mes := range self.Meses {
+        if resultado_processado.Mes.MaiorValorizacao.Valorizacao == 0.0 || mes.Valorizacao > resultado_processado.Mes.MaiorValorizacao.Valorizacao {
+            resultado_processado.Mes.MaiorValorizacao = mes
+        }
+        if resultado_processado.Mes.MenorValorizacao.Valorizacao == 0.0 || mes.Valorizacao < resultado_processado.Mes.MenorValorizacao.Valorizacao {
+            resultado_processado.Mes.MenorValorizacao = mes
+        }
+    }
+    for _, semestre := range self.Semestres {
+        if resultado_processado.Semestre.MaiorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao > resultado_processado.Semestre.MaiorValorizacao.Valorizacao {
+            resultado_processado.Semestre.MaiorValorizacao = semestre
+        }
+        if resultado_processado.Semestre.MenorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao < resultado_processado.Semestre.MenorValorizacao.Valorizacao {
+            resultado_processado.Semestre.MenorValorizacao = semestre
+        }
+    }
+    for _, ano := range self.Anos {
+        if resultado_processado.Ano.MaiorValorizacao.Valorizacao == 0.0 || ano.Valorizacao > resultado_processado.Ano.MaiorValorizacao.Valorizacao {
+            resultado_processado.Ano.MaiorValorizacao = ano
+        }
+        if resultado_processado.Ano.MenorValorizacao.Valorizacao == 0.0 || ano.Valorizacao < resultado_processado.Ano.MenorValorizacao.Valorizacao {
+            resultado_processado.Ano.MenorValorizacao = ano
+        }
+    }
+    self.DadosProcessados = resultado_processado
+    self.DadosProcessados.ApagarDadosDispensaveis()
+    self.DadosProcessados.Mes.MaiorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Mes.MaiorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Mes.MaiorValorizacao.DataFinal))
+    self.DadosProcessados.Semestre.MaiorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Semestre.MaiorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Semestre.MaiorValorizacao.DataFinal))
+    self.DadosProcessados.Ano.MaiorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Ano.MaiorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Ano.MaiorValorizacao.DataFinal))
+    self.DadosProcessados.Mes.MenorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Mes.MenorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Mes.MenorValorizacao.DataFinal))
+    self.DadosProcessados.Semestre.MenorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Semestre.MenorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Semestre.MenorValorizacao.DataFinal))
+    self.DadosProcessados.Ano.MenorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Ano.MenorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Ano.MenorValorizacao.DataFinal))
 }
 func (self *ResultadoSimulacao) ToJson() (string, error) {
     jsonData, err := json.Marshal(self)
@@ -499,4 +573,12 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     }
     resultadoSimulacao.finalizarSimulacao(resultado, trackerAnuais)
     return resultadoSimulacao
+}
+func formatarDataPeriodo(data string) string {
+    data_obj, err := time.Parse("02/01/2006", data)
+    if err != nil {
+        return data
+    }
+    data_formatada := data_obj.Format("01/06")
+    return data_formatada
 }
