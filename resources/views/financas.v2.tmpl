@@ -193,7 +193,7 @@
 
                     <div id="resultadoGeralInfo" class="flex flex-col w-full justify-around">
                         <div id="resultadoGeralInfoPeriodo" class="flex w-full justify-center p-4">
-                            <div class="grid gap-4 p-4 rounded-lg w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                            <div class="grid gap-4 p-4 rounded-lg w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                                 <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
                                     <img class="w-8 h-8 mb-2" src="public/images/pilha-dinheiro.svg" alt="Rentabilidade">
                                     <span id="display_valorizacao" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .valorizacao }}</span>
@@ -205,16 +205,11 @@
                                     <span class="text-gray-400 text-sm">Investido</span>
                                 </div>
                                 <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
-                                    <img class="w-8 h-8 mb-2" src="public/images/icons8-plus-48.png" alt="Lucro">
-                                    <span id="display_lucro" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .lucro }}</span>
-                                    <span class="text-gray-400 text-sm">Lucro</span>
-                                </div>
-                                <div class="flex flex-col items-center bg-gray-700 p-4 rounded-md animate-fade-in">
                                     <img class="w-8 h-8 mb-2" src="public/images/icons8-race-flag-64.png" alt="Valor inicial">
                                     <span id="display_valor_inicial" class="text-white text-lg font-semibold valor_resultado_info">R$ {{ .valor_inicial }}</span>
                                     <span class="text-gray-400 text-sm">Valor inicial</span>
                                 </div>
-                                <div class="flex flex-col items-center bg-green-700 p-6 rounded-md col-span-1 sm:col-span-2 md:col-span-4 animate-fade-in">
+                                <div class="flex flex-col items-center bg-green-700 p-6 rounded-md col-span-1 sm:col-span-2 md:col-span-3 animate-fade-in">
                                     <img class="w-10 h-10 mb-3" src="public/images/icons8-money-48.png" alt="Valor final">
                                     <span id="display_valor_final" class="text-white text-2xl font-bold">R$ {{ .valor_final }}</span>
                                     <span class="text-white text-lg">Valor final</span>
