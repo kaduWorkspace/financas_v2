@@ -79,6 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if(data_final_opcoes.value == "data_especifica") {
         data_final_especifico_wrapper.classList.remove('hidden')
     }
+    if(tipoAumentoFrequenciaInput.value != "false") {
+        valorAumentoAporteWrapper.classList.remove('hidden')
+    }
     form.addEventListener("input", function (event) {
         const { name, value } = event.target;
         if (name) {
