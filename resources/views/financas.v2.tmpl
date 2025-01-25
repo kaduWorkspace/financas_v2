@@ -95,16 +95,32 @@
                             value="{{ .historico_inputs.AporteSemestral }}">
                             <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_semestral"></span>
                         </div>
-                        <div class="flex flex-col m-1 sm:w-2/4 w-full">
-                            <label for="data_final" class="text-gray-400 text-sm mb-1">
-                                Data Final
-                                <span class="text-gray-500">(Ex.: 2025-12-31)</span>
-                            </label>
-                            <input id="data_final" type="date" name="data_final"
-                            class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            value="{{ .historico_inputs.DataFinal }}">
-                            <input type="hidden" name="data_inicial" value="{{ .data_inicial }}">
-                            <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final"></span>
+                        <div class="flex flex-col sm:flex-row w-5/6 justify-center">
+                            <div class="flex flex-col m-1 sm:w-2/4 w-full">
+                                <label for="data_final_opcao" class="text-gray-400 text-sm mb-1">
+                                    Data Final
+                                </label>
+                                <select data-ignore_input="1" id="data_final_opcao" name="data_final_opcao"
+                                    class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
+                                    <option value="6" selected>6 meses</option>
+                                    <option value="1">1 ano</option>
+                                    <option value="10">10 anos</option>
+                                    <option value="20">20 anos</option>
+                                    <option value="data_especifica">Data específica</option>
+                                </select>
+                                <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final_opcao"></span>
+                            </div>
+                            <div class="flex flex-col m-1 sm:w-2/4 w-full hidden" id="data_especifica_wrapper">
+                                <label for="data_final" class="text-gray-400 text-sm mb-1">
+                                    Data Específica
+                                    <!--<span class="text-gray-500">(Ex.: 2025-12-31)</span>-->
+                                </label>
+
+                                <input id="data_final" type="date" name="data_final"
+                                class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
+                                value="">
+                                <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex flex-col m-1 w-5/6">
@@ -129,6 +145,8 @@
                         value="{{ .historico_inputs.ValorAumentoAporte }}">
                         <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aumento_aporte"></span>
                     </div>
+
+                    <input id="data_inicial" type="hidden" name="data_inicial" value="">
                     <input type="hidden" name="gorilla.csrf.Token" value="{{ .csrf }}">
 
                     <button id="calcular" type="submit" class="flex my-1 items-center justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300">

@@ -2,7 +2,29 @@ const tipoAumentoFrequenciaInput = document.getElementById('tipo_aumento_frequen
 const valorAumentoAporte = document.getElementById('valor_aumento_aporte')
 const valorAumentoAporteWrapper = document.getElementById('valor_aumento_aporte_wrapper')
 const form = document.getElementById('formulario_calcular')
-const inputsPossiveis = [...document.getElementsByTagName('input'),...document.getElementsByTagName('select')].filter(input => !input.dataset.ignore_input)
+const inputsPossiveis = [...form.elements].filter(input => !input.dataset.ignore_input)
+const data_final_opcoes = document.getElementById('data_final_opcao')
+const data_final_especifico_wrapper = document.getElementById('data_especifica_wrapper')
+const data_final_especifico_input = document.getElementById('data_final')
+data_final_opcoes.addEventListener('change', ({target:{value}}) => {
+    value == "data_especifica"
+        ? data_final_especifico_wrapper.classList.remove('hidden')
+        : data_final_especifico_wrapper.classList.add('hidden')
+})
+const formatar_data = (data) => {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, "0"); // Mês começa em 0
+    const dia = String(data.getDate()).padStart(2, "0");
+    const data_resultado = `${ano}-${mes}-${dia}`;
+    return data_resultado
+}
+const incrementar_data = (quantidade = 6, tipo = "meses") => {
+    const data = new Date();
+    tipo == "meses"
+        ? data.setMonth(data.getMonth() + quantidade)
+        : data.setFullYear(data.getFullYear() + quantidade)
+    return formatar_data(data);
+}
 const buscarValoresInput = () => {
     return inputsPossiveis.reduce((acc, item) => {
             acc[item.name] = item.type == 'number' ? parseInt(item.value) : item.value
@@ -43,8 +65,9 @@ inputsPossiveis.forEach(item => {
     });
 })
 document.addEventListener("DOMContentLoaded", () => {
-    // Carrega os valores armazenados
     if(!form) return
+    const data_inicial_input = document.getElementById("data_inicial")
+    data_inicial_input.value = formatar_data(new Date())
     for (const input of form.elements) {
         if (input.name) {
             const savedValue = sessionStorage.getItem(input.name);
@@ -53,7 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
-    // Salva os valores no storage ao digitar
+    if(data_final_opcoes.value == "data_especifica") {
+        data_final_especifico_wrapper.classList.remove('hidden')
+    }
     form.addEventListener("input", function (event) {
         const { name, value } = event.target;
         if (name) {
@@ -76,6 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.value = 0.0
             }
         })
+        if(data_final_opcoes.value !== "data_especifica") {
+            const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
+            data_final_especifico_input.value = incrementar_data(parseInt(data_final_opcoes.value), tipo)
+        }
         form.submit()
     })
 })
