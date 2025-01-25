@@ -494,8 +494,8 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     resultadoSimulacao := newResultadoSimulacao(self.dataInicial, self.dataFinal, self.ValorInicial)
 
     dataAtual := self.dataInicial
-
     resultado := self.ValorInicial + self.AporteMensal
+    resultadoSimulacao.adicionaGasto(self.AporteMensal)
 
     prxMes := dataAtual.AddDate(0, 1, 0)
     prxSemestre := dataAtual.AddDate(0, 6, 0)
