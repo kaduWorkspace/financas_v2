@@ -91,6 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     form.addEventListener('submit', event => {
         event.preventDefault();
+        if(data_final_opcoes.value !== "data_especifica") {
+            const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
+            data_final_especifico_input.value = incrementar_data(parseInt(data_final_opcoes.value), tipo)
+        }
         const validacoes = validarValoresInputs(buscarValoresInput(), true);
         if(validacoes) {
             validacoes.forEach(validacao => {
@@ -105,10 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.value = 0.0
             }
         })
-        if(data_final_opcoes.value !== "data_especifica") {
-            const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
-            data_final_especifico_input.value = incrementar_data(parseInt(data_final_opcoes.value), tipo)
-        }
         form.submit()
     })
 })
