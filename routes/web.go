@@ -2,7 +2,6 @@ package routes
 
 import (
 	"goravel/app/http/controllers"
-	"time"
 
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
@@ -15,7 +14,6 @@ func Web() {
     })
     facades.Route().Get("/", func(ctx http.Context) http.Response {
         contexto_view := map[string]any{}
-        contexto_view["data_inicial"] = time.Now().Format("2006-01-02")
         contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
         erro := ctx.Request().Query("erro")
         if  erro != "" {

@@ -27,9 +27,7 @@ func (r *FinancasController) Index(ctx http.Context) http.Response {
 func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     var postCalcularJuros requests.PostCalcularJuros
     errors, err := ctx.Request().ValidateRequest(&postCalcularJuros)
-    currentDate := time.Now().Format("2006-01-02")
     contexto_view := map[string]any{}
-    contexto_view["data_inicial"] = currentDate
     if err != nil {
         fmt.Println(err.Error())
         return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
