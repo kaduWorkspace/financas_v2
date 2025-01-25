@@ -68,6 +68,12 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     contexto_view["valor_inicial"] = core.FormatarValorMonetario(rendimento.ValorInicial)
     contexto_view["valor_final"] = core.FormatarValorMonetario(rendimento.ValorFinal)
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
+    json_data, err := rendimento.ToJson()
+    if err == nil {
+        contexto_view["dados_calculo"] = json_data
+    } else {
+        fmt.Println(err)
+    }
     return ctx.Response().View().Make("financas.v2.tmpl", contexto_view)
 }
 

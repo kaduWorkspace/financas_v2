@@ -488,7 +488,7 @@ func (self *ResultadoSimulacao) finalizarSimulacao(resultado float64, anos []Tra
     self.calcularDiferenca()
 }
 func (self *ResultadoSimulacao) calcularDiferenca() {
-    self.Diferenca = self.ValorFinal - self.Gasto
+    self.Diferenca = self.ValorFinal - self.Gasto - self.ValorInicial
 }
 func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     resultadoSimulacao := newResultadoSimulacao(self.dataInicial, self.dataFinal, self.ValorInicial)
