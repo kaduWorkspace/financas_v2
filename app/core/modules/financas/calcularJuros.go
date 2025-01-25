@@ -485,9 +485,8 @@ func (self *ResultadoSimulacao) adicionaValorizacao(valorizacao float64) {
 func (self *ResultadoSimulacao) finalizarSimulacao(resultado float64, anos []TrackerAnual) {
     self.Anos = anos
     self.ValorFinal = resultado
-    self.calcularDiferenca()
 }
-func (self *ResultadoSimulacao) calcularDiferenca() {
+func (self *ResultadoSimulacao) calcularDiferencaDebug() {
     self.Diferenca = self.ValorFinal - self.Gasto - self.ValorInicial
 }
 func (self *CalcularJuros) Calcular() ResultadoSimulacao {

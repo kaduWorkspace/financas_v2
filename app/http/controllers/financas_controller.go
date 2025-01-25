@@ -67,7 +67,6 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     contexto_view["dados_processados"] = rendimento.DadosProcessados
     contexto_view["valorizacao"] = core.FormatarValorMonetario(rendimento.Valorizacao)
     contexto_view["valor_investido"] = core.FormatarValorMonetario(rendimento.Gasto)
-    contexto_view["lucro"] = core.FormatarValorMonetario(rendimento.Diferenca)
     contexto_view["valor_inicial"] = core.FormatarValorMonetario(rendimento.ValorInicial)
     contexto_view["valor_final"] = core.FormatarValorMonetario(rendimento.ValorFinal)
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
