@@ -7,7 +7,7 @@ function formatarMoeda(valor) {
         maximumFractionDigits: 2
     });
 }
-export const montarGrafico = (idElemento, label = "Valorização", dados) => {
+export const montarGrafico = (idElemento, label = "Rentabilidade", dados) => {
     const ctx = document.getElementById(idElemento)
     if(!ctx)
         throw `${idElemento} não encontrado!`;
@@ -103,7 +103,7 @@ const main = async () => {
             moverParaTopo();
             desabilitarScroll();
         })
-        montarGrafico('chartjs', 'Valorizacao', dados_grafico.geral.dados)
+        montarGrafico('chartjs', 'Crescimento do dinheiro em caixa', dados_grafico.geral.dados)
     }
     const valores_processados = [...document.getElementsByClassName('valor_resultado_info')]
     valores_processados.forEach( div => {
@@ -127,7 +127,8 @@ const main = async () => {
         })
         if(!containers_resultado[value].classList.contains('hidden')) return;
         containers_resultado[value].classList.remove("hidden");
-        montarGrafico('chartjs', 'Valorizacao', dados_grafico[value].dados)
+        const grafico_nome_label = value == "geral" ? "Evolução do dinheiro em caixa" : "Rentabilidade";
+        montarGrafico('chartjs', grafico_nome_label , dados_grafico[value].dados)
     })
 }
 main();
