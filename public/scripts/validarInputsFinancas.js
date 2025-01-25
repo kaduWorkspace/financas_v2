@@ -54,7 +54,8 @@ tipoAumentoFrequenciaInput.addEventListener('input', event => {
 inputsPossiveis.forEach(item => {
     item.addEventListener('input', event => {
         const errorSpan = document.getElementById(`error_${item.id}`)
-        errorSpan.classList.add('hidden');
+        if(errorSpan)
+            errorSpan.classList.add('hidden');
         let validacao = validarValoresInputs(buscarValoresInput(), false);
         if(!validacao) return;
         const validacaoInput = validacao.find(valid => valid[0] == item.name);
