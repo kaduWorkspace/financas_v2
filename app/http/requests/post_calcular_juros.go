@@ -2,6 +2,7 @@ package requests
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/goravel/framework/contracts/http"
@@ -24,29 +25,30 @@ func (r *PostCalcularJuros) Authorize(ctx http.Context) error {
 }
 func (r *PostCalcularJuros) ValidarData() error {
 	_, err := time.Parse("02/01/2006", r.DataInicial) // "02" é o dia, "01" é o mês, "2006" é o ano no Go
-
 	if err != nil {
-		return errors.New("Data inicial, o formato deve ser d/m/Y")
+		//return errors.New("Data inicial, o formato deve ser d/m/Y")
+        return errors.New("Erro inexperado")
 	}
 	_, err = time.Parse("02/01/2006", r.DataFinal) // "02" é o dia, "01" é o mês, "2006" é o ano no Go
-
 	if err != nil {
-		return errors.New("Data final, o formato deve ser d/m/Y")
+		//return errors.New("Data final, o formato deve ser d/m/Y")
+        return errors.New("Erro inexperado")
 	}
-
     timeInicial, err := time.Parse("02/01/2006", r.DataInicial)
     if err != nil {
-        return errors.New("Erro interno")
+        return errors.New("Erro inexperado")
     }
     timeFinal, err := time.Parse("02/01/2006", r.DataFinal)
     if err != nil {
-        return errors.New("Erro interno")
+        return errors.New("Erro inexperado!")
     }
     if timeFinal.Before(timeInicial) {
-        return errors.New("Data inicial deve ser menor do que data final!")
+        //return errors.New("Data inicial deve ser menor do que data final!")
+        return errors.New("Erro inexperado!")
     }
-    if (timeFinal.Year() - timeInicial.Year()) > 10 {
-        return errors.New("Limite de 10 anos excedido")
+    limite := 20
+    if (timeFinal.Year() - timeInicial.Year()) > limite {
+        return errors.New(fmt.Sprintf("Limite de %d anos excedido!", limite))
     }
 	return nil
 }

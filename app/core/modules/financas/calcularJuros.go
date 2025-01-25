@@ -225,7 +225,7 @@ func (self *ResultadoSimulacao) SetDadosProcessados() {
         if resultado_processado.Mes.MaiorValorizacao.Valorizacao == 0.0 || mes.Valorizacao > resultado_processado.Mes.MaiorValorizacao.Valorizacao {
             resultado_processado.Mes.MaiorValorizacao = mes
         }
-        if resultado_processado.Mes.MenorValorizacao.Valorizacao == 0.0 || mes.Valorizacao < resultado_processado.Mes.MenorValorizacao.Valorizacao {
+        if (resultado_processado.Mes.MenorValorizacao.Valorizacao == 0.0 || mes.Valorizacao < resultado_processado.Mes.MenorValorizacao.Valorizacao) && mes.DataFinal != mes.DataInicial {
             resultado_processado.Mes.MenorValorizacao = mes
         }
     }
@@ -233,7 +233,7 @@ func (self *ResultadoSimulacao) SetDadosProcessados() {
         if resultado_processado.Semestre.MaiorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao > resultado_processado.Semestre.MaiorValorizacao.Valorizacao {
             resultado_processado.Semestre.MaiorValorizacao = semestre
         }
-        if resultado_processado.Semestre.MenorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao < resultado_processado.Semestre.MenorValorizacao.Valorizacao {
+        if semestre.DataFinal != semestre.DataInicial && (resultado_processado.Semestre.MenorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao < resultado_processado.Semestre.MenorValorizacao.Valorizacao) {
             resultado_processado.Semestre.MenorValorizacao = semestre
         }
     }
@@ -241,7 +241,7 @@ func (self *ResultadoSimulacao) SetDadosProcessados() {
         if resultado_processado.Ano.MaiorValorizacao.Valorizacao == 0.0 || ano.Valorizacao > resultado_processado.Ano.MaiorValorizacao.Valorizacao {
             resultado_processado.Ano.MaiorValorizacao = ano
         }
-        if resultado_processado.Ano.MenorValorizacao.Valorizacao == 0.0 || ano.Valorizacao < resultado_processado.Ano.MenorValorizacao.Valorizacao {
+        if ano.DataFinal != ano.DataInicial && (resultado_processado.Ano.MenorValorizacao.Valorizacao == 0.0 || ano.Valorizacao < resultado_processado.Ano.MenorValorizacao.Valorizacao) {
             resultado_processado.Ano.MenorValorizacao = ano
         }
     }

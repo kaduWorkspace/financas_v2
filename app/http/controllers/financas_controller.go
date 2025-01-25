@@ -47,8 +47,13 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
         fmt.Println(err.Error())
         return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
+
     postCalcularJuros.DataInicial = dataInicial.Format("02/01/2006")
     postCalcularJuros.DataFinal = dataFinal.Format("02/01/2006")
+    if err := postCalcularJuros.ValidarData(); err != nil {
+        fmt.Println(err.Error())
+        return ctx.Response().Redirect(http.StatusSeeOther, fmt.Sprintf("/?erro=%s", err.Error()))
+    }
     service, err := financas.New(postCalcularJuros)
     if err != nil {
         fmt.Println(err.Error())
