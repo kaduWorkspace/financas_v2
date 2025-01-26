@@ -7,7 +7,10 @@ function formatarMoeda(valor) {
         maximumFractionDigits: 2
     });
 }
-export const montarGrafico = (idElemento, label = "Rentabilidade", dados) => {
+function usuario_acessou_via_mobile() {
+    return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+const montar_grafico_v2 = (idElemento, dados,) => {
     const ctx = document.getElementById(idElemento)
     if(!ctx)
         throw `${idElemento} não encontrado!`;
@@ -16,15 +19,13 @@ export const montarGrafico = (idElemento, label = "Rentabilidade", dados) => {
 
     const labels = dados.y
     const data = dados.x
+    const datasets = [
+        {label: "Rentabilidade", data: data[0]},
+        {label: "Gastos", data: data[1]},
+    ]
     window.grafico_canva = new Chart(ctx, {
         type: "line",
-        data: {
-            labels,
-            datasets: [{
-                label,
-                data: data,
-            }]
-        },
+        data: { labels, datasets },
         options: {
             scales: {
                 y: {beginAtZero: true}
@@ -33,22 +34,53 @@ export const montarGrafico = (idElemento, label = "Rentabilidade", dados) => {
     })
 }
 const ajustar_dados_grafico = () => {
-    const MAX_ITENS_GRAFICO = 15
+    const MAX_ITENS_GRAFICO = usuario_acessou_via_mobile() ? 15 : 25;
     const dados_grafico = {
         dias: {
-            dados: {x:[],y:[]},
+            dados: {
+                y: [],
+                x: [
+                    [],
+                    [],
+                ],
+            }
         },
         meses: {
-            dados: {x:[],y:[]},
+            dados: {
+                y: [],
+                x: [
+                    [],
+                    [],
+                ],
+            }
         },
         semestres: {
-            dados: {x:[],y:[]},
+            dados: {
+                y: [],
+                x: [
+                    [],
+                    [],
+                ],
+            }
         },
         anos: {
-            dados: {x:[],y:[]},
+            dados: {
+                y: [],
+                x: [
+                    [],
+                    [],
+                ],
+            }
         },
         geral: {
-            dados: {x:[],y:[]},
+            dados: {
+                y: [],
+                x: [
+                    [],
+                    [],
+                ],
+            }
+
         },
     }
     const {anos, dias, meses, semestres} = window.dados_calculo
@@ -59,11 +91,13 @@ const ajustar_dados_grafico = () => {
     while(index < grafico_dados_geral.length - 1) {
         if(index > grafico_dados_geral.length - 1) {
             const item = grafico_dados_geral.pop();
-            dados_grafico.geral.dados.x.push(item.resultado_com_valorizacao)
+            dados_grafico.geral.dados.x[1].push(item.gasto ?? item.valor_aporte)
+            dados_grafico.geral.dados.x[0].push(item.resultado_com_valorizacao)
             dados_grafico.geral.dados.y.push(item.data ? item.data : item.data_inicial)
             break;
         } else {
-            dados_grafico.geral.dados.x.push(grafico_dados_geral[index].resultado_com_valorizacao)
+            dados_grafico.geral.dados.x[1].push(grafico_dados_geral[index].gasto ?? grafico_dados_geral[index].valor_aporte)
+            dados_grafico.geral.dados.x[0].push(grafico_dados_geral[index].resultado_com_valorizacao)
             dados_grafico.geral.dados.y.push(grafico_dados_geral[index].data ? grafico_dados_geral[index].data : grafico_dados_geral[index].data_inicial)
         }
         index = index + jump
@@ -75,11 +109,13 @@ const ajustar_dados_grafico = () => {
         while(index < dados_grafico_periodo.length - 1) {
             if(index > dados_grafico_periodo.length - 1) {
                 const item = dados_grafico_periodo.pop();
-                dados_grafico[key].dados.x.push(item.valorizacao)
+                dados_grafico[key].dados.x[1].push(item.gasto ?? item.valor_aporte)
+                dados_grafico[key].dados.x[0].push(item.valorizacao)
                 dados_grafico[key].dados.y.push(item.data ? item.data : item.data_inicial)
                 return;
             } else {
-                dados_grafico[key].dados.x.push(dados_grafico_periodo[index].valorizacao)
+                dados_grafico[key].dados.x[1].push(dados_grafico_periodo[index].gasto ?? dados_grafico_periodo[index].valor_aporte)
+                dados_grafico[key].dados.x[0].push(dados_grafico_periodo[index].valorizacao)
                 dados_grafico[key].dados.y.push(dados_grafico_periodo[index].data ? dados_grafico_periodo[index].data : dados_grafico_periodo[index].data_inicial)
             }
             index = index + jump
@@ -91,6 +127,7 @@ const main = async () => {
     let dados_grafico;
     if(window?.dados_calculo) {
         dados_grafico = ajustar_dados_grafico();
+        console.log(dados_grafico)
         const grafico_botao_abrir  = document.getElementById("botao_ativar_grafico");
         const grafico_container = document.getElementById("grafico_container");
         const grafico_botao_fechar = document.getElementById("grafico_fechar");
@@ -103,7 +140,7 @@ const main = async () => {
             moverParaTopo();
             desabilitarScroll();
         })
-        montarGrafico('chartjs', 'Crescimento do dinheiro em caixa', dados_grafico.geral.dados)
+        montar_grafico_v2("chartjs", dados_grafico.geral.dados)
     }
     const valores_processados = [...document.getElementsByClassName('valor_resultado_info')]
     valores_processados.forEach( div => {
@@ -128,7 +165,7 @@ const main = async () => {
         if(!containers_resultado[value].classList.contains('hidden')) return;
         containers_resultado[value].classList.remove("hidden");
         const grafico_nome_label = value == "geral" ? "Evolução do dinheiro em caixa" : "Rentabilidade";
-        montarGrafico('chartjs', grafico_nome_label , dados_grafico[value].dados)
+        montar_grafico_v2("chartjs", dados_grafico[value].dados)
     })
 }
 main();
