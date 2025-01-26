@@ -376,7 +376,7 @@
                 </div>
                 <div
                     id="grafico_container"
-                    class="absolute hidden top-0 left-0 overflow-auto bg-gradient-to-br from-gray-900 via-black to-gray-900 w-screen h-screen z-50 flex flex-col items-center justify-center text-white p-6">
+                    class="absolute hidden top-0 left-0 overflow-auto bg-gradient-to-br from-gray-900 via-black to-gray-900 w-screen h-screen z-50 flex flex-col items-center justify-start text-white p-6">
                     <!-- Botão de fechar -->
                     <div id="grafico_fechar" class="absolute top-6 right-6 w-fit cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 100 100">
@@ -385,14 +385,14 @@
                         </svg>
                     </div>
                     <!-- Conteúdo -->
-                    <div class="w-full max-w-4xl flex flex-col overflow-y-hidden items-center space-y-6">
-                        <h1 class="text-4xl font-bold text-gray-300 drop-shadow-md animate-fade-in">
+                    <div class="w-full max-w-4xl flex flex-col overflow-y-hidden items-center h-full space-y-6">
+                        <h1 class="text-4xl font-bold text-gray-300 drop-shadow-md animate-fade-in h-fit">
                             Rentabilidade!
                         </h1>
-                        <div id="resultadoGeralInfoPeriodo" class="w-full bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 p-4 rounded-lg shadow-xl">
+                        <div id="resultadoGeralInfoPeriodo" class="w-full bg-gradient-to-r from-gray-800 h-fit via-gray-900 to-gray-800 p-4 rounded-lg shadow-xl">
                             <p class="text-center text-gray-200 text-lg">Aqui estão exibidos os detalhes do período selecionado.</p>
                         </div>
-                        <div class="w-full bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <div class="w-full bg-gray-800 p-4 rounded-lg shadow-xl flex-1 sm:h-fit h-5/6 border border-red-500">
                             <canvas id="chartjs"></canvas>
                         </div>
                     </div>

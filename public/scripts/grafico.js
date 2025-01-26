@@ -29,12 +29,14 @@ const montar_grafico_v2 = (idElemento, dados,) => {
         options: {
             scales: {
                 y: {beginAtZero: true}
-            }
+            },
+            responsive: true, // Torna o gráfico responsivo
+            maintainAspectRatio: false, // Permite alterar a altura
         }
     })
 }
 const ajustar_dados_grafico = () => {
-    const MAX_ITENS_GRAFICO = usuario_acessou_via_mobile() ? 15 : 25;
+    const MAX_ITENS_GRAFICO = usuario_acessou_via_mobile() ? 10 : 25;
     const dados_grafico = {
         dias: {
             dados: {
