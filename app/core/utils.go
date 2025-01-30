@@ -11,7 +11,28 @@ import (
 	"strings"
 	"time"
 )
+// Função para calcular os dias restantes até o final do ano
+func DiasRestantesNoAno(t time.Time) int {
+	// Obter o último dia do ano
+	ultimoDiaDoAno := time.Date(t.Year(), 12, 31, 23, 59, 59, 0, t.Location())
 
+	// Calcular a diferença em dias
+	diasRestantes := int(ultimoDiaDoAno.Sub(t).Hours() / 24)
+	return diasRestantes
+}
+func DiasNoAnoV2(t time.Time) int {
+	ano := t.Year()
+	// Verifica se o ano é bissexto
+	if (ano%4 == 0 && ano%100 != 0) || (ano%400 == 0) {
+		return 366 // Ano bissexto
+	}
+	return 365 // Ano normal
+}
+func Dias_no_ano(year int) int {
+	startOfYear := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endOfYear := startOfYear.AddDate(1, 0, 0) // Primeiro dia do próximo ano
+	return int(endOfYear.Sub(startOfYear).Hours() / 24) // Diferença em dias
+}
 func FormataData(data time.Time) string {
     return data.Format("02/01/2006")
 }
