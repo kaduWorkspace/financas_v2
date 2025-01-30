@@ -1,4 +1,4 @@
-{{ define "financas.v2.tmpl" }}
+{{ define "financas.v3.tmpl" }}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -88,27 +88,27 @@
                                 <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_inicial"></span>
                             </div>
                             <div class="flex flex-col m-1 sm:w-2/4 w-full">
-                                <label for="aporte_mensal" class="text-gray-400 text-sm mb-1">
-                                    Aporte Mensal
+                                <label for="valor_aporte" class="text-gray-400 text-sm mb-1">
+                                    Valor Aporte Mensal
                                     <span class="text-gray-500">(Ex.: 500)</span>
                                 </label>
-                                <input id="aporte_mensal" type="number" name="aporte_mensal"
+                                <input id="valor_aporte" type="number" name="valor_aporte"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                                placeholder="Insira o valor" value="{{ .historico_inputs.AporteMensal }}">
-                                <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_mensal"></span>
+                                placeholder="Insira o valor" value="">
+                                <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aporte"></span>
                             </div>
                         </div>
                         <div class="flex flex-col sm:flex-row w-5/6 justify-center">
                             <div class="flex flex-col m-1 sm:w-2/4 w-full">
-                                <label for="aporte_semestral" class="text-gray-400 text-sm mb-1">
-                                    Aporte Semestral
-                                    <span class="text-gray-500">(Ex.: 1000)</span>
+                                <label for="valor_taxa_anual" class="text-gray-400 text-sm mb-1">
+                                    Valor taxa anual
+                                    <span class="text-gray-500">(Selic.: 13,25%)</span>
                                 </label>
-                                <input id="aporte_semestral" type="number" name="aporte_semestral"
+                                <input id="valor_taxa_anual" type="number" name="valor_taxa_anual"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                                 placeholder="Insira o valor"
-                                value="{{ .historico_inputs.AporteSemestral }}">
-                                <span class="text-red-500 text-xs mt-1 hidden" id="error_aporte_semestral"></span>
+                                value="">
+                                <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_taxa_anual"></span>
                             </div>
                             <div class="flex flex-col sm:flex-row w-5/6 justify-center">
                                 <div class="flex flex-col m-1 sm:w-2/4 w-full">
@@ -117,7 +117,7 @@
                                     </label>
                                     <select data-ignore_input="1" id="data_final_opcao" name="data_final_opcao"
                                         class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
-                                        <option value="6" selected>6 meses</option>
+                                        <option value="0.5" selected>6 meses</option>
                                         <option value="1">1 ano</option>
                                         <option value="10">10 anos</option>
                                         <option value="20">20 anos</option>
@@ -139,28 +139,16 @@
                             </div>
                         </div>
                         <div class="flex flex-col m-1 w-5/6">
-                            <label for="tipo_aumento_frequencia" class="text-gray-400 text-sm mb-1">
-                                Tipo de Frequência de Aumento do Aporte
+                            <label for="dias_liquidez_por_ano" class="text-gray-400 text-sm mb-1">
+                                Quantidade de dias de liquidez por ano
                             </label>
-                            <select name="tipo_frequencia_aumento_aporte" id="tipo_aumento_frequencia"
+                            <select name="tipo_dias_liquidez_por_ano" id="dias_liquidez_por_ano"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
-                                <option value="false">Sem aumento</option>
-                                <option value="semestral">Semestral</option>
-                                <option value="anual">Anual</option>
+                                <option value="255"> 255 - Dias úteis (Caixinha nubank/Mercado financeiro brasileiro)</option>
+                                <option value="366">366/365 - Todos os dias do ano</option>
+                                <option value="12">12 - Todo mês</option>
                             </select>
                         </div>
-                        <div id="valor_aumento_aporte_wrapper" class="hidden flex flex-col m-1 w-5/6">
-                            <label for="valor_aumento_aporte" class="text-gray-400 text-sm mb-1">
-                                Valor do Aumento do Aporte
-                                <span class="text-gray-500">(Ex.: 200)</span>
-                            </label>
-                            <input id="valor_aumento_aporte" type="number" name="valor_aumento_aporte"
-                            class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                            placeholder="Insira o valor"
-                            value="{{ .historico_inputs.ValorAumentoAporte }}">
-                            <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aumento_aporte"></span>
-                        </div>
-
                         <input id="data_inicial" type="hidden" name="data_inicial" value="">
                         <input type="hidden" name="gorilla.csrf.Token" value="{{ .csrf }}">
 
@@ -440,14 +428,7 @@
             const main = document.getElementsByTagName('main')[0];
             main.style.paddingTop = `${headerHeight}px`;
         </script>
-        {{if .dados_calculo}}
-        <script>
-            window.dados_calculo = JSON.parse("{{.dados_calculo}}")
-        </script>
-        {{end}}
-
         <script src="public/scripts/utils_financas.js" type="module"></script>
-        <script src="public/scripts/grafico.js" type="module"></script>
         <script src="public/scripts/validarInputsFinancas.js" type="module"></script>
     </body>
 </html>
