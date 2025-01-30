@@ -11,17 +11,27 @@ import (
 )
 
 type FinancasController struct {
-	//Dependent services
+    simularCdbService financas.SimulacaoCDB
 }
 
 func NewFinancasController() *FinancasController {
 	return &FinancasController{
-		//Inject services
+        simularCdbService: financas.SimulacaoCDB {},
 	}
 }
 
 func (r *FinancasController) Index(ctx http.Context) http.Response {
-	return nil
+    contexto_view := map[string]any{}
+    contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
+    erro := ctx.Request().Query("erro")
+    if  erro != "" {
+        contexto_view["panic"] = erro
+    }
+    return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+
+}
+func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
+    return nil
 }
 
 func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
@@ -31,6 +41,9 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     if err != nil {
         fmt.Println(err.Error())
         return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
+    }
+    if err := postCalcularJuros.ValidarQuantidades(); err != nil {
+        return ctx.Response().Redirect(http.StatusSeeOther, fmt.Sprintf("/?erro=%s", err.Error()))
     }
     if errors != nil && len(errors.All()) > 0 {
         contexto_view["erros_formulario"] = errors.All()
@@ -60,6 +73,7 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
         return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
     rendimento := service.Calcular()
+    rendimento.SetPorcentagemValorFinalRelativoAValorInicial()
     rendimento.SetMeses()
     rendimento.SetDias()
     rendimento.SetSemestres()
@@ -69,6 +83,8 @@ func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {
     contexto_view["valor_investido"] = core.FormatarValorMonetario(rendimento.Gasto)
     contexto_view["valor_inicial"] = core.FormatarValorMonetario(rendimento.ValorInicial)
     contexto_view["valor_final"] = core.FormatarValorMonetario(rendimento.ValorFinal)
+    contexto_view["porcentagem_aumento"] = core.FormatarValorMonetario(rendimento.PorcentagemValorFinalRelativoAValorInicial)
+    fmt.Println(rendimento.PorcentagemValorFinalRelativoAValorInicial, contexto_view["porcentagem_aumento"])
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
     json_data, err := rendimento.ToJson()
     if err == nil {

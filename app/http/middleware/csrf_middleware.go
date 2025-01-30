@@ -17,6 +17,7 @@ func CsrfMiddleware() http.Middleware {
                 fmt.Println("Sem token")
                 ctx.Response().Redirect(303, "/")
             } else {
+                fmt.Println("Com token")
                 ctx.Request().Session().Put("csrf", token)
                 ctx.Request().Session().Save()
                 ctx.Request().Next()

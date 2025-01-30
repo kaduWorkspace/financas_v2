@@ -19,7 +19,21 @@ type PostCalcularJuros struct {
     ValorAumentoAporte    float64  `json:"valor_aumento_aporte" form:"valor_aumento_aporte"`
 }
 
-
+func (r *PostCalcularJuros) ValidarQuantidades() error {
+    if r.ValorInicial > 1000000 {
+        return errors.New("Valor inicial muito alto para o calculo.")
+    }
+    if r.AporteMensal > 1000000 {
+        return errors.New("Aporte mensal muito alto para o calculo.")
+    }
+    if r.AporteSemestral > 1000000 {
+        return errors.New("Aporte semestral muito alto para o calculo.")
+    }
+    if r.ValorAumentoAporte > 1000000 {
+        return errors.New("Aumento de aporte muito alto para o calculo.")
+    }
+    return nil
+}
 func (r *PostCalcularJuros) Authorize(ctx http.Context) error {
 	return nil
 }
