@@ -11,12 +11,12 @@ import (
 )
 
 type FinancasController struct {
-    simularCdbService financas.SimulacaoCDB
+    simularJurosCompostoService financas.SimularJurosComposto
 }
 
 func NewFinancasController() *FinancasController {
 	return &FinancasController{
-        simularCdbService: financas.SimulacaoCDB {},
+        simularJurosCompostoService: financas.SimularJurosComposto {},
 	}
 }
 
@@ -28,10 +28,39 @@ func (r *FinancasController) Index(ctx http.Context) http.Response {
         contexto_view["panic"] = erro
     }
     return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
-
 }
 func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
-    return nil
+    var post_calcular_cdb requests.PostSimularCdb
+    contexto_view := map[string]any{}
+    errors, err := ctx.Request().ValidateRequest(&post_calcular_cdb)
+    if err != nil {
+        fmt.Println(err.Error())
+        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
+    }
+    if errors != nil && len(errors.All()) > 0 {
+        contexto_view["erros_formulario"] = errors.All()
+        fmt.Println(errors)
+        return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+    }
+    contexto_view["message"] = "Simulação finalizada!"
+    contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
+/*    self.simularJurosCompostoService.SetDatas(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
+    self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas()
+    self.simularJurosCompostoService.SetDiasDeLiquidesPorAno(post_calcular_cdb.DiasLiquidezPorAno)
+    if err := self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas(); err != nil {
+        contexto_view["panic"] = "Erro inexperado. Tente novamente mais tarde!"
+        return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+    }
+    self.simularJurosCompostoService.SetValorAporte(post_calcular_cdb.ValorAporte)
+    self.simularJurosCompostoService.SetTaxaDeJurosDecimal(post_calcular_cdb.ValorTaxaAnual, "porcento anual")
+    self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
+    valorizacao := financas.FutureValuesOfASeriesFormula(self.simularJurosCompostoService.GetTaxaDeJurosDecimal(), self.simularJurosCompostoService.GetDiasDeLiquidezPorAno(), self.simularJurosCompostoService.GetTaxaAnos(), self.simularJurosCompostoService.GetValorAporte())
+    contexto_view["valorizacao"] = valorizacao
+    contexto_view["valor_investido"] = valorizacao
+    contexto_view["valor_inicial"] = valorizacao
+    contexto_view["valor_final"] = valorizacao
+    contexto_view["porcentagem_aumento"] = core.PorcentagemValorInicialParaValorFinal(valorizacao, self.simularJurosCompostoService.GetValorInicial())*/
+    return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
 }
 
 func (_ *FinancasController) CalcularWeb(ctx http.Context) http.Response {

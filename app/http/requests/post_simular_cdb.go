@@ -12,10 +12,10 @@ import (
 type PostSimularCdb struct {
     ValorInicial          float64 `json:"valor_inicial" form:"valor_inicial" form:"valor_inicial"`
     ValorAporte          float64 `json:"valor_porte" form:"valor_aporte" form:"valor_aporte"`
-    ValorTaxaAnual          string `json:"data_taxa_anual" form:"data_taxa_anual" form: valor_taxa_anual`
+    ValorTaxaAnual          float64 `json:"valor_taxa_anual" form: valor_taxa_anual`
     DataInicial           string `json:"data_inicial" form:"data_inicial" form:"data_inicial"`
     DataFinal             string `json:"data_final" form:"data_final" form:"data_final"`
-    DiasLiquidezPorAno string `json:"dias_liquidez_por_ano" form:"periodos_liquidez_por_ano"`
+    DiasLiquidezPorAno int `json:"dias_liquidez_por_ano" form:"dias_liquidez_por_ano"`
 }
 func (r *PostSimularCdb) ValidarData() error {
 	_, err := time.Parse("02/01/2006", r.DataInicial) // "02" é o dia, "01" é o mês, "2006" é o ano no Go
@@ -57,7 +57,7 @@ func (r *PostSimularCdb) Rules(ctx http.Context) map[string]string {
         "valor_aporte":            "numeric",
         "data_inicial":             "required|string",
         "data_final":               "required|string",
-        "valor_taxa_anual":         "required|string",
+        "valor_taxa_anual":         "required|numeric",
         "dias_liquidez_por_ano": "required|numeric",
     }
 }
