@@ -12,14 +12,17 @@ func Web() {
     facades.Route().Fallback(func (ctx http.Context) http.Response {
         return ctx.Response().Redirect(http.StatusSeeOther, "/")
     })
-    facades.Route().Get("/", func(ctx http.Context) http.Response {
+    facades.Route().Get("/", financasController.Index)
+    facades.Route().Get("v1.0", func(ctx http.Context) http.Response {
         contexto_view := map[string]any{}
         contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
         erro := ctx.Request().Query("erro")
         if  erro != "" {
             contexto_view["panic"] = erro
         }
+        contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
         return ctx.Response().View().Make("financas.v2.tmpl", contexto_view)
     })
-    facades.Route().Post("/calcular", financasController.CalcularWeb)
+    facades.Route().Post("v1/simular-cdb", financasController.CalcularWeb)
+    facades.Route().Post("v2/simular-cdb", financasController.CalcularV2)
 }
