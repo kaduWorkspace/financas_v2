@@ -7,6 +7,7 @@ import (
 	"goravel/app/core"
 	"goravel/app/http/requests"
 	"image/color"
+	"math"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -138,37 +139,47 @@ func New(input requests.PostCalcularJuros) (CalcularJuros, error) {
         return self, nil
     }
     self.dataFinal = timeFinal
-    self.setTaxaSelic()
+    self.setTaxaSelic(self.dataInicial)
     return self, nil
 }
-
-func (self *CalcularJuros) setTaxaSelic() error {
-    result, err := core.HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
-    if err != nil {
-        self.taxaAnual = 11.25
-        self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
-        return err
+func (self *CalcularJuros) FutureValueOfASeries(valor_aporte, taxa_juros, dias_de_liquides, anos, quantidade_de_aportes_por_ano float64) float64 {
+    //PMT × {[(1 + r/n)^(nt) - 1] / (r/n)} x (1 + r/n)
+    //return valor_aporte * ( math.Pow((1 + (taxa_juros/dias_de_liquides)), dias_de_liquides*anos) - 1 ) * (1 + (taxa_juros/quantidade_de_aportes_por_ano))
+    fmt.Println("Argumentos: ", valor_aporte, taxa_juros, dias_de_liquides, anos, quantidade_de_aportes_por_ano)
+	fator_de_crescimento := math.Pow(1 + (taxa_juros/dias_de_liquides), dias_de_liquides*anos) - 1
+	fator_de_multiplicacao := fator_de_crescimento / (taxa_juros / quantidade_de_aportes_por_ano)
+	valor_futuro := valor_aporte * fator_de_multiplicacao
+	return valor_futuro * (1 + (taxa_juros/quantidade_de_aportes_por_ano))
+}
+func (self *CalcularJuros) setTaxaSelic(data_atual time.Time) error {
+    qtd_dias_no_ano := core.Dias_no_ano(data_atual.Year())
+    if self.taxaAnual == 0 {
+        result, err := core.HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
+        if err != nil {
+            self.taxaAnual = 11.25
+            self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
+            return err
+        }
+        type RetornoBancoCentralApi struct {
+            MetaSelic          float64 `json:"MetaSelic"`
+            DataReuniaoCopom   string  `json:"DataReuniaoCopom"`
+            Vies               string  `json:"Vies"`
+        }
+        type RetornoBancoCentralApiWrapper struct {
+            Conteudo []RetornoBancoCentralApi `json:"conteudo"`
+        }
+        var bodyRes RetornoBancoCentralApiWrapper
+        if err := core.ConverterJson(result, &bodyRes); err != nil {
+            self.taxaAnual = 11.25
+        }
+        if len(bodyRes.Conteudo) == 0 {
+            self.taxaAnual = 11.25
+        } else {
+            self.taxaAnual = bodyRes.Conteudo[0].MetaSelic
+            self.TaxaSelic = self.taxaAnual / 365 / 100
+        }
     }
-    type RetornoBancoCentralApi struct {
-        MetaSelic          float64 `json:"MetaSelic"`
-        DataReuniaoCopom   string  `json:"DataReuniaoCopom"`
-        Vies               string  `json:"Vies"`
-    }
-    type RetornoBancoCentralApiWrapper struct {
-        Conteudo []RetornoBancoCentralApi `json:"conteudo"`
-    }
-    var bodyRes RetornoBancoCentralApiWrapper
-    if err := core.ConverterJson(result, &bodyRes); err != nil {
-        self.taxaAnual = 11.25
-        self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
-    }
-    if len(bodyRes.Conteudo) == 0 {
-        self.taxaAnual = 11.25
-        self.TaxaSelic = float64((self.taxaAnual / 365) / 100)
-    } else {
-        self.taxaAnual = bodyRes.Conteudo[0].MetaSelic
-        self.TaxaSelic = self.taxaAnual / 365 / 100
-    }
+    self.TaxaSelic = float64((self.taxaAnual / float64(qtd_dias_no_ano)) / 100)
     return nil
 }
 type ResultadoSimulacaoProcessado struct {
@@ -206,6 +217,7 @@ type ResultadoSimulacao struct {
     Valorizacao float64 `json:"valorizacao"`
     ValorFinal float64 `json:"valor_final"`
     ValorInicial float64 `json:"valor_inicial"`
+    PorcentagemValorFinalRelativoAValorInicial float64 `json:"porcentagem_valor_final_relativo_valor_inicial"`
     Gasto float64 `json:"gastos"`
     Diferenca float64 `json:"diferenca"`
     DataInicial string `json:"data_inicial"`
@@ -213,38 +225,36 @@ type ResultadoSimulacao struct {
 }
 func (self *ResultadoSimulacao) SetDadosProcessados() {
     var resultado_processado ResultadoSimulacaoProcessado
-    for _, dia := range self.Dias {
-        if resultado_processado.Dia.MaiorValorizacao.Valorizacao == 0.0 || dia.Valorizacao > resultado_processado.Dia.MaiorValorizacao.Valorizacao {
-            resultado_processado.Dia.MaiorValorizacao = dia
-        }
-        if resultado_processado.Dia.MenorValorizacao.Valorizacao == 0.0 || dia.Valorizacao < resultado_processado.Dia.MenorValorizacao.Valorizacao {
-            resultado_processado.Dia.MenorValorizacao = dia
-        }
+    resultado_processado.Dia.MaiorValorizacao = self.Dias[len(self.Dias)-1]
+    resultado_processado.Dia.MenorValorizacao = self.Dias[0]
+    penultimo_mes := self.Meses[len(self.Meses)-2]
+    data_penultimo, err := time.Parse("02/01/2006", penultimo_mes.Data)
+    if err == nil && data_penultimo.Month() == time.February {
+        penultimo_mes = self.Meses[len(self.Meses)-3]
     }
-    for _, mes := range self.Meses {
-        if resultado_processado.Mes.MaiorValorizacao.Valorizacao == 0.0 || mes.Valorizacao > resultado_processado.Mes.MaiorValorizacao.Valorizacao {
-            resultado_processado.Mes.MaiorValorizacao = mes
-        }
-        if (resultado_processado.Mes.MenorValorizacao.Valorizacao == 0.0 || mes.Valorizacao < resultado_processado.Mes.MenorValorizacao.Valorizacao) && mes.DataFinal != mes.DataInicial {
-            resultado_processado.Mes.MenorValorizacao = mes
-        }
+    ultimo_mes := self.Meses[len(self.Meses)-1]
+    if penultimo_mes.Valorizacao > ultimo_mes.Valorizacao {
+        resultado_processado.Mes.MaiorValorizacao = penultimo_mes
+    } else {
+        resultado_processado.Mes.MaiorValorizacao = ultimo_mes
     }
-    for _, semestre := range self.Semestres {
-        if resultado_processado.Semestre.MaiorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao > resultado_processado.Semestre.MaiorValorizacao.Valorizacao {
-            resultado_processado.Semestre.MaiorValorizacao = semestre
-        }
-        if semestre.DataFinal != semestre.DataInicial && (resultado_processado.Semestre.MenorValorizacao.Valorizacao == 0.0 || semestre.Valorizacao < resultado_processado.Semestre.MenorValorizacao.Valorizacao) {
-            resultado_processado.Semestre.MenorValorizacao = semestre
-        }
+    resultado_processado.Mes.MenorValorizacao = self.Meses[0]
+
+    penultimo_semestre := self.Semestres[len(self.Semestres)-2]
+    ultimo_semestre := self.Semestres[len(self.Semestres)-1]
+    if ultimo_semestre.Valorizacao > penultimo_semestre.Valorizacao {
+        resultado_processado.Semestre.MaiorValorizacao = ultimo_semestre
+    } else {
+        resultado_processado.Semestre.MenorValorizacao = self.Semestres[0]
     }
-    for _, ano := range self.Anos {
-        if resultado_processado.Ano.MaiorValorizacao.Valorizacao == 0.0 || ano.Valorizacao > resultado_processado.Ano.MaiorValorizacao.Valorizacao {
-            resultado_processado.Ano.MaiorValorizacao = ano
-        }
-        if ano.DataFinal != ano.DataInicial && (resultado_processado.Ano.MenorValorizacao.Valorizacao == 0.0 || ano.Valorizacao < resultado_processado.Ano.MenorValorizacao.Valorizacao) {
-            resultado_processado.Ano.MenorValorizacao = ano
-        }
+    ultimo_ano := self.Anos[len(self.Anos)-1]
+    penultimo_ano := self.Anos[len(self.Anos)-2]
+    if ultimo_ano.Valorizacao > penultimo_ano.Valorizacao {
+        resultado_processado.Ano.MaiorValorizacao = ultimo_ano
+    } else {
+        resultado_processado.Ano.MaiorValorizacao = penultimo_ano
     }
+    resultado_processado.Ano.MenorValorizacao = self.Anos[0]
     self.DadosProcessados = resultado_processado
     self.DadosProcessados.ApagarDadosDispensaveis()
     self.DadosProcessados.Mes.MaiorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Mes.MaiorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Mes.MaiorValorizacao.DataFinal))
@@ -253,6 +263,9 @@ func (self *ResultadoSimulacao) SetDadosProcessados() {
     self.DadosProcessados.Mes.MenorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Mes.MenorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Mes.MenorValorizacao.DataFinal))
     self.DadosProcessados.Semestre.MenorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Semestre.MenorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Semestre.MenorValorizacao.DataFinal))
     self.DadosProcessados.Ano.MenorValorizacao.Data = fmt.Sprintf("%s - %s", formatarDataPeriodo(self.DadosProcessados.Ano.MenorValorizacao.DataInicial), formatarDataPeriodo(self.DadosProcessados.Ano.MenorValorizacao.DataFinal))
+}
+func (self *ResultadoSimulacao) SetPorcentagemValorFinalRelativoAValorInicial() {
+    self.PorcentagemValorFinalRelativoAValorInicial = (self.ValorFinal / self.ValorInicial) * 100
 }
 func (self *ResultadoSimulacao) ToJson() (string, error) {
     jsonData, err := json.Marshal(self)
@@ -489,6 +502,50 @@ func (self *ResultadoSimulacao) finalizarSimulacao(resultado float64, anos []Tra
 func (self *ResultadoSimulacao) calcularDiferencaDebug() {
     self.Diferenca = self.ValorFinal - self.Gasto - self.ValorInicial
 }
+/*
+* Retorna uma gregado da quantidade de dias de acada ano do range de data.
+* Cria um valor de anos para ser usado como taxa na nova funcao de calcular com matematica o rendimento
+* 366/365  = 1 ano
+* 91 dias de um ano de 266 dias = 0.24 anos
+*/
+func (self *CalcularJuros) getValorAnos(data_inicial time.Time, data_final time.Time) float64 {
+    self.dataInicial = data_inicial
+    self.dataFinal = data_final
+    mapa_dias_por_ano := map[int]int {}
+    mapa_dias_por_ano[self.dataInicial.Year()] = int(math.Abs(float64(self.dataInicial.YearDay() - core.DiasNoAnoV2(self.dataInicial))))
+    aux_date := self.dataInicial
+    for aux_date.Year() <= self.dataFinal.Year() {
+        //fmt.Println(aux_date.Year(), self.dataFinal.Year(), aux_date.Year() <= self.dataFinal.Year())
+        if self.dataFinal.Year() == aux_date.Year() {
+            mapa_dias_por_ano[self.dataFinal.Year()] = aux_date.YearDay()
+            break
+        } else {
+            mapa_dias_por_ano[aux_date.Year()] = core.DiasNoAnoV2(aux_date)
+        }
+        aux_date = aux_date.AddDate(1,0,0)
+        fmt.Println(aux_date.Year())
+    }
+    quantidade_anos := 0.0
+    dateLayout := "2006-01-02"
+    for ano, dias := range mapa_dias_por_ano {
+        aux_date_2, err := time.Parse(dateLayout, fmt.Sprintf("%d-01-01",ano))
+        if err != nil {
+            fmt.Println(err)
+            return 0.0
+        }
+        total_dias_ano := core.DiasNoAnoV2(aux_date_2)
+        quantidade_anos += float64(dias)/float64(total_dias_ano)
+    }
+    return quantidade_anos
+}
+func (self *CalcularJuros) CalcularMath(valor_aporte float64, data_inicial time.Time, data_final time.Time) float64 {
+    media_dias_uteis_por_ano := 252.0
+    valor_anos := self.getValorAnos(data_inicial, data_final)
+    hoje := time.Now()
+    self.setTaxaSelic(hoje)
+    resultado := self.FutureValueOfASeries(valor_aporte, self.taxaAnual/100, media_dias_uteis_por_ano, valor_anos, 12)
+    return resultado
+}
 func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     resultadoSimulacao := newResultadoSimulacao(self.dataInicial, self.dataFinal, self.ValorInicial)
 
@@ -501,7 +558,7 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     prxAno := dataAtual.AddDate(1, 0, 0)
 
     var trackerAnuais []TrackerAnual
-
+    total_dias_uteis := 0
     trackerMensalAtual := newTrackerMensal(dataAtual, self.AporteMensal)
     trackerSemestralAtual := newTrackerSemestral(dataAtual, self.AporteSemestral)
     trackerAnualAtual :=  newTrackerAnual(dataAtual)
@@ -511,14 +568,20 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
     resultadoSimulacao.adicionaGasto(self.AporteMensal)*/
     for !dataAtual.After(self.dataFinal) {
         dataAtual = dataAtual.AddDate(0, 0, 1)
-        valorizacao := self.TaxaSelic * resultado
-        resultadoSimulacao.adicionaValorizacao(valorizacao)
-        resultado = resultado + valorizacao
-        trackerMensalAtual.Valorizacao += valorizacao
-        trackerSemestralAtual.Valorizacao += valorizacao
-        trackerAnualAtual.Valorizacao += valorizacao
-        trackerDiario := newTrackerDiario(dataAtual, valorizacao, resultado)
-        trackerMensalAtual.AdicionaDia(trackerDiario)
+        if dataAtual.Month() == time.January && dataAtual.Day() == 1 {
+            self.setTaxaSelic(dataAtual)
+        }
+        if dataAtual.Weekday() != time.Sunday && dataAtual.Weekday() != time.Saturday {
+            total_dias_uteis++
+            valorizacao := self.TaxaSelic * resultado
+            resultadoSimulacao.adicionaValorizacao(valorizacao)
+            resultado = resultado + valorizacao
+            trackerMensalAtual.Valorizacao += valorizacao
+            trackerSemestralAtual.Valorizacao += valorizacao
+            trackerAnualAtual.Valorizacao += valorizacao
+            trackerDiario := newTrackerDiario(dataAtual, valorizacao, resultado)
+            trackerMensalAtual.AdicionaDia(trackerDiario)
+        }
         if dataAtual.Equal(prxMes) {
             resultado += self.AporteMensal
             trackerMensalAtual.finalizarMes(dataAtual, resultado)
@@ -560,7 +623,6 @@ func (self *CalcularJuros) Calcular() ResultadoSimulacao {
         }
         if dataAtual.Equal(self.dataFinal) {
             trackerMensalAtual.finalizarMes(dataAtual, resultado)
-
             trackerSemestralAtual.adicionaMes(trackerMensalAtual)
             trackerSemestralAtual.finalizarSemestre(dataAtual, resultado)
 

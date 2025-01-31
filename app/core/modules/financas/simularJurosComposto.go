@@ -11,17 +11,16 @@ import (
 )
 
 // Sempre será pré fixado, pois a taxa é fixada antes do inicio do investimento e se mantem ate o final.
-type SimulacaoCDB struct {
+type SimularJurosComposto struct {
     dataInicial time.Time `json:"data_inicial"`
     dataFinal time.Time `json:"data_final"`
-    ValorEstimadoFuturo float64 `json:"valor_estimado_futuro"`
     valorInicial float64
     fracaoAnos float64
     valorAporte float64
     taxaJurosDecimal float64
     diasLiquidez float64
 }
-func (self *SimulacaoCDB) SetDatas(data_inicial string, data_final string) error {
+func (self *SimularJurosComposto) SetDatas(data_inicial string, data_final string) error {
     data_layout := "2006-01-02"
     data_inicial_obj, err := time.Parse(data_layout, data_inicial)
     if err != nil {
@@ -37,24 +36,23 @@ func (self *SimulacaoCDB) SetDatas(data_inicial string, data_final string) error
     self.dataFinal = data_final_obj
     return nil
 }
-func (self *SimulacaoCDB) SetValorAporte(aporte float64) {
+func (self *SimularJurosComposto) SetValorAporte(aporte float64) {
     self.valorAporte = aporte
 }
-func (self *SimulacaoCDB) SetDiasLiquidezPorAno (quantidade float64) {
+func (self *SimularJurosComposto) SetDiasLiquidezPorAno (quantidade float64) {
     self.diasLiquidez = quantidade
 }
-func (self *SimulacaoCDB) JurosComposto() {}
-func (self *SimulacaoCDB) SetDiasDeLiquidesPorAno(quantidade int) {
+func (self *SimularJurosComposto) SetDiasDeLiquidesPorAno(quantidade int) {
     self.diasLiquidez = float64(quantidade)
 }
-func (self *SimulacaoCDB) SetTaxaDeJurosDecimal(valor float64, tipo string) error {
+func (self *SimularJurosComposto) SetTaxaDeJurosDecimal(valor float64, tipo string) error {
     if tipo == "porcento anual" {
         self.taxaJurosDecimal = valor / 100
         return nil
     }
     return errors.New("Tipo não é valido!")
 }
-func (self *SimulacaoCDB) SetTaxaAnosApartirPeriodoDeDatas() error {
+func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
     mapa_dias_por_ano := map[int]int {}
     mapa_dias_por_ano[self.dataInicial.Year()] = int(math.Abs(float64(self.dataInicial.YearDay() - core.DiasNoAnoV2(self.dataInicial))))
     aux_date := self.dataInicial
@@ -86,35 +84,28 @@ func (self *SimulacaoCDB) SetTaxaAnosApartirPeriodoDeDatas() error {
     self.fracaoAnos = quantidade_anos
     return nil
 }
-func (self *SimulacaoCDB) SetValorInicial(valor_inicial float64) {
+func (self *SimularJurosComposto) SetValorInicial(valor_inicial float64) {
     self.valorInicial = valor_inicial
 }
-func (self *SimulacaoCDB) JurosCompostoComAporteMensal() float64 {
-    //PMT × {[(1 + r/n)^(nt) - 1] / (r/n)} x (1 + r/n)
-	fator_de_crescimento := math.Pow(1 + (self.taxaJurosDecimal/self.diasLiquidez), self.diasLiquidez*self.fracaoAnos) - 1
-	fator_de_multiplicacao := fator_de_crescimento / (self.taxaJurosDecimal / self.diasLiquidez)
-	valor_futuro := self.valorAporte * fator_de_multiplicacao
-    return valor_futuro * (1 + (self.taxaJurosDecimal/12))
-}
-func (self *SimulacaoCDB) GetDiasDeLiquidezPorAno() float64 {
+func (self *SimularJurosComposto) GetDiasDeLiquidezPorAno() float64 {
     return self.diasLiquidez
 }
-func (self *SimulacaoCDB) GetTaxaDeJurosDecimal() float64 {
+func (self *SimularJurosComposto) GetTaxaDeJurosDecimal() float64 {
     return self.taxaJurosDecimal
 }
-func (self *SimulacaoCDB) GetTaxaAnos() float64 {
+func (self *SimularJurosComposto) GetTaxaAnos() float64 {
     return self.fracaoAnos
 }
-func (self *SimulacaoCDB) GetDataInicial() time.Time {
+func (self *SimularJurosComposto) GetDataInicial() time.Time {
     return self.dataInicial
 }
-func (self *SimulacaoCDB) GetDataFinal() time.Time {
+func (self *SimularJurosComposto) GetDataFinal() time.Time {
     return self.dataFinal
 }
-func (self *SimulacaoCDB) GetValorAporte() float64 {
+func (self *SimularJurosComposto) GetValorAporte() float64 {
     return self.valorAporte
 }
-func (self *SimulacaoCDB) GetTaxaSelic() float64 {
+func (self *SimularJurosComposto) GetTaxaSelic() float64 {
     valor_selic := 11.25 //padrao
     result, err := core.HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
     if err == nil {
@@ -133,17 +124,6 @@ func (self *SimulacaoCDB) GetTaxaSelic() float64 {
     }
     return valor_selic
 }
-func (self *SimulacaoCDB) GetValorInicial() float64 {
+func (self *SimularJurosComposto) GetValorInicial() float64 {
     return self.valorInicial
-}
-func FutureValuesOfASeriesFormula(taxa_juros_decimal, dias_liquidos, anos, valor_aporte float64) float64 {
-    //PMT × {[(1 + r/n)^(nt) - 1] / (r/n)} x (1 + r/n)
-	fator_de_crescimento := math.Pow(1 + (taxa_juros_decimal/dias_liquidos), dias_liquidos*anos) - 1
-	fator_de_multiplicacao := fator_de_crescimento / (taxa_juros_decimal / 12)
-	valor_futuro := valor_aporte * fator_de_multiplicacao
-    return valor_futuro * (1 + (taxa_juros_decimal/12 ))// trocar para a quantidadee de meses restantes para o ano da data inicial acabar))
-}
-func CompoundInterestFormula(valor_inicial, taxa_juros_decimal, dias_liquidos, anos float64) float64 {
-    valor_final := valor_inicial * math.Pow(1 + (taxa_juros_decimal/dias_liquidos), dias_liquidos*anos)
-    return valor_final
 }

@@ -11,6 +11,9 @@ import (
 	"strings"
 	"time"
 )
+func PorcentagemValorInicialParaValorFinal(valor_inicial, valor_final float64) float64 {
+    return (valor_final / valor_inicial) * 100
+}
 // Função para calcular os dias restantes até o final do ano
 func DiasRestantesNoAno(t time.Time) int {
 	// Obter o último dia do ano
