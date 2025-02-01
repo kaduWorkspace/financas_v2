@@ -92,7 +92,8 @@
                                     Dinheiro em caixa hoje
                                     <span class="text-gray-500">(Ex.: 10000)</span>
                                 </label>
-                                <input id="valor_inicial" type="text" step="any" name="valor_inicial"
+                                <input type="hidden" id="valor_inicial_input" name="valor_inicial" value="">
+                                <input id="valor_inicial" type="text" step="any"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                                 placeholder="Insira o valor" value="$ 0,0">
                                 <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_inicial"></span>
@@ -102,10 +103,10 @@
                                     Valor Aporte Mensal
                                     <span class="text-gray-500">(Ex.: 500)</span>
                                 </label>
+                                <input type="hidden" name="valor_aporte" id="valor_aporte_input" value="">
                                 <input
                                 id="valor_aporte"
                                 type="text"
-                                name="valor_aporte"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                                 placeholder="Insira o valor"
                                 value="$ 0,0"
@@ -129,10 +130,11 @@
                                     Valor Taxa Anual
                                     <span class="text-gray-500">(Selic.: 13,25%)</span>
                                 </label>
-                                <input id="valor_taxa_anual" type="number" step="any" name="valor_taxa_anual"
+                                <input type="hidden" name="valor_taxa_anual" id="valor_taxa_anual_input">
+                                <input id="valor_taxa_anual" type="text" step="any"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                                 placeholder="Insira o valor"
-                                value="">
+                                value="%13,25">
                                 <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_taxa_anual"></span>
                             </div>
                             <div class="flex flex-col sm:flex-row w-5/6 justify-center">
