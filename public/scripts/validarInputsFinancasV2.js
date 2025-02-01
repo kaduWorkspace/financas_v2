@@ -3,6 +3,14 @@ const valor_aporte = document.getElementById('valor_aporte')
 const dias_liquidez = document.getElementById('tipo_dias_liquidez_por_ano')
 const form = document.getElementById('formulario_calcular')
 const inputsPossiveis = [...form.elements].filter(input => !input.dataset.ignore_input)
+const inputs_por_nome = inputsPossiveis.reduce((acc, curr) => {
+    acc[curr.name] = curr
+    return acc
+}, {})
+const inputs_por_nome_valor = () => inputsPossiveis.reduce((acc, curr) => {
+    acc[curr.name] = curr.value
+    return acc
+}, {})
 const data_final_opcoes = document.getElementById('data_final_opcao')
 const data_final_especifico_wrapper = document.getElementById('data_especifica_wrapper')
 const data_final_especifico_input = document.getElementById('data_final')
@@ -95,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.value = 0.0
             }
         })
+        console.log(inputs_por_nome_valor())
         form.submit()
     })
 })

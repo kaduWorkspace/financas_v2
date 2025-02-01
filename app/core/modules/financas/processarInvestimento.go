@@ -1,4 +1,5 @@
 package financas
+
 /*
 Objeto que ira processar dados de structs responsaveis por calcular investimento
 */
@@ -9,7 +10,7 @@ const (
     JC_COM_APORTE_MENSAL_E_VALOR_INICIAL
 )
 type AnalizarResultadoInvestimentoDeJurosComposto struct {
-    jcService SimularJurosComposto
+    JcService SimularJurosComposto
     tipoInvestimento TIPO_INVESTIMENTO_ENUM `json: "tipo_investimento" form:"tipo_investimento"`
     resultadoInvestimento float64 `json:"resultado_investimento" form:"resultado_investimento"`
     retornoSobreOInvestimento float64 `json:"retorno_sobre_o_investimento" form:"retorno_sobre_o_investimento"`
@@ -21,16 +22,20 @@ func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetTipoInvestimento(ti
 func (self *AnalizarResultadoInvestimentoDeJurosComposto) GetTipoInvestimento() TIPO_INVESTIMENTO_ENUM {
     return self.tipoInvestimento
 }
-func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetRetornoSobreOInvestimento() {
-    if self.GetTipoInvestimento() == JC_COM_APORTE_MENSAL_E_VALOR_INICIAL {
-        self.retornoSobreOInvestimento = self.resultadoInvestimento / self.jcService.GetValorInicial()
-    }
-    if self.GetTipoInvestimento() == JC_COM_APORTE_MENSAL {
-        self.retornoSobreOInvestimento = self.resultadoInvestimento / self.jcService.GetValorInicial()
-    }
-    if self.GetTipoInvestimento() == JC_SEM_APORTE {
-        self.retornoSobreOInvestimento = self.resultadoInvestimento / self.jcService.GetValorInicial()
-    }
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetValorFinal(resultado float64) {
+    self.resultadoInvestimento = resultado
+}
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) GetValorFinal() float64 {
+    return self.resultadoInvestimento
+}
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) GetDiferencaRetorno(valor_inicial float64) float64 {
+    return self.GetValorFinal() - valor_inicial
+}
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetRetornoSobreOInvestimento(valor_inicial float64) {
+    self.retornoSobreOInvestimento = (self.resultadoInvestimento / valor_inicial) * 100
+}
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) GetRetornoSobreOInvestimento() float64 {
+    return self.retornoSobreOInvestimento
 }
 func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetUpDadosTabelaResultadoPorMes() {
 

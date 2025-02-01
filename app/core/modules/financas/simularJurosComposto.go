@@ -9,7 +9,10 @@ import (
 
 	"github.com/goravel/framework/facades"
 )
-
+type TIPO_TAXA_JUROS int
+const (
+    PROCENTO_ANUAL TIPO_TAXA_JUROS = iota
+)
 // Sempre será pré fixado, pois a taxa é fixada antes do inicio do investimento e se mantem ate o final.
 type SimularJurosComposto struct {
     dataInicial time.Time `json:"data_inicial"`
@@ -19,6 +22,8 @@ type SimularJurosComposto struct {
     valorAporte float64
     taxaJurosDecimal float64
     diasLiquidez float64
+    valorGasto float64
+    valorJuros float64
 }
 func (self *SimularJurosComposto) SetDatas(data_inicial string, data_final string) error {
     data_layout := "2006-01-02"
@@ -45,8 +50,8 @@ func (self *SimularJurosComposto) SetDiasLiquidezPorAno (quantidade float64) {
 func (self *SimularJurosComposto) SetDiasDeLiquidesPorAno(quantidade int) {
     self.diasLiquidez = float64(quantidade)
 }
-func (self *SimularJurosComposto) SetTaxaDeJurosDecimal(valor float64, tipo string) error {
-    if tipo == "porcento anual" {
+func (self *SimularJurosComposto) SetTaxaDeJurosDecimal(valor float64, tipo TIPO_TAXA_JUROS) error {
+    if tipo == PROCENTO_ANUAL {
         self.taxaJurosDecimal = valor / 100
         return nil
     }
@@ -126,4 +131,28 @@ func (self *SimularJurosComposto) GetTaxaSelic() float64 {
 }
 func (self *SimularJurosComposto) GetValorInicial() float64 {
     return self.valorInicial
+}
+func (self *SimularJurosComposto) SetValorJurosRendido(valor_final float64) {
+    if self.GetValorGasto() == 0.0 {
+        self.SetValorGasto()
+    }
+    valor_juros := valor_final - self.GetValorGasto()
+    self.valorJuros = valor_juros
+}
+func (self *SimularJurosComposto) GetValorJurosRendido() float64 {
+    return self.valorJuros
+}
+func (self *SimularJurosComposto) SetValorGasto() {
+    valor_gasto := 0.0
+    if self.GetValorInicial() > 0 {
+        valor_gasto += self.GetValorInicial()
+    }
+    if self.GetValorAporte() > 0 {
+        quantidade_meses := core.MesesEntreDatas(self.GetDataFinal(), self.GetDataInicial())
+        valor_gasto = valor_gasto + (self.GetValorAporte() * float64(quantidade_meses))
+    }
+    self.valorGasto = valor_gasto
+}
+func (self *SimularJurosComposto) GetValorGasto() float64 {
+    return self.valorGasto
 }

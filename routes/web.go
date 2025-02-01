@@ -23,6 +23,6 @@ func Web() {
         contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
         return ctx.Response().View().Make("financas.v2.tmpl", contexto_view)
     })
-    facades.Route().Post("v1/simular-cdb", financasController.CalcularWeb)
-    facades.Route().Post("v2/simular-cdb", financasController.CalcularV2)
+    facades.Route().Post("v1/simular-jc", financasController.CalcularWeb)
+    facades.Route().Post("v2/simular-jc", financasController.CalcularV2)
 }

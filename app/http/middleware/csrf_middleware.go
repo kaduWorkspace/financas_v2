@@ -14,10 +14,8 @@ func CsrfMiddleware() http.Middleware {
         handler := csrgGorillaMiddleware(net_http.HandlerFunc(func(w net_http.ResponseWriter, r *net_http.Request) {
 			token := csrf.Token(r)
             if(token == "") {
-                fmt.Println("Sem token")
                 ctx.Response().Redirect(303, "/")
             } else {
-                fmt.Println("Com token")
                 ctx.Request().Session().Put("csrf", token)
                 ctx.Request().Session().Save()
                 ctx.Request().Next()

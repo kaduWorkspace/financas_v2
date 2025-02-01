@@ -5,12 +5,36 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
+
+// Função para comparar dois floats com uma tolerância
+func AlmostEqual(a, b, tolerance float64) bool {
+	return math.Abs(a-b) <= tolerance
+}
+
+func MesesEntreDatas(data1, data2 time.Time) int {
+	// Calcula a diferença em anos e meses
+	anos := data2.Year() - data1.Year()
+	meses := int(data2.Month()) - int(data1.Month())
+
+	// Calcula o total de meses
+	totalMeses := anos*12 + meses
+
+	// Ajusta se o dia da segunda data for menor que o dia da primeira data
+	if data2.Day() < data1.Day() {
+		totalMeses--
+	}
+    if totalMeses < 0 {
+        totalMeses = totalMeses * -1
+    }
+	return totalMeses
+}
 func PorcentagemValorInicialParaValorFinal(valor_inicial, valor_final float64) float64 {
     return (valor_final / valor_inicial) * 100
 }

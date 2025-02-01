@@ -1,8 +1,10 @@
 package Feature
 
 import (
+	"fmt"
 	"testing"
 
+	"goravel/app/core"
 	"goravel/app/core/modules/financas"
 	"goravel/tests"
 
@@ -26,30 +28,39 @@ func (s *FutureValueOfASeriesSuite) SetupTest() {
 func (s *FutureValueOfASeriesSuite) TearDownTest() {
 }
 func (self *FutureValueOfASeriesSuite) TestNewStruct() {
-    servico := financas.SimulacaoCDB {}
-    servico.SetDatas("2025-01-01", "2026-01-01")
-    taxa_selic := servico.GetTaxaSelic()
+    servico := financas.SimularJurosComposto {}
     servico.SetDiasDeLiquidesPorAno(255)
-    servico.SetTaxaDeJurosDecimal(taxa_selic, "porcento anual")
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
     servico.SetValorAporte(833.00)
     servico.SetDiasDeLiquidesPorAno(12)
-    servico.SetTaxaAnosApartirPeriodoDeDatas()
-    valorizacao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1, servico.GetValorAporte())
-    if valorizacao != 10743.284798509316 {
-        self.Fail("Valorização deveria ser 10743.284798509316")
+    valorizacao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1, servico.GetValorAporte(), false)
+    valor_alvo := 10625.956528507051
+    if valorizacao != valor_alvo {
+        self.Fail(fmt.Sprintf("[FVS] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
 }
 func (self *FutureValueOfASeriesSuite) TestCompoundInterestFomula() {
-    servico := financas.SimulacaoCDB {}
-    servico.SetDatas("2025-01-01", "2026-01-01")
-    taxa_selic := servico.GetTaxaSelic()
+    servico := financas.SimularJurosComposto {}
     servico.SetDiasDeLiquidesPorAno(255)
-    servico.SetTaxaDeJurosDecimal(taxa_selic, "porcento anual")
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
     servico.SetValorInicial(9500.00)
     servico.SetDiasDeLiquidesPorAno(12)
-    servico.SetTaxaAnosApartirPeriodoDeDatas()
-    valorizacao := financas.CompoundInterestFormula(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos())
-    if valorizacao != 10842.00177695996 {
-        self.Fail("Valorização deveria ser 10842.00177695996")
+    valorizacao := financas.CompoundInterestFormula(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1)
+    valor_alvo := 10838.077509029437
+    if valorizacao != valor_alvo {
+        self.Fail(fmt.Sprintf("[CI] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
+    }
+}
+func (self *FutureValueOfASeriesSuite) TestCivFvs() {
+    servico := financas.SimularJurosComposto {}
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
+    servico.SetDiasDeLiquidesPorAno(255)
+    servico.SetValorInicial(9500.00)
+    servico.SetDiasDeLiquidesPorAno(12)
+    servico.SetValorAporte(833.00)
+    valorizacao := financas.CifAndFvs(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1, servico.GetValorAporte())
+    valor_alvo := 21581.362308
+    if !core.AlmostEqual(valorizacao, valor_alvo, 0.1) {
+        self.Fail(fmt.Sprintf("[CIF FVS] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
 }
