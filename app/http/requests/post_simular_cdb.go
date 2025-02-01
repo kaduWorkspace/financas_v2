@@ -59,8 +59,8 @@ func (r *PostSimularCdb) Authorize(ctx http.Context) error {
 
 func (r *PostSimularCdb) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
-        "valor_inicial":            "numeric",
-        "valor_aporte":            "numeric",
+        "valor_inicial":            "string",
+        "valor_aporte":            "string",
         "data_inicial":             "required|string",
         "data_final":               "required|string",
         "valor_taxa_anual":         "required|string",
@@ -70,10 +70,10 @@ func (r *PostSimularCdb) Rules(ctx http.Context) map[string]string {
 
 func (r *PostSimularCdb) Messages(ctx http.Context) map[string]string {
     return map[string]string{
-        "valor_inicial.numeric":             "O valor inicial deve ser numérico",
+        "valor_inicial.string":             "O valor inicial deve ser numérico",
         "valor_inicial.required":            "O valor inicial é obrigatório",
 
-        "valor_aporte.numeric":              "O valor do aporte deve ser numérico",
+        "valor_aporte.string":              "O valor do aporte deve ser numérico",
         "valor_aporte.required":             "O valor do aporte é obrigatório",
 
         "data_inicial.required":             "A data inicial é obrigatória",

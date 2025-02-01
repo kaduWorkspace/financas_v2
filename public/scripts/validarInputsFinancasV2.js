@@ -12,7 +12,7 @@ const inputs_por_nome = inputsPossiveis.reduce((acc, curr) => {
     return acc
 }, {})
 const tirar_mascara = (v, p) => {
-    return Number(v.replaceAll('.','').replaceAll(',','.').replaceAll(p,'').trim()) ?? 0
+    return v.replace(/\D/g, '') ?? 0
 }
 const inputs_por_nome_valor = () => inputsPossiveis.reduce((acc, curr) => {
     acc[curr.name] = curr.value
@@ -103,18 +103,14 @@ const incrementar_data = (quantidade = 6, tipo = "meses") => {
         : data.setFullYear(data.getFullYear() + quantidade)
     return formatar_data(data);
 }
-const buscarValoresInput = () => {
-    return inputsPossiveis.reduce((acc, item) => {
-            acc[item.name] = item.type == 'number' ? parseInt(item.value) : item.value
-            return acc;
-    }, {})
-}
-const validarValoresInputs = (inputs, validarNull = false) => {
-    const { valor_inicial, valor_aporte, data_final } = inputs
+
+const validarValoresInputs = (validarNull = false) => {
     const erros = [];
-    if(tirar_mascara(valor_inicial, "R$") < 0 || (validarNull && ["",null,false].includes(valor_inicial))) erros.push(["valor_inicial","Valor inicial inválido"]);
-    if(tirar_mascara(valor_aporte, "R$") > 1000000) erros.push(["aporte_mensal","Aporte mensal muito alto"]);
-    if(!data_final) erros.push(["data_final","Data final inválida"]);
+    let valor_inicial_v = tirar_mascara(mascara_monetaria(tirar_mascara(valor_inicial.value)))
+    let valor_aporte_v = tirar_mascara(mascara_monetaria(tirar_mascara(valor_aporte.value)))
+    if(valor_inicial_v < 0 || (validarNull && ["",null,false].includes(valor_inicial))) erros.push(["error_valor_inicial","Valor inicial inválido"]);
+    if(valor_aporte_v > 1000000000) erros.push(["error_valor_aporte","Aporte mensal muito alto"]);
+    if(!document.getElementById("data_final").value) erros.push(["error_data_final","Data final inválida"]);
     return erros.length ? erros : false;
 }
 inputsPossiveis.forEach(item => {
@@ -122,9 +118,9 @@ inputsPossiveis.forEach(item => {
         const errorSpan = document.getElementById(`error_${item.id}`)
         if(errorSpan)
             errorSpan.classList.add('hidden');
-        let validacao = validarValoresInputs(buscarValoresInput(), false);
+        const validacao = validarValoresInputs(false);
         if(!validacao) return;
-        const validacaoInput = validacao.find(valid => valid[0] == item.name);
+        const validacaoInput = validacao.find(([error_span_target_name]) => error_span_target_name == errorSpan.id);
         if(!validacaoInput) return;
         errorSpan.innerText = validacaoInput[1];
         errorSpan.classList.remove('hidden')
@@ -163,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
             data_final_especifico_input.value = incrementar_data(parseInt(data_final_opcoes.value), tipo)
         }
-        const validacoes = validarValoresInputs(buscarValoresInput(), true);
+        const validacoes = validarValoresInputs(true);
         if(validacoes) {
             validacoes.forEach(validacao => {
                 const errorSpan = document.getElementById(`error_${validacao[0]}`)
