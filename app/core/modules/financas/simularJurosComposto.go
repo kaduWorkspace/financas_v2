@@ -78,11 +78,11 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
         aux_date = aux_date.AddDate(1,0,0)
         if aux_date.Year() != self.dataFinal.Year() {
             aux_date = time.Date(aux_date.Year(), time.January, 0, 0, 0, 0, 0, time.UTC)
+            aux_date = aux_date.AddDate(1,0,0)
         } else {
             aux_date = self.dataFinal
         }
     }
-    //fmt.Println("Mapa de anos", mapa_dias_por_ano)
     quantidade_anos := 0.0
     dateLayout := "2006-01-02"
     for ano, dias := range mapa_dias_por_ano {
@@ -94,7 +94,6 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
         quantidade_anos = quantidade_anos + float64(dias)/float64(total_dias_ano)
     }
     self.fracaoAnos = quantidade_anos
-    //fmt.Println("Setando fracao anos para", self.fracaoAnos)
     return nil
 }
 func (self *SimularJurosComposto) SetValorInicial(valor_inicial float64) {

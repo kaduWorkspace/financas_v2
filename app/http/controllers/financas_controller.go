@@ -65,6 +65,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         contexto_view["panic"] = "Erro inexperado. Tente novamente mais tarde!"
         return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
     }
+
     //fmt.Println("Setando taxa de anos: ", self.simularJurosCompostoService.GetTaxaAnos())
     self.simularJurosCompostoService.SetTaxaDeJurosDecimal(post_calcular_cdb.ValorTaxaAnual, financas.PROCENTO_ANUAL)
     var valor_final float64
@@ -96,6 +97,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         self.analizarJurosCompostoService.SetValorFinal(valor_final)
         self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
     }
+
     self.analizarJurosCompostoService.SetTipoInvestimento(tipo_investimento)
     valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
     retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
