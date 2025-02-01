@@ -58,6 +58,12 @@ func (self *SimularJurosComposto) SetTaxaDeJurosDecimal(valor float64, tipo TIPO
     return errors.New("Tipo não é valido!")
 }
 func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
+    if self.dataFinal.Year() == self.dataInicial.Year() {
+        total_dias_ano := core.DiasNoAnoV2(self.dataFinal)
+        self.fracaoAnos = (float64(self.dataFinal.YearDay()) - float64(self.dataInicial.YearDay())) / float64(total_dias_ano)
+        //fmt.Println("Setando fracao anos para", self.fracaoAnos)
+        return nil
+    }
     mapa_dias_por_ano := map[int]int {}
     mapa_dias_por_ano[self.dataInicial.Year()] = int(math.Abs(float64(self.dataInicial.YearDay() - core.DiasNoAnoV2(self.dataInicial))))
     aux_date := self.dataInicial
@@ -76,6 +82,7 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
             aux_date = self.dataFinal
         }
     }
+    //fmt.Println("Mapa de anos", mapa_dias_por_ano)
     quantidade_anos := 0.0
     dateLayout := "2006-01-02"
     for ano, dias := range mapa_dias_por_ano {
@@ -87,6 +94,7 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
         quantidade_anos = quantidade_anos + float64(dias)/float64(total_dias_ano)
     }
     self.fracaoAnos = quantidade_anos
+    //fmt.Println("Setando fracao anos para", self.fracaoAnos)
     return nil
 }
 func (self *SimularJurosComposto) SetValorInicial(valor_inicial float64) {

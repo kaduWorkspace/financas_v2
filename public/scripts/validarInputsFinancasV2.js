@@ -84,8 +84,8 @@ const mascara_monetaria = valor => {
 const evento_mascara_monetaria = e => {
     e.target.value = "R$ " + mascara_monetaria(e.target.value)
 }
-data_final_opcoes.addEventListener('change', ({target:{value}}) => {
-    value == "data_especifica"
+data_final_opcoes.addEventListener('change', (e) => {
+    e.target.value == "data_especifica"
         ? data_final_especifico_wrapper.classList.remove('hidden')
         : data_final_especifico_wrapper.classList.add('hidden')
 })
@@ -132,8 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const data_inicial_input = document.getElementById("data_inicial")
     data_inicial_input.value = formatar_data(new Date())
     for (const input of form.elements) {
-        if (input.name) {
-            const savedValue = sessionStorage.getItem(input.name);
+        if (input.id) {
+            const savedValue = sessionStorage.getItem(input.id);
             if (savedValue) {
                 input.value = savedValue;
             }
@@ -143,9 +143,9 @@ document.addEventListener("DOMContentLoaded", () => {
         data_final_especifico_wrapper.classList.remove('hidden')
     }
     form.addEventListener("input", function (event) {
-        const { name, value } = event.target;
-        if (name) {
-            sessionStorage.setItem(name, value);
+        const { id, value } = event.target;
+        if (id) {
+            sessionStorage.setItem(id, value);
         }
     });
     valor_aporte.addEventListener('input', evento_mascara_monetaria)
@@ -157,7 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         if(data_final_opcoes.value !== "data_especifica") {
             const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
-            data_final_especifico_input.value = incrementar_data(parseInt(data_final_opcoes.value), tipo)
+            const data_resultado = incrementar_data(parseInt(data_final_opcoes.value), tipo)
+            data_final_especifico_input.value = data_resultado
         }
         const validacoes = validarValoresInputs(true);
         if(validacoes) {

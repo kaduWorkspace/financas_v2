@@ -59,27 +59,36 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     contexto_view["message"] = "Simulação finalizada!"
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
     self.simularJurosCompostoService.SetDatas(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
-    self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas()
+    //fmt.Println("Setando datas: ", self.simularJurosCompostoService.GetDataInicial(), " e ", self.simularJurosCompostoService.GetDataFinal())
     self.simularJurosCompostoService.SetDiasDeLiquidesPorAno(post_calcular_cdb.DiasLiquidezPorAno)
+    //fmt.Println("Setando dias liquidez por ano: ", self.simularJurosCompostoService.GetDiasDeLiquidezPorAno())
     if err := self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas(); err != nil {
         contexto_view["panic"] = "Erro inexperado. Tente novamente mais tarde!"
         return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
     }
+    //fmt.Println("Setando taxa de anos: ", self.simularJurosCompostoService.GetTaxaAnos())
     self.simularJurosCompostoService.SetTaxaDeJurosDecimal(post_calcular_cdb.ValorTaxaAnual, financas.PROCENTO_ANUAL)
     var valor_final float64
     var tipo_investimento financas.TIPO_INVESTIMENTO_ENUM
     self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
+    //fmt.Println("Adicionando valor inicial: ", post_calcular_cdb.ValorInicial)
     if post_calcular_cdb.ValorAporte > 0 {
+        //fmt.Println("Usuario definiu um valor para o aporte", post_calcular_cdb.ValorAporte)
         tipo_investimento = financas.JC_COM_APORTE_MENSAL_E_VALOR_INICIAL
+        //fmt.Println("Tipo de investimento com valor inicial e aporte mensal")
         self.simularJurosCompostoService.SetValorAporte(post_calcular_cdb.ValorAporte)
         if post_calcular_cdb.ValorInicial > 0 {
             self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
+            //fmt.Println("Setando valor inicial como sendo o proprio valor inicial", post_calcular_cdb.ValorInicial)
         } else {
             self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorAporte)
+            //fmt.Println("Setando valor inicial como sendo o valor do aporte", post_calcular_cdb.ValorAporte)
         }
         valor_final = financas.CifAndFvs(self.simularJurosCompostoService.GetValorInicial() ,self.simularJurosCompostoService.GetTaxaDeJurosDecimal(), self.simularJurosCompostoService.GetDiasDeLiquidezPorAno(), self.simularJurosCompostoService.GetTaxaAnos(), self.simularJurosCompostoService.GetValorAporte())
+        //fmt.Println("Valor final: ", valor_final)
         self.analizarJurosCompostoService.SetValorFinal(valor_final)
         self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
+        //fmt.Println("Setando retorno sobre o investimento", self.analizarJurosCompostoService.GetRetornoSobreOInvestimento())
     }
     if post_calcular_cdb.ValorInicial > 0 && post_calcular_cdb.ValorAporte == 0.0 {
         tipo_investimento = financas.JC_SEM_APORTE
@@ -88,7 +97,6 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         self.analizarJurosCompostoService.SetValorFinal(valor_final)
         self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
     }
-
     self.analizarJurosCompostoService.SetTipoInvestimento(tipo_investimento)
     valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
     retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
