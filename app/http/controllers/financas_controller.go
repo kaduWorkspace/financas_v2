@@ -5,6 +5,8 @@ import (
 	"goravel/app/core"
 	"goravel/app/core/modules/financas"
 	"goravel/app/http/requests"
+	"strconv"
+	"strings"
 
 	"github.com/goravel/framework/contracts/http"
 )
@@ -27,6 +29,7 @@ func NewFinancasController() *FinancasController {
 func (r *FinancasController) Index(ctx http.Context) http.Response {
     contexto_view := map[string]any{}
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
+    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
     erro := ctx.Request().Query("erro")
     if  erro != "" {
         contexto_view["panic"] = erro
@@ -110,5 +113,6 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     contexto_view["valor_final"] = core.FormatarValorMonetario(valor_final)
     contexto_view["juros_rendido"] = core.FormatarValorMonetario(self.simularJurosCompostoService.GetValorJurosRendido())
     contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
+    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
     return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
 }

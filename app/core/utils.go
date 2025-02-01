@@ -153,3 +153,23 @@ func DiasNoAno(data string) (int, error) {
 	}
 	return 365, nil
 }
+func GetTaxaSelic() float64 {
+    valor_selic := 13.25 //padrao
+    result, err := HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
+    if err == nil {
+        type RetornoBancoCentralApi struct {
+            MetaSelic          float64 `json:"MetaSelic"`
+            DataReuniaoCopom   string  `json:"DataReuniaoCopom"`
+            Vies               string  `json:"Vies"`
+        }
+        type RetornoBancoCentralApiWrapper struct {
+            Conteudo []RetornoBancoCentralApi `json:"conteudo"`
+        }
+        var bodyRes RetornoBancoCentralApiWrapper
+        if err := ConverterJson(result, &bodyRes); err == nil && len(bodyRes.Conteudo) != 0 {
+            valor_selic = bodyRes.Conteudo[0].MetaSelic
+        }
+    }
+    return valor_selic
+
+}

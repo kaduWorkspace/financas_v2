@@ -128,13 +128,13 @@
                             <div class="flex flex-col m-1 sm:w-2/4 w-full">
                                 <label for="valor_taxa_anual" class="text-gray-400 text-sm mb-1">
                                     Valor Taxa Anual
-                                    <span class="text-gray-500">(Selic.: 13,25%)</span>
+                                    <span class="text-gray-500">(Selic.: {{ .taxa_selic }} %)</span>
                                 </label>
                                 <input type="hidden" name="valor_taxa_anual" id="valor_taxa_anual_input">
                                 <input id="valor_taxa_anual" type="text" step="any"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                                 placeholder="Insira o valor"
-                                value="% 13,25">
+                                value="% {{ .taxa_selic }}">
                                 <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_taxa_anual"></span>
                             </div>
                             <div class="flex flex-col sm:flex-row w-5/6 justify-center">
