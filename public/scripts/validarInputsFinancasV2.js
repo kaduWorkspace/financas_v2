@@ -1,5 +1,6 @@
 const valor_taxa_anual = document.getElementById('valor_taxa_anual')
 const valor_aporte = document.getElementById('valor_aporte')
+const valor_inicial = document.getElementById('valor_inicial')
 const dias_liquidez = document.getElementById('tipo_dias_liquidez_por_ano')
 const form = document.getElementById('formulario_calcular')
 const inputsPossiveis = [...form.elements].filter(input => !input.dataset.ignore_input)
@@ -14,7 +15,24 @@ const inputs_por_nome_valor = () => inputsPossiveis.reduce((acc, curr) => {
 const data_final_opcoes = document.getElementById('data_final_opcao')
 const data_final_especifico_wrapper = document.getElementById('data_especifica_wrapper')
 const data_final_especifico_input = document.getElementById('data_final')
-
+const to_valor_monetario = string => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(string);
+}
+const moneyMask = (value) => {
+    value = value.replace('.', '').replace(',', '').replace(/\D/g, '')
+    const options = { minimumFractionDigits: 2 }
+    const result = new Intl.NumberFormat('pt-BR', options).format(
+        parseFloat(value) / 100
+    )
+    console.log(result)
+    if(result[0] === "0") {
+        let [zero, ...rest] = result.split('')
+    }
+    return 'R$ ' + result
+}
+const event_money_mask = e => {
+    e.target.value = moneyMask(e.target.value)
+}
 data_final_opcoes.addEventListener('change', ({target:{value}}) => {
     value == "data_especifica"
         ? data_final_especifico_wrapper.classList.remove('hidden')
@@ -83,6 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
             sessionStorage.setItem(name, value);
         }
     });
+    console.log(valor_aporte)
+    valor_aporte.addEventListener('keydown', event_money_mask)
+    valor_inicial.addEventListener('keydown', event_money_mask)
     form.addEventListener('submit', event => {
         event.preventDefault();
         if(data_final_opcoes.value !== "data_especifica") {
@@ -104,6 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         })
         console.log(inputs_por_nome_valor())
-        form.submit()
+//       form.submit()
     })
 })

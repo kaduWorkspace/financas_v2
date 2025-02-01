@@ -92,12 +92,27 @@
                                     Dinheiro em caixa hoje
                                     <span class="text-gray-500">(Ex.: 10000)</span>
                                 </label>
-                                <input id="valor_inicial" type="number" step="any" name="valor_inicial"
+                                <input id="valor_inicial" type="text" step="any" name="valor_inicial"
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
-                                placeholder="Insira o valor" value="{{ .historico_inputs.ValorInicial }}">
+                                placeholder="Insira o valor" value="$ 0,0">
                                 <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_inicial"></span>
                             </div>
                             <div class="flex flex-col m-1 sm:w-2/4 w-full">
+                                <label for="valor_aporte" class="text-gray-400 text-sm mb-1">
+                                    Valor Aporte Mensal
+                                    <span class="text-gray-500">(Ex.: 500)</span>
+                                </label>
+                                <input
+                                id="valor_aporte"
+                                type="text"
+                                name="valor_aporte"
+                                class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
+                                placeholder="Insira o valor"
+                                value="$ 0,0"
+                                />
+                                <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aporte"></span>
+                            </div>
+<!--                            <div class="flex flex-col m-1 sm:w-2/4 w-full">
                                 <label for="valor_aporte" class="text-gray-400 text-sm mb-1">
                                     Valor Aporte Mensal
                                     <span class="text-gray-500">(Ex.: 500)</span>
@@ -106,7 +121,7 @@
                                 class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
                                 placeholder="Insira o valor" value="">
                                 <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aporte"></span>
-                            </div>
+</div>-->
                         </div>
                         <div class="flex flex-col sm:flex-row w-5/6 justify-center">
                             <div class="flex flex-col m-1 sm:w-2/4 w-full">
