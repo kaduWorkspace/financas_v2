@@ -1,7 +1,5 @@
 package financas
 
-import "fmt"
-
 /*
 Objeto que ira processar dados de structs responsaveis por calcular investimento
 */
@@ -19,7 +17,7 @@ type AnalizarResultadoInvestimentoDeJurosComposto struct {
     dadosTabelaPorMes map[string]map[string]float64
 }
 func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dados []FVSMonthlyMap) []FVSMonthlyMap {
-    maximo_itens_tabela := 20
+    maximo_itens_tabela := 12
     quantidade_dados := len(dados)
     if quantidade_dados <= maximo_itens_tabela {
         return dados
