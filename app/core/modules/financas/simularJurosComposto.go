@@ -184,8 +184,7 @@ func (self *SimularJurosComposto) SetValorGasto() {
         valor_gasto += self.GetValorInicial()
     }
     if self.GetValorAporte() > 0 {
-        quantidade_meses := core.MesesEntreDatas(self.GetDataFinal(), self.GetDataInicial())
-        valor_gasto = valor_gasto + (self.GetValorAporte() * float64(quantidade_meses))
+        valor_gasto = valor_gasto + (self.GetValorAporte() * float64(int(self.GetTaxaMeses())))
     }
     self.valorGasto = valor_gasto
 }
