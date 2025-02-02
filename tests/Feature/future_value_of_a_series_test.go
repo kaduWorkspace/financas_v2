@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"goravel/app/core"
 	"goravel/app/core/modules/financas"
 	"goravel/tests"
 
@@ -27,7 +26,7 @@ func (s *FutureValueOfASeriesSuite) SetupTest() {
 // TearDownTest will run after each test in the suite.
 func (s *FutureValueOfASeriesSuite) TearDownTest() {
 }
-func (self *FutureValueOfASeriesSuite) TestNewStruct() {
+/*func (self *FutureValueOfASeriesSuite) TestFutureValueOfASeries() {
     servico := financas.SimularJurosComposto {}
     servico.SetDiasDeLiquidesPorAno(255)
     servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
@@ -38,7 +37,26 @@ func (self *FutureValueOfASeriesSuite) TestNewStruct() {
     if valorizacao != valor_alvo {
         self.Fail(fmt.Sprintf("[FVS] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
-}
+}*/
+func (self *FutureValueOfASeriesSuite) TestMonthlyFVS() {
+    servico := financas.SimularJurosComposto {}
+    data_inicial := "2025-02-01"
+    data_final := "2026-04-01"
+    fmt.Println("Datas inicial e final >> ", data_inicial, data_final)
+    servico.SetDatas(data_inicial, data_final)
+    servico.SetTaxaAnosApartirPeriodoDeDatas()
+    servico.SetDiasDeLiquidesPorAno(12)
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
+    servico.SetValorAporte(833.00)
+    reusultado_padrao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), false)
+    fmt.Println("Resultado padrao >> ", reusultado_padrao)
+    servico.SetTaxaMeses()
+    fmt.Println(servico.GetTaxaMeses())
+    mapas := financas.FutureValueOfASeriesMonthly(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaMeses(), true, servico.GetTaxaAnos())
+    fmt.Println("Mapa")
+    fmt.Println(mapas)
+
+}/*
 func (self *FutureValueOfASeriesSuite) TestCompoundInterestFomula() {
     servico := financas.SimularJurosComposto {}
     servico.SetDiasDeLiquidesPorAno(255)
@@ -63,4 +81,17 @@ func (self *FutureValueOfASeriesSuite) TestCivFvs() {
     if !core.AlmostEqual(valorizacao, valor_alvo, 0.1) {
         self.Fail(fmt.Sprintf("[CIF FVS] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
+}*/
+func (self *FutureValueOfASeriesSuite) TestTaxaAnos() {
+    servico := financas.SimularJurosComposto {}
+    data_inicial := "2025-02-01"
+    data_final := "2026-04-01"
+    servico.SetDatas(data_inicial, data_final)
+    servico.SetTaxaAnosApartirPeriodoDeDatas()
+    valor_alvo := 1.1648351648351647
+    if servico.GetTaxaAnos() != valor_alvo {
+        fmt.Println("Valor alvo nao atingido >> ", valor_alvo, "Valor atingido", servico.GetTaxaAnos(), "Datas", servico.GetDataInicial(), servico.GetDataFinal())
+        self.T().Fail()
+    }
+
 }

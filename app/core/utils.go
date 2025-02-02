@@ -173,3 +173,9 @@ func GetTaxaSelic() float64 {
     return valor_selic
 
 }
+func QuantidadeDiasDeUmMes(data time.Time) int {
+	firstOfNextMonth := time.Date(data.Year(), data.Month()+1, 1, 0, 0, 0, 0, time.UTC)
+	lastDayOfMonth := firstOfNextMonth.AddDate(0, 0, -1)
+	numDays := lastDayOfMonth.Day()
+    return numDays
+}

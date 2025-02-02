@@ -19,6 +19,7 @@ type SimularJurosComposto struct {
     dataFinal time.Time `json:"data_final"`
     valorInicial float64
     fracaoAnos float64
+    fracaoMeses float64
     valorAporte float64
     taxaJurosDecimal float64
     diasLiquidez float64
@@ -70,7 +71,7 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
     aux_date = aux_date.AddDate(1,0,0)
     for aux_date.Year() <= self.dataFinal.Year() {
         if self.dataFinal.Year() == aux_date.Year() {
-            mapa_dias_por_ano[self.dataFinal.Year()] = aux_date.YearDay()
+            mapa_dias_por_ano[self.dataFinal.Year()] = self.dataFinal.YearDay()
             break
         } else {
             mapa_dias_por_ano[aux_date.Year()] = core.DiasNoAnoV2(aux_date)
@@ -95,6 +96,28 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
     }
     self.fracaoAnos = quantidade_anos
     return nil
+}
+func (self *SimularJurosComposto) SetTaxaMeses() {
+    taxa_meses := 0.0
+    aux_date := self.dataInicial
+    quantidade_dias_primeiro_mes := core.QuantidadeDiasDeUmMes(aux_date)
+    taxa_curr := ( float64(quantidade_dias_primeiro_mes) - float64(aux_date.Day()))/float64(quantidade_dias_primeiro_mes)
+    taxa_meses += taxa_curr
+    aux_date = aux_date.AddDate(0,1,0)
+    for aux_date.Unix() < self.dataFinal.Unix() {
+        if aux_date.Month() == self.dataFinal.Month() && aux_date.Year() == self.dataFinal.Year() {
+            break;
+        }
+        taxa_meses++
+        aux_date = aux_date.AddDate(0,1,0)
+    }
+    quantidade_dias_ultimo_mes := core.QuantidadeDiasDeUmMes(self.dataFinal)
+    taxa_curr = float64(self.dataFinal.Day())/float64(quantidade_dias_ultimo_mes)
+    taxa_meses += taxa_curr
+    self.fracaoMeses = taxa_meses
+}
+func (self *SimularJurosComposto) GetTaxaMeses() float64 {
+    return self.fracaoMeses
 }
 func (self *SimularJurosComposto) SetValorInicial(valor_inicial float64) {
     self.valorInicial = valor_inicial
