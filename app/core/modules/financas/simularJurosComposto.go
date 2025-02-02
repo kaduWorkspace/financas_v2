@@ -94,10 +94,13 @@ func (self *SimularJurosComposto) SetTaxaAnosApartirPeriodoDeDatas() error {
         total_dias_ano := core.DiasRestantesNoAno(aux_date_2)
         quantidade_anos = quantidade_anos + float64(dias)/float64(total_dias_ano)
     }
-    self.fracaoAnos = quantidade_anos
+    self.SetTaxaAnos(quantidade_anos)
     return nil
 }
-func (self *SimularJurosComposto) SetTaxaMeses() {
+func (self *SimularJurosComposto) SetTaxaMeses(meses float64) {
+    self.fracaoMeses = meses
+}
+func (self *SimularJurosComposto) SetTaxaMesesRangeData() {
     taxa_meses := 0.0
     aux_date := self.dataInicial
     quantidade_dias_primeiro_mes := core.QuantidadeDiasDeUmMes(aux_date)
@@ -115,6 +118,7 @@ func (self *SimularJurosComposto) SetTaxaMeses() {
     taxa_curr = float64(self.dataFinal.Day())/float64(quantidade_dias_ultimo_mes)
     taxa_meses += taxa_curr
     self.fracaoMeses = taxa_meses
+    self.SetTaxaMeses(taxa_meses)
 }
 func (self *SimularJurosComposto) GetTaxaMeses() float64 {
     return self.fracaoMeses
@@ -127,6 +131,9 @@ func (self *SimularJurosComposto) GetDiasDeLiquidezPorAno() float64 {
 }
 func (self *SimularJurosComposto) GetTaxaDeJurosDecimal() float64 {
     return self.taxaJurosDecimal
+}
+func (self *SimularJurosComposto) SetTaxaAnos(taxa float64) {
+   self.fracaoAnos = taxa
 }
 func (self *SimularJurosComposto) GetTaxaAnos() float64 {
     return self.fracaoAnos

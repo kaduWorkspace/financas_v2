@@ -41,20 +41,21 @@ func (s *FutureValueOfASeriesSuite) TearDownTest() {
 func (self *FutureValueOfASeriesSuite) TestMonthlyFVS() {
     servico := financas.SimularJurosComposto {}
     data_inicial := "2025-02-01"
-    data_final := "2026-04-01"
+    data_final := "2026-02-01"
     fmt.Println("Datas inicial e final >> ", data_inicial, data_final)
     servico.SetDatas(data_inicial, data_final)
     servico.SetTaxaAnosApartirPeriodoDeDatas()
-    servico.SetDiasDeLiquidesPorAno(12)
+    servico.SetTaxaAnos(float64(int(servico.GetTaxaAnos())))
+    servico.SetDiasDeLiquidesPorAno(255)
     servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
     servico.SetValorAporte(833.00)
-    reusultado_padrao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), false)
+    reusultado_padrao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
+    servico.SetTaxaMeses(servico.GetTaxaAnos() * 12)
+    mapas := financas.FutureValueOfASeriesMonthly(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaAnos() * 12, true, servico.GetTaxaAnos())
+    fmt.Println("Taxa anos", servico.GetTaxaAnos())
+    fmt.Println("Taxa Meses", servico.GetTaxaMeses())
     fmt.Println("Resultado padrao >> ", reusultado_padrao)
-    servico.SetTaxaMeses()
-    fmt.Println(servico.GetTaxaMeses())
-    mapas := financas.FutureValueOfASeriesMonthly(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaMeses(), true, servico.GetTaxaAnos())
-    fmt.Println("Mapa")
-    fmt.Println(mapas)
+    fmt.Println("Ultimo valor >> ", mapas[len(mapas) -1])
 
 }/*
 func (self *FutureValueOfASeriesSuite) TestCompoundInterestFomula() {
