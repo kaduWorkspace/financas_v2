@@ -117,7 +117,6 @@ func (self *SimularJurosComposto) SetTaxaMesesRangeData() {
     quantidade_dias_ultimo_mes := core.QuantidadeDiasDeUmMes(self.dataFinal)
     taxa_curr = float64(self.dataFinal.Day())/float64(quantidade_dias_ultimo_mes)
     taxa_meses += taxa_curr
-    self.fracaoMeses = taxa_meses
     self.SetTaxaMeses(taxa_meses)
 }
 func (self *SimularJurosComposto) GetTaxaMeses() float64 {
