@@ -1,5 +1,7 @@
 package financas
 
+import "fmt"
+
 /*
 Objeto que ira processar dados de structs responsaveis por calcular investimento
 */
@@ -15,6 +17,29 @@ type AnalizarResultadoInvestimentoDeJurosComposto struct {
     resultadoInvestimento float64 `json:"resultado_investimento" form:"resultado_investimento"`
     retornoSobreOInvestimento float64 `json:"retorno_sobre_o_investimento" form:"retorno_sobre_o_investimento"`
     dadosTabelaPorMes map[string]map[string]float64
+}
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dados []FVSMonthlyMap) []FVSMonthlyMap {
+    maximo_itens_tabela := 20
+    quantidade_dados := len(dados)
+    if quantidade_dados <= maximo_itens_tabela {
+        return dados
+    }
+    tabela_ajustada := make([]FVSMonthlyMap, 0, maximo_itens_tabela)
+    step := int(quantidade_dados / maximo_itens_tabela)
+    cont := 0
+    var curr FVSMonthlyMap
+    for len(tabela_ajustada) < maximo_itens_tabela {
+        if len(tabela_ajustada) == 0 {
+            curr = dados[0]
+        } else if len(tabela_ajustada) == maximo_itens_tabela - 1 {
+            curr = dados[len(dados) - 1]
+        } else {
+            curr = dados[cont + step]
+        }
+        cont = cont + step
+        tabela_ajustada = append(tabela_ajustada, curr)
+    }
+    return tabela_ajustada
 }
 func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetTipoInvestimento(tipo TIPO_INVESTIMENTO_ENUM) {
     self.tipoInvestimento = tipo
