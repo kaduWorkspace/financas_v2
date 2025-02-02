@@ -28,6 +28,7 @@ func CifAndFvs(valor_inicial, taxa_juros_decimal, dias_liquidos, anos, valor_apo
 type FVSMonthlyMap struct {
     Juros float64 `json:"juros"`
     Acumulado float64 `json:"acumulado"`
+    Mes int `json:"mes"`
 }
 func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquidos, valor_aporte float64, quantidade_meses float64, aporte_primeiro_dia bool) []FVSMonthlyMap {
     valor_acumulado := 0.0 + valor_inicial
@@ -44,7 +45,7 @@ func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquido
         if !aporte_primeiro_dia {
             valor_acumulado += valor_aporte
         }
-        curr := FVSMonthlyMap{Juros: juros, Acumulado: valor_acumulado}
+        curr := FVSMonthlyMap{Juros: juros, Acumulado: valor_acumulado, Mes: mes +1 }
         mapa_meses = append(mapa_meses, curr)
     }
     /*valor_acumulado += valor_aporte

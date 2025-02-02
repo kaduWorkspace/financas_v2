@@ -112,5 +112,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     contexto_view["juros_rendido"] = core.FormatarValorMonetario(self.simularJurosCompostoService.GetValorJurosRendido())
     contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
+    contexto_view["tabela"] = resultado
+    contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
     return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
 }

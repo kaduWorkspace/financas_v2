@@ -390,6 +390,47 @@
                             </div>
                         </div>
                         {{end}}
+                        {{if .tabela }}
+                        <div class="w-5/6 mx-auto mt-6 overflow-x-auto">
+                            <table class="w-full bg-neutral-900 rounded-lg shadow-md text-gray-300">
+                                <!-- Cabeçalho da tabela -->
+                                <thead class="bg-neutral-800">
+                                    <tr>
+                                        <th class="p-3 text-left text-sm font-medium">Mês</th>
+                                        <th class="p-3 text-left text-sm font-medium">Aporte</th>
+                                        <th class="p-3 text-left text-sm font-medium">Juros</th>
+                                        <th class="p-3 text-left text-sm font-medium">Valor Acumulado</th>
+                                    </tr>
+                                </thead>
+                                <!-- Corpo da tabela -->
+                                <tbody>
+                                    {{ range $chave, $valor := .tabela }}
+                                    <tr class="border-b border-neutral-700 hover:bg-neutral-800 transition-all duration-300">
+                                        <!-- Mês: chave + 1 -->
+                                        <td class="p-3 text-sm">{{ $valor.Mes }}</td>
+
+                                        <!-- Aporte: valor externo (.aporte) -->
+                                        <td class="p-3 text-sm">R$ {{ $.aporte }}</td>
+
+                                        <!-- Juros: valor da tabela -->
+                                        <td class="p-3 text-sm">R$ {{ $valor.Juros }}</td>
+
+                                        <!-- Valor Acumulado: valor da tabela -->
+                                        <td class="p-3 text-sm">R$ {{ $valor.Acumulado }}</td>
+                                    </tr>
+                                    {{ end }}
+                                    <!-- Outra linha de exemplo
+                                    <tr class="border-b border-neutral-700 hover:bg-neutral-800 transition-all duration-300">
+                                        <td class="p-3 text-sm">2</td>
+                                        <td class="p-3 text-sm">R$ 500,00</td>
+                                        <td class="p-3 text-sm">R$ 20,30</td>
+                                        <td class="p-3 text-sm">R$ 1.030,80</td>
+                                    </tr>-->
+                                </tbody>
+                            </table>
+                        </div>
+                        {{end }}
+
                         {{if .dados_calculo }}
                         <div id="grafico_wrapper_botao" class="flex mt-2 flex-col justify-center items-center w-full">
                             <button id="botao_ativar_grafico" type="submit" class="flex my-1 items-center animate-fade-in justify-center rounded-lg w-5/6 mx-1 bg-gray-700 text-gray-300 py-3 px-4 font-medium hover:bg-gray-600 hover:text-white transition-all duration-300">
