@@ -110,6 +110,10 @@ const validarValoresInputs = (validarNull = false) => {
     let valor_aporte_v = tirar_mascara(mascara_monetaria(tirar_mascara(valor_aporte.value)))
     if(valor_inicial_v < 0 || (validarNull && ["",null,false].includes(valor_inicial))) erros.push(["error_valor_inicial","Valor inicial inválido"]);
     if(valor_aporte_v > 1000000000) erros.push(["error_valor_aporte","Aporte mensal muito alto"]);
+    if(!(valor_aporte_v + valor_inicial_v > 0)) erros.push(
+        ["error_valor_inicial","O valor inicial ou valor de aporte devem ser preenchidos!"],
+        ["error_valor_aporte","O valor inicial ou valor de aporte devem ser preenchidos!"]
+    );
     if(!document.getElementById("data_final").value) erros.push(["error_data_final","Data final inválida"]);
     return erros.length ? erros : false;
 }
@@ -163,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const validacoes = validarValoresInputs(true);
         if(validacoes) {
             validacoes.forEach(validacao => {
-                const errorSpan = document.getElementById(`error_${validacao[0]}`)
+                const errorSpan = document.getElementById(validacao[0])
                 errorSpan.innerText = validacao[1];
                 errorSpan.classList.remove('hidden')
             })
