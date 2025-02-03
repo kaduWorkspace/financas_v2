@@ -28,7 +28,7 @@ func NewFinancasController() *FinancasController {
 
 func (r *FinancasController) Index(ctx http.Context) http.Response {
     contexto_view := map[string]any{}
-    contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
+    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
     erro := ctx.Request().Query("erro")
     if  erro != "" {
@@ -59,7 +59,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
     contexto_view["message"] = "Simulação finalizada!"
-    contexto_view["csrf"] = ctx.Request().Session().Get("csrf")
+    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
     self.simularJurosCompostoService.SetDatas(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
     //fmt.Println("Setando datas: ", self.simularJurosCompostoService.GetDataInicial(), " e ", self.simularJurosCompostoService.GetDataFinal())
     self.simularJurosCompostoService.SetDiasDeLiquidesPorAno(post_calcular_cdb.DiasLiquidezPorAno)

@@ -2,6 +2,9 @@ package core
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,11 +14,20 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/goravel/framework/facades"
 )
 
 // Função para comparar dois floats com uma tolerância
 func AlmostEqual(a, b, tolerance float64) bool {
 	return math.Abs(a-b) <= tolerance
+}
+func GerarTokenApartirDeAppKey() string {
+    app_key := fmt.Sprintf("%s",facades.Config().Env("APP_KEY"))
+    h := hmac.New(sha256.New, []byte(app_key))
+    var data string
+    h.Write([]byte(data))
+    token :=  hex.EncodeToString(h.Sum(nil))
+    return token
 }
 
 func MesesEntreDatas(data1, data2 time.Time) int {
