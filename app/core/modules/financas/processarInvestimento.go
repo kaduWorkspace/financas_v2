@@ -20,6 +20,9 @@ func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dad
     maximo_itens_tabela := 12
     quantidade_dados := len(dados)
     if quantidade_dados <= maximo_itens_tabela {
+        for i := 0; i < quantidade_dados; i++ {
+            dados[i].DataMesAno = dados[i].Data.Format("01/06")
+        }
         return dados
     }
     tabela_ajustada := make([]FVSMonthlyMap, 0, maximo_itens_tabela)
@@ -35,6 +38,7 @@ func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dad
             curr = dados[cont + step]
         }
         cont = cont + step
+        curr.DataMesAno = curr.Data.Format("01/06")
         tabela_ajustada = append(tabela_ajustada, curr)
     }
     return tabela_ajustada

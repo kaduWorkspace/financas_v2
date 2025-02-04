@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"goravel/app/core"
 	"goravel/app/core/modules/financas"
@@ -95,7 +96,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
     }
     self.simularJurosCompostoService.SetTaxaMesesRangeData()
-    resultado := financas.FutureValueOfASeriesMonthly(self.simularJurosCompostoService.GetValorInicial(), self.simularJurosCompostoService.GetTaxaDeJurosDecimal(), self.simularJurosCompostoService.GetDiasDeLiquidezPorAno(),self.simularJurosCompostoService.GetValorAporte(), float64(int(self.simularJurosCompostoService.GetTaxaMeses())), true)
+    resultado := financas.FutureValueOfASeriesMonthly(self.simularJurosCompostoService.GetValorInicial(), self.simularJurosCompostoService.GetTaxaDeJurosDecimal(), self.simularJurosCompostoService.GetDiasDeLiquidezPorAno(),self.simularJurosCompostoService.GetValorAporte(), float64(int(self.simularJurosCompostoService.GetTaxaMeses())), true, self.simularJurosCompostoService.GetDataInicial())
     self.analizarJurosCompostoService.SetValorFinal(resultado[len(resultado)-1].Acumulado)
     self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
 
@@ -105,6 +106,13 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     self.simularJurosCompostoService.SetValorGasto()
     self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
     valor_gasto := self.simularJurosCompostoService.GetValorGasto()
+    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(resultado)
+    tabela_json, err := json.Marshal(dados_tabela)
+    if err == nil {
+        contexto_view["tabela_json"] = string(tabela_json)
+    } else {
+        fmt.Println("ERRO AO GERAR TABELA json: ", err)
+    }
     contexto_view["valorizacao"] = core.FormatarValorMonetario(valorizacao)
     contexto_view["valor_investido"] = core.FormatarValorMonetario(valor_gasto)
     contexto_view["valor_inicial"] = core.FormatarValorMonetario(post_calcular_cdb.ValorInicial)
@@ -112,7 +120,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     contexto_view["juros_rendido"] = core.FormatarValorMonetario(self.simularJurosCompostoService.GetValorJurosRendido())
     contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
-    contexto_view["tabela"] = self.analizarJurosCompostoService.AjustarDadosTabela(resultado)
+    contexto_view["tabela"] = dados_tabela
     contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
     return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
 }

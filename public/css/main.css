@@ -107,7 +107,7 @@
 }
 
 /*
-! tailwindcss v3.4.15 | MIT License | https://tailwindcss.com
+! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com
 */
 
 /*
@@ -676,6 +676,10 @@ video {
   margin-bottom: 1rem;
 }
 
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -718,10 +722,6 @@ video {
 
 .mt-auto {
   margin-top: auto;
-}
-
-.mb-6 {
-  margin-bottom: 1.5rem;
 }
 
 .inline {
@@ -1064,11 +1064,6 @@ video {
 .border-red-500 {
   --tw-border-opacity: 1;
   border-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
-}
-
-.border-red-600 {
-  --tw-border-opacity: 1;
-  border-color: rgb(220 38 38 / var(--tw-border-opacity, 1));
 }
 
 .bg-azul {
@@ -1694,11 +1689,6 @@ video {
 
   .md\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .md\:text-4xl {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
   }
 
   .md\:text-2xl {

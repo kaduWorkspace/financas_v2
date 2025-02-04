@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"goravel/app/core"
 	"math"
+	"time"
 )
 func FutureValuesOfASeriesFormula(taxa_juros_decimal, dias_liquidos, anos, valor_aporte float64, aporte_primeiro_dia bool) float64 {
     //PMT × {[(1 + r/n)^(nt) - 1] / (r/n)} x (1 + r/n)
@@ -30,15 +31,18 @@ type FVSMonthlyMap struct {
     Juros float64 `json:"juros"`
     Acumulado float64 `json:"acumulado"`
     Mes int `json:"mes"`
-    JurosFormatado string
-    AcumuladoFormatado string
+    JurosFormatado string `json:"juros_formatado"`
+    AcumuladoFormatado string `json:"acumulado_formatado"`
+    Data time.Time `json:"data"`
+    DataMesAno string `json:"data_mes_ano"`
 }
-func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquidos, valor_aporte float64, quantidade_meses float64, aporte_primeiro_dia bool) []FVSMonthlyMap {
+func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquidos, valor_aporte float64, quantidade_meses float64, aporte_primeiro_dia bool, data_inicial time.Time) []FVSMonthlyMap {
     valor_acumulado := 0.0 + valor_inicial
     var mapa_meses []FVSMonthlyMap
     quantidade_meses_int := int(quantidade_meses)
     //resto_quantidade_meses := quantidade_meses - float64(quantidade_meses_int)
     taxa_mensal := taxa_juros_decimal/12
+    aux_date := data_inicial
     for mes := 0; mes < quantidade_meses_int; mes++ {
         if aporte_primeiro_dia {
             valor_acumulado += valor_aporte
@@ -54,8 +58,10 @@ func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquido
             Mes: mes +1,
             JurosFormatado: core.FormatarValorMonetario(juros),
             AcumuladoFormatado: core.FormatarValorMonetario(valor_acumulado),
+            Data: aux_date,
         }
         mapa_meses = append(mapa_meses, curr)
+        aux_date = aux_date.AddDate(0, 1, 0)
     }
     /*valor_acumulado += valor_aporte
     valor_acumulado *= (1+(taxa_mensal*resto_quantidade_meses))*/
