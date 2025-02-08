@@ -106,7 +106,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     self.simularJurosCompostoService.SetValorGasto()
     self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
     valor_gasto := self.simularJurosCompostoService.GetValorGasto()
-    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(resultado)
+    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(resultado, core.EhMobile(ctx.Request().Origin().UserAgent()))
     tabela_json, err := json.Marshal(dados_tabela)
     if err == nil {
         contexto_view["tabela_json"] = string(tabela_json)

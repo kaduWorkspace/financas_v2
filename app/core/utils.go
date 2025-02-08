@@ -191,3 +191,23 @@ func QuantidadeDiasDeUmMes(data time.Time) int {
 	numDays := lastDayOfMonth.Day()
     return numDays
 }
+func EhMobile(userAgent string) bool {
+	// Lista de palavras-chave que indicam um dispositivo móvel
+	mobileKeywords := []string{
+		"Android",
+		"iPhone",
+		"iPad",
+		"Windows Phone",
+		"BlackBerry",
+		"Mobile",
+	}
+
+	// Verifica se o User-Agent contém alguma das palavras-chave
+	for _, keyword := range mobileKeywords {
+		if strings.Contains(userAgent, keyword) {
+			return true
+		}
+	}
+
+	return false
+}

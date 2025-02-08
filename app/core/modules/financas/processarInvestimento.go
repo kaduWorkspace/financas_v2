@@ -16,8 +16,13 @@ type AnalizarResultadoInvestimentoDeJurosComposto struct {
     retornoSobreOInvestimento float64 `json:"retorno_sobre_o_investimento" form:"retorno_sobre_o_investimento"`
     dadosTabelaPorMes map[string]map[string]float64
 }
-func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dados []FVSMonthlyMap) []FVSMonthlyMap {
-    maximo_itens_tabela := 12
+func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dados []FVSMonthlyMap, for_mobile bool) []FVSMonthlyMap {
+    var maximo_itens_tabela int
+    if for_mobile {
+        maximo_itens_tabela = 12
+    } else {
+        maximo_itens_tabela = 24
+    }
     quantidade_dados := len(dados)
     if quantidade_dados <= maximo_itens_tabela {
         for i := 0; i < quantidade_dados; i++ {
