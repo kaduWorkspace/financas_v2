@@ -21,7 +21,7 @@ func (self *AnalizarResultadoInvestimentoDeJurosComposto) AjustarDadosTabela(dad
     if for_mobile {
         maximo_itens_tabela = 12
     } else {
-        maximo_itens_tabela = 24
+        maximo_itens_tabela = 20
     }
     quantidade_dados := len(dados)
     if quantidade_dados <= maximo_itens_tabela {
