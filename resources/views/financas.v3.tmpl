@@ -171,7 +171,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-col m-1 w-5/6">
+                        <div class="flex flex-col m-1 w-5/6 hidden">
                             <label for="dias_liquidez_por_ano" class="text-gray-400 text-sm mb-1">
                                 Quantidade de dias de liquidez por ano
                             </label>
@@ -213,34 +213,34 @@
 
                     <div id="resultadoGeralInfo" class="flex flex-col w-full justify-around">
                         <div class="w-5/6 mx-auto mt-6">
-   <h2 class="text-center text-white text-2xl sm:text-3xl md:text-2xl font-bold mb-6">
-        Resumo Financeiro
-    </h2>
+                            <h2 class="text-center text-white text-2xl sm:text-3xl md:text-2xl font-bold mb-6">
+                                Resumo Financeiro
+                            </h2>
                             <!-- Grid de cards -->
                             <div class="grid gap-4 p-4 rounded-lg bg-neutral-900 shadow-md text-gray-300 w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                                 <!-- Card 1: Rentabilidade -->
-                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md hover:bg-neutral-700 transition-all duration-300">
+                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md col-span-2 sm:col-span-1 hover:bg-neutral-700 transition-all duration-300">
                                     <img class="w-8 h-8 mb-2" src="/public/images/pilha-dinheiro.svg" alt="Rentabilidade">
                                     <span id="display_valorizacao" class="text-white text-lg font-semibold">R$ {{ .valorizacao }}</span>
                                     <span class="text-gray-400 text-sm">Rentabilidade</span>
                                 </div>
 
                                 <!-- Card 2: Investido -->
-                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md hover:bg-neutral-700 transition-all duration-300">
+                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md col-span-2 sm:col-span-1 hover:bg-neutral-700 transition-all duration-300">
                                     <img class="w-8 h-8 mb-2" src="/public/images/icons8-money-with-wings-48.png" alt="Investido">
                                     <span id="display_valor_investido" class="text-white text-lg font-semibold">R$ {{ .valor_investido }}</span>
                                     <span class="text-gray-400 text-sm">Investido</span>
                                 </div>
 
                                 <!-- Card 3: Valor inicial -->
-                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md hover:bg-neutral-700 transition-all duration-300">
+                                <div class="flex flex-col items-center bg-neutral-800 p-4 col-span-2 sm:col-span-1 rounded-md hover:bg-neutral-700 transition-all duration-300">
                                     <img class="w-8 h-8 mb-2" src="/public/images/icons8-race-flag-64.png" alt="Valor inicial">
                                     <span id="display_valor_inicial" class="text-white text-lg font-semibold">R$ {{ .valor_inicial }}</span>
                                     <span class="text-gray-400 text-sm">Valor inicial</span>
                                 </div>
 
                                 <!-- Card 4: Porcentagem de Aumento -->
-                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md hover:bg-neutral-700 transition-all duration-300">
+                                <div class="flex flex-col items-center bg-neutral-800 p-4 rounded-md col-span-2 sm:col-span-1 hover:bg-neutral-700 transition-all duration-300">
                                     <img class="w-8 h-8 mb-2" src="/public/images/icons8-up-64.png" alt="Porcentagem de Aumento">
                                     <span id="display_porcentagem_aumento" class="text-white text-lg font-semibold">{{ .retorno_sobre_investimento }} %</span>
                                     <span class="text-gray-400 text-sm">Aumento de Caixa</span>
