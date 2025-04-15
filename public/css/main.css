@@ -1081,6 +1081,11 @@ video {
   border-color: rgb(127 29 29 / var(--tw-border-opacity, 1));
 }
 
+.border-red-50 {
+  --tw-border-opacity: 1;
+  border-color: rgb(254 242 242 / var(--tw-border-opacity, 1));
+}
+
 .bg-azul {
   --tw-bg-opacity: 1;
   background-color: rgb(0 184 255 / var(--tw-bg-opacity, 1));
@@ -1643,6 +1648,10 @@ video {
     width: 83.333333%;
   }
 
+  .sm\:w-full {
+    width: 100%;
+  }
+
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1678,6 +1687,11 @@ video {
   .sm\:border-black {
     --tw-border-opacity: 1;
     border-color: rgb(0 0 0 / var(--tw-border-opacity, 1));
+  }
+
+  .sm\:border-green-300 {
+    --tw-border-opacity: 1;
+    border-color: rgb(134 239 172 / var(--tw-border-opacity, 1));
   }
 
   .sm\:text-right {
