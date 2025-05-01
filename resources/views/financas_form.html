@@ -1,0 +1,114 @@
+{{ define "financas_form" }}
+<div id="form_container" class="flex flex-col w-5/6 h-2/4 justify-around items-center rounded-appMajor">
+    <div class="text-center max-w-xl">
+        <p class="text-lg text-gray-400 opacity-75">
+        Preencha as informações abaixo para simular seu CDB.
+        </p>
+    </div>
+
+    <div id="form_errors_htmx" class="w-full sm:w-5/6 md:w-3/4 lg:w-1/2 bg-red-900 text-white p-4 rounded-md shadow-md mt-4 {{ if not .erros_formulario }}hidden{{ end }}">
+        <ul class="list-inside text-sm space-y-2">
+            {{ range $chave, $valor := .erros_formulario }}
+            {{ range $_, $valor_erro := $valor }}
+            <li class="flex items-start space-x-2">
+                <span class="w-1 h-1 rounded-full bg-gray-400 mt-1"></span>
+                <p class="text-gray-200">{{ $valor_erro }}</p>
+            </li>
+            {{ end }}
+            {{ end }}
+        </ul>
+    </div>
+<!---->
+    <form hx-post="/v2/simular-jc" hx-target="#resultados_container" hx-swap="outerHTML" id="formulario_calcular" class="flex flex-col w-full items-center">
+        <div class="flex flex-col sm:flex-row w-5/6 justify-center">
+            <div class="flex flex-col m-1 sm:w-2/4 w-full">
+                <label for="valor_inicial" class="text-gray-400 text-sm mb-1">
+                    Dinheiro em caixa hoje
+                    <span class="text-gray-500">(Ex.: 10000)</span>
+                </label>
+                <input type="hidden" id="valor_inicial_input" name="valor_inicial" value="">
+                <input id="valor_inicial" type="text" step="any"
+                class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
+                placeholder="Insira o valor" value="$ 0,0">
+                <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_inicial"></span>
+            </div>
+            <div class="flex flex-col m-1 sm:w-2/4 w-full">
+                <label for="valor_aporte" class="text-gray-400 text-sm mb-1">
+                    Valor Aporte Mensal
+                    <span class="text-gray-500">(Ex.: 500)</span>
+                </label>
+                <input type="hidden" name="valor_aporte" id="valor_aporte_input" value="">
+                <input
+                id="valor_aporte"
+                type="text"
+                class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
+                placeholder="Insira o valor"
+                value="$ 0,0"
+                />
+                <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_aporte"></span>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row w-5/6 justify-center">
+            <div class="flex flex-col m-1 sm:w-2/4 w-full">
+                <label for="valor_taxa_anual" class="text-gray-400 text-sm mb-1">
+                    Valor Taxa Anual
+                    <span class="text-gray-500">(Selic.: {{ .taxa_selic }} %)</span>
+                </label>
+                <input type="hidden" name="valor_taxa_anual" id="valor_taxa_anual_input">
+                <input id="valor_taxa_anual" type="text" step="any"
+                class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
+                placeholder="Insira o valor"
+                value="% {{ .taxa_selic }}">
+                <span class="text-red-500 text-xs mt-1 hidden" id="error_valor_taxa_anual"></span>
+            </div>
+            <div class="flex flex-col sm:flex-row w-5/6 justify-center">
+                <div class="flex flex-col m-1 sm:w-2/4 w-full">
+                    <label for="data_final_opcao" class="text-gray-400 text-sm mb-1">
+                        Data do resgate
+                    </label>
+                    <select data-ignore_input="1" id="data_final_opcao" name="data_final_opcao"
+                        class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
+                        <option value="6" selected>6 meses</option>
+                        <option value="1">1 ano</option>
+                        <option value="5">5 anos</option>
+                        <option value="10">10 anos</option>
+                        <option value="20">20 anos</option>
+                        <!--<option value="data_especifica">Data específica</option>-->
+                    </select>
+                    <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final_opcao"></span>
+                </div>
+                <div class="flex flex-col m-1 sm:w-2/4 w-full hidden" id="data_especifica_wrapper">
+                    <label for="data_final" class="text-gray-400 text-sm mb-1">
+                        Data Específica
+                        <!--<span class="text-gray-500">(Ex.: 2025-12-31)</span>-->
+                    </label>
+
+                    <input id="data_final" type="date" name="data_final"
+                    class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300"
+                    value="">
+                    <span class="text-red-500 text-xs mt-1 hidden" id="error_data_final"></span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col m-1 w-5/6 hidden">
+            <label for="dias_liquidez_por_ano" class="text-gray-400 text-sm mb-1">
+                Quantidade de dias de liquidez por ano
+            </label>
+            <select name="dias_liquidez_por_ano" id="tipo_dias_liquidez_por_ano"
+                class="bg-neutral-900 rounded-lg shadow-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300">
+                <!--<option value="255"> 255 - Dias úteis (Mercado financeiro brasileiro)</option>
+                    <option value="366">366/365 - Todos os dias do ano</option>-->
+                    <option value="12">12 - Todo mês</option>
+            </select>
+        </div>
+        <input id="data_inicial" type="hidden" name="data_inicial" value="">
+        <input type="hidden" name="csrf_token" value="{{ .csrf }}">
+        <button id="calcular" type="submit" class="my-1 flex items-center justify-center rounded-lg w-5/6 mx-auto bg-neutral-800 text-gray-300 py-3 px-4 font-medium hover:bg-neutral-700 hover:text-white transition-all duration-300 shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 6h6m-6-12h6" />
+            </svg>
+            Simular
+        </button>
+    </form>
+</div>
+{{ end }}

@@ -35,39 +35,40 @@ func (r *FinancasController) Index(ctx http.Context) http.Response {
     if  erro != "" {
         contexto_view["panic"] = erro
     }
-    return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+    return ctx.Response().View().Make("financas", contexto_view)
 }
 func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     var post_calcular_cdb requests.PostSimularCdb
+
     err := ctx.Request().Bind(&post_calcular_cdb)
     if err != nil {
         fmt.Println(err.Error())
         return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
     }
+    ctx.Response().Header("HX-Reswap", "outerHTML")
     errors, err := ctx.Request().ValidateRequest(&post_calcular_cdb)
-    contexto_view := map[string]any{}
+    contexto_view := map[string]any{
+        "csrf": ctx.Request().Session().Get("csrf_token"),
+    }
     if err != nil {
-        fmt.Println(err.Error())
-        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
+        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
     }
     if errors != nil && len(errors.All()) > 0 {
         contexto_view["erros_formulario"] = errors.All()
         fmt.Println(errors)
-        return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+        ctx.Response().Writer().WriteHeader(http.StatusBadRequest)
+        ctx.Response().Header("HX-Retarget", "#form_container")
+        return ctx.Response().View().Make("financas_form", contexto_view)
     }
     if err := post_calcular_cdb.ValidarData(); err != nil {
-        fmt.Println(err.Error())
-        return ctx.Response().Redirect(http.StatusSeeOther, "/?erro=Erro inexperado!")
+        fmt.Println(err.Error(), "2")
+        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
     }
     contexto_view["message"] = "Simulação finalizada!"
-    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
     self.simularJurosCompostoService.SetDatas(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
-    //fmt.Println("Setando datas: ", self.simularJurosCompostoService.GetDataInicial(), " e ", self.simularJurosCompostoService.GetDataFinal())
     self.simularJurosCompostoService.SetDiasDeLiquidesPorAno(post_calcular_cdb.DiasLiquidezPorAno)
-    //fmt.Println("Setando dias liquidez por ano: ", self.simularJurosCompostoService.GetDiasDeLiquidezPorAno())
     if err := self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas(); err != nil {
-        contexto_view["panic"] = "Erro inexperado. Tente novamente mais tarde!"
-        return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
     }
     if self.simularJurosCompostoService.GetTaxaAnos() < 1 {
         // escolheu 6 meses
@@ -75,12 +76,9 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     } else {
         self.simularJurosCompostoService.SetTaxaAnos(float64(int(self.simularJurosCompostoService.GetTaxaAnos())))
     }
-
-    //fmt.Println("Setando taxa de anos: ", self.simularJurosCompostoService.GetTaxaAnos())
     self.simularJurosCompostoService.SetTaxaDeJurosDecimal(post_calcular_cdb.ValorTaxaAnual, financas.PROCENTO_ANUAL)
     var tipo_investimento financas.TIPO_INVESTIMENTO_ENUM
     self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
-    //fmt.Println("Adicionando valor inicial: ", post_calcular_cdb.ValorInicial)
     if post_calcular_cdb.ValorAporte > 0 {
         tipo_investimento = financas.JC_COM_APORTE_MENSAL_E_VALOR_INICIAL
         self.simularJurosCompostoService.SetValorAporte(post_calcular_cdb.ValorAporte)
@@ -99,7 +97,6 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     resultado := financas.FutureValueOfASeriesMonthly(self.simularJurosCompostoService.GetValorInicial(), self.simularJurosCompostoService.GetTaxaDeJurosDecimal(), self.simularJurosCompostoService.GetDiasDeLiquidezPorAno(),self.simularJurosCompostoService.GetValorAporte(), float64(int(self.simularJurosCompostoService.GetTaxaMeses())), true, self.simularJurosCompostoService.GetDataInicial())
     self.analizarJurosCompostoService.SetValorFinal(resultado[len(resultado)-1].Acumulado)
     self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
-
     self.analizarJurosCompostoService.SetTipoInvestimento(tipo_investimento)
     valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
     retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
@@ -122,5 +119,5 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
     contexto_view["tabela"] = dados_tabela
     contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
-    return ctx.Response().View().Make("financas.v3.tmpl", contexto_view)
+    return ctx.Response().View().Make("financas_result", contexto_view)
 }

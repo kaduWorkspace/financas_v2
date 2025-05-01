@@ -117,22 +117,83 @@ const validarValoresInputs = (validarNull = false) => {
     if(!document.getElementById("data_final").value) erros.push(["error_data_final","Data final inválida"]);
     return erros.length ? erros : false;
 }
-inputsPossiveis.forEach(item => {
-    item.addEventListener('input', event => {
-        const errorSpan = document.getElementById(`error_${item.id}`)
-        if(errorSpan)
-            errorSpan.classList.add('hidden');
-        const validacao = validarValoresInputs(false);
-        if(!validacao) return;
-        const validacaoInput = validacao.find(([error_span_target_name]) => error_span_target_name == errorSpan.id);
-        if(!validacaoInput) return;
-        errorSpan.innerText = validacaoInput[1];
-        errorSpan.classList.remove('hidden')
+const processarInputs = () => {
+    inputsPossiveis.filter(input => input.type == "number").forEach(input => {
+        if(input.value === "") {
+            input.value = 0.0
+            console.log(`Empty input detected for ${input.name}, defaulting to 0.0`)
+        }
+    })
+
+    let taxa_anual_v = Number(valor_taxa_anual.value.replaceAll('.','').replaceAll(',','.').replaceAll('%','').trim()) ?? 0;
+    let valor_aporte_v = Number(valor_aporte.value.replaceAll('.','').replaceAll(',','.').replaceAll('R$','').trim()) ?? 0;
+    let valor_inicial_v = Number(valor_inicial.value.replaceAll('.','').replaceAll(',','.').replaceAll('R$','').trim()) ?? 0;
+
+    if(data_final_opcoes.value !== "data_especifica") {
+        const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
+        const data_resultado = incrementar_data(parseInt(data_final_opcoes.value), tipo)
+        data_final_especifico_input.value = data_resultado
+        console.log(`Calculated end date: ${data_final_especifico_input.value}`)
+    }
+    valor_aporte_input.value = !!valor_aporte_v ? valor_aporte_v : 0;
+    valor_taxa_anual_input.value = !!taxa_anual_v ? taxa_anual_v : 0;
+    valor_inicial_input.value = !!valor_inicial_v ? valor_inicial_v : 0;
+    return;
+}
+const handleErrorsEvent = e => {
+    const errorSpan = document.getElementById(`error_${e.target.id}`)
+    if(errorSpan)
+        errorSpan.classList.add('hidden');
+    const validacao = validarValoresInputs(false);
+    if(!validacao) {
         return;
-    });
-})
+    }
+    const validacaoInput = validacao.find(([error_span_target_name]) => error_span_target_name == errorSpan.id);
+    if(!validacaoInput) return;
+    errorSpan.innerText = validacaoInput[1];
+    errorSpan.classList.remove('hidden')
+    return;
+}
+const validarRequest = event => {
+    //processarInputs();
+    const validacoes = validarValoresInputs(true);
+    if(validacoes) {
+        console.log(validacoes)
+        validacoes.forEach(validacao => {
+            const errorSpan = document.getElementById(validacao[0])
+            errorSpan.innerText = validacao[1];
+            errorSpan.classList.remove('hidden')
+        })
+        console.log("retornando false")
+        return false;
+    }
+    return true;
+}
 document.addEventListener("DOMContentLoaded", () => {
     if(!form) return
+    const inputs = form.querySelectorAll('input');
+    form.addEventListener("input", e => {
+        handleErrorsEvent(e);
+        processarInputs();
+        // Store input values in sessionStorage
+        inputs.forEach(input => {
+            sessionStorage.setItem(input.name || input.id, input.value);
+        });
+    });
+    // Restore input values from sessionStorage on page load
+    inputs.forEach(input => {
+        const storedValue = sessionStorage.getItem(input.name || input.id);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+    });
+    processarInputs();
+    if(data_final_opcoes.value !== "data_especifica") {
+        const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
+        const data_resultado = incrementar_data(parseInt(data_final_opcoes.value), tipo)
+        data_final_especifico_input.value = data_resultado
+        console.log(`Calculated end date: ${data_final_especifico_input.value}`)
+    }
     const data_inicial_input = document.getElementById("data_inicial")
     data_inicial_input.value = formatar_data(new Date())
     for (const input of form.elements) {
@@ -146,44 +207,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if(data_final_opcoes.value == "data_especifica") {
         data_final_especifico_wrapper.classList.remove('hidden')
     }
-    form.addEventListener("input", function (event) {
-        const { id, value } = event.target;
-        if (id) {
-            sessionStorage.setItem(id, value);
-        }
-    });
+
     valor_aporte.addEventListener('input', evento_mascara_monetaria)
     valor_inicial.addEventListener('input', evento_mascara_monetaria)
     valor_taxa_anual.addEventListener('input', e => {
         e.target.value = "% " + mascara_monetaria(e.target.value)
     })
-    form.addEventListener('submit', event => {
-        event.preventDefault();
-        if(data_final_opcoes.value !== "data_especifica") {
-            const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
-            const data_resultado = incrementar_data(parseInt(data_final_opcoes.value), tipo)
-            data_final_especifico_input.value = data_resultado
-        }
-        const validacoes = validarValoresInputs(true);
-        if(validacoes) {
-            validacoes.forEach(validacao => {
-                const errorSpan = document.getElementById(validacao[0])
-                errorSpan.innerText = validacao[1];
-                errorSpan.classList.remove('hidden')
-            })
-            return
-        }
-        inputsPossiveis.filter(input => input.type == "number").forEach(input => {
-            if(input.value === "") {
-                input.value = 0.0
+    document.body.addEventListener("htmx:configRequest", event => {
+        if(event.detail.elt.id === "formulario_calcular") {
+            if (!validarRequest(event)) {
+                event.preventDefault();
             }
-        })
-        let taxa_anual_v = Number(valor_taxa_anual.value.replaceAll('.','').replaceAll(',','.').replaceAll('%','').trim()) ?? 0
-        let valor_aporte_v = Number(valor_aporte.value.replaceAll('.','').replaceAll(',','.').replaceAll('R$','').trim()) ?? 0
-        let valor_inicial_v = Number(valor_inicial.value.replaceAll('.','').replaceAll(',','.').replaceAll('R$','').trim()) ?? 0
-        valor_aporte_input.value = !!valor_aporte_v ? valor_aporte_v : 0
-        valor_taxa_anual_input.value = !!taxa_anual_v ? taxa_anual_v : 0
-        valor_inicial_input.value = !!valor_inicial_v ? valor_inicial_v : 0
-        form.submit()
-    })
+        }
+    });
 })
+

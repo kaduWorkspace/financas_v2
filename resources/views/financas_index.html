@@ -1,0 +1,67 @@
+{{ define "financas" }}
+<!DOCTYPE html>
+<html lang="en" hx-boost="true">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Simular Investimento JC</title>
+        <link href="/public/css/main.css" rel="stylesheet">
+        <link href="/public/css/financas.css" rel="stylesheet">
+        <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            @keyframes fade-in {
+                0% { opacity: 0; transform: scale(0.9); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+            .animate-fade-in { animation: fade-in 1s ease-in-out forwards; }
+        </style>
+    </head>
+    <body class="bg-pretoTransparente flex flex-col min-w-screen items-center min-h-screen">
+        <header class="fixed top-0 left-0 w-full bg-neutral-900 shadow-md z-50">
+            <div class="flex justify-between items-center px-6 py-4">
+                <div class="flex items-center">
+                    <img src="/public/images/logo-simples.svg" alt="Logo" class="w-12 h-12 mr-3">
+                    <span class="text-xl font-bold text-gray-300">Simular Investimento JC</span>
+                    <span class="ml-2 px-2 py-1 bg-yellow-300 text-neutral-900 text-sm font-semibold rounded-full shadow-sm">BETA</span>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#formulario_calcular" class="text-gray-300 hover:text-white transition">Simular</a>
+                    <a href="#contato" class="text-gray-300 hover:text-white transition">Contato</a>
+                </nav>
+                <button class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+        {{ template "financas_result_wrapper" . }}
+        <footer class="bg-neutral-900 text-gray-300 w-full h-20 flex flex-col justify-center items-center mt-auto">
+            <div id="contato" class="text-center">
+                <h2 class="text-lg font-semibold mb-1">Entre em contato</h2>
+                <div class="flex space-x-4 justify-around">
+                    <a href="https://github.com/KaduHod" target="_blank" class="hover:text-white">
+                        <img src="/public/images/github.svg" alt="GitHub" class="w-6 h-6 inline">
+                    </a>
+                    <a href="https://www.linkedin.com/in/carlosjrribas98/" target="_blank" class="hover:text-white">
+                        <img src="/public/images/linkedin.svg" alt="LinkedIn" class="w-6 h-6 inline">
+                    </a>
+                    <a href="mailto:carlosjr.ribas@gmail.com" class="hover:text-white">
+                        <img src="https://cdn.simpleicons.org/gmail/ffffff" alt="Gmail" class="w-6 h-6 inline">
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            const header = document.getElementsByTagName('header')[0];
+            const headerHeight = header.offsetHeight;
+            const main = document.getElementsByTagName('main')[0];
+            main.style.paddingTop = `${headerHeight}px`;
+        </script>
+        <script src="/public/scripts/graficoV2.js"></script>
+        <script src="/public/scripts/validarInputsFinancasV2.js"></script>
+    </body>
+</html>
+{{ end }}
