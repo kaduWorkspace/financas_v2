@@ -147,23 +147,34 @@ func (self *SimularJurosComposto) GetValorAporte() float64 {
     return self.valorAporte
 }
 func (self *SimularJurosComposto) GetTaxaSelic() float64 {
-    valor_selic := 11.25 //padrao
-    result, err := core.HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
-    if err == nil {
-        type RetornoBancoCentralApi struct {
-            MetaSelic          float64 `json:"MetaSelic"`
-            DataReuniaoCopom   string  `json:"DataReuniaoCopom"`
-            Vies               string  `json:"Vies"`
-        }
-        type RetornoBancoCentralApiWrapper struct {
-            Conteudo []RetornoBancoCentralApi `json:"conteudo"`
-        }
-        var bodyRes RetornoBancoCentralApiWrapper
-        if err := core.ConverterJson(result, &bodyRes); err == nil && len(bodyRes.Conteudo) != 0 {
-            valor_selic = bodyRes.Conteudo[0].MetaSelic
-        }
+    valorSelic := 13.25 // valor padrão
+
+    result, err := core.HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET",
+        map[string]string{"content-type":"text/plain"}, "")
+    if err != nil {
+        return valorSelic
     }
-    return valor_selic
+
+    // Usando map[string]interface{} para evitar structs
+    var response map[string]interface{}
+    if err := core.ConverterJson(result, &response); err != nil {
+        return valorSelic
+    }
+
+    conteudo, ok := response["conteudo"].([]interface{})
+    if !ok || len(conteudo) == 0 {
+        return valorSelic
+    }
+
+    primeiroItem, ok := conteudo[0].(map[string]interface{})
+    if !ok {
+        return valorSelic
+    }
+
+    if metaSelic, ok := primeiroItem["MetaSelic"].(float64); ok {
+        valorSelic = metaSelic
+    }
+    return valorSelic
 }
 func (self *SimularJurosComposto) GetValorInicial() float64 {
     return self.valorInicial

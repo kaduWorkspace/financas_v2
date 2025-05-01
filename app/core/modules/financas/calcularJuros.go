@@ -284,21 +284,6 @@ func newResultadoSimulacao(dataInicial time.Time, dataFinal time.Time, valorInic
 func (self *ResultadoSimulacao) adicionaGasto(gasto float64) {
     self.Gasto += gasto
 }
-func (self *ResultadoSimulacao) SetMeses() {
-    for _, ano := range self.Anos {
-        for _, semestre := range ano.Semestres {
-            for _, mes := range semestre.Meses {
-                self.Meses = append(self.Meses, TrackerMensal{
-                    Valorizacao: mes.Valorizacao,
-                    ResultadoComValorizacao: mes.ResultadoComValorizacao,
-                    Aporte: mes.Aporte,
-                    DataInicial: mes.DataInicial,
-                    DataFinal: mes.DataFinal,
-                })
-            }
-        }
-    }
-}
 func (self *ResultadoSimulacao) SetDias() {
     for _, ano := range self.Anos {
         for _, semestre := range ano.Semestres {

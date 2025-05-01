@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"math"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/goravel/framework/facades"
 )
 
@@ -166,24 +168,35 @@ func DiasNoAno(data string) (int, error) {
 	return 365, nil
 }
 func GetTaxaSelic() float64 {
-    valor_selic := 13.25 //padrao
-    result, err := HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET", map[string]string{"content-type":"text/plain"}, "")
-    if err == nil {
-        type RetornoBancoCentralApi struct {
-            MetaSelic          float64 `json:"MetaSelic"`
-            DataReuniaoCopom   string  `json:"DataReuniaoCopom"`
-            Vies               string  `json:"Vies"`
-        }
-        type RetornoBancoCentralApiWrapper struct {
-            Conteudo []RetornoBancoCentralApi `json:"conteudo"`
-        }
-        var bodyRes RetornoBancoCentralApiWrapper
-        if err := ConverterJson(result, &bodyRes); err == nil && len(bodyRes.Conteudo) != 0 {
-            valor_selic = bodyRes.Conteudo[0].MetaSelic
-        }
-    }
-    return valor_selic
+    valorSelic := 13.25 // valor padrão
 
+    result, err := HttpRequest("https://www.bcb.gov.br/api/servico/sitebcb//taxaselic/ultima?withCredentials=true", "GET",
+        map[string]string{"content-type":"text/plain"}, "")
+    if err != nil {
+        return valorSelic
+    }
+
+    // Usando map[string]interface{} para evitar structs
+    var response map[string]interface{}
+    if err := ConverterJson(result, &response); err != nil {
+        return valorSelic
+    }
+
+    conteudo, ok := response["conteudo"].([]interface{})
+    if !ok || len(conteudo) == 0 {
+        return valorSelic
+    }
+
+    primeiroItem, ok := conteudo[0].(map[string]interface{})
+    if !ok {
+        return valorSelic
+    }
+
+    if metaSelic, ok := primeiroItem["MetaSelic"].(float64); ok {
+        valorSelic = metaSelic
+    }
+
+    return valorSelic
 }
 func QuantidadeDiasDeUmMes(data time.Time) int {
 	firstOfNextMonth := time.Date(data.Year(), data.Month()+1, 1, 0, 0, 0, 0, time.UTC)
@@ -210,4 +223,15 @@ func EhMobile(userAgent string) bool {
 	}
 
 	return false
+}
+func RenderView(name string, data map[string]interface{}) ([]byte, error) {
+    t, err := template.ParseFiles("resources/views/" + name + ".html")
+    var buf bytes.Buffer
+    if err != nil {
+        return buf.Bytes(), err
+    }
+    if err := t.ExecuteTemplate(&buf, name, data); err != nil {
+        return buf.Bytes(), err
+    }
+    return buf.Bytes(), nil
 }
