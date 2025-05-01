@@ -133,7 +133,6 @@ const processarInputs = () => {
         const tipo = data_final_opcoes.value == "6" ? "meses" : "anos";
         const data_resultado = incrementar_data(parseInt(data_final_opcoes.value), tipo)
         data_final_especifico_input.value = data_resultado
-        console.log(`Calculated end date: ${data_final_especifico_input.value}`)
     }
     valor_aporte_input.value = !!valor_aporte_v ? valor_aporte_v : 0;
     valor_taxa_anual_input.value = !!taxa_anual_v ? taxa_anual_v : 0;

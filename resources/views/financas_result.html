@@ -290,4 +290,9 @@
         {{end}}
     </div>
 </div>
+{{ template "chart_section" }}
+<script src="/public/scripts/graficoV2.js"></script>
+<script>
+    window.dados_tabela = JSON.parse(`{{ .tabela_json }}`);
+</script>
 {{ end }}
