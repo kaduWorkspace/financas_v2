@@ -10,6 +10,7 @@ COPY . .
 
 COPY go.mod .
 COPY go.sum .
+COPY .env.exemple .env
 RUN go mod tidy
 RUN go build --ldflags "-extldflags -static" -o main .
 
