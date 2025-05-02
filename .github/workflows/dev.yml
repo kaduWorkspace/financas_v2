@@ -6,18 +6,19 @@ on:
     branches: ["master"]
 
   workflow_dispatch:
-    jobs:
-      build:
-        runs-on: [ self-hosted, linux ]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/get-node@v4
-        with:
-          node-version: '1.24'
-      - name: Buildar aplicacao
-        run: docker build -t kaduhod/fin .
-      - name: Subir build
-        run: docker push kaduhod/fin
+jobs:
+  build:
+    runs-on: [ self-hosted, linux ]
+  steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
+      with:
+        node-version: '1.24'
+    - name: Rodar testes
+    - name: Buildar aplicacao
+      run: docker build -t kaduhod/fin .
+    - name: Subir build
+      run: docker push kaduhod/fin
 
 
 
