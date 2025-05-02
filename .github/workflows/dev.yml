@@ -17,7 +17,7 @@ jobs:
       - name: Tidy modules
         run: go mod tidy
       - name: Buildar aplicacao
-        run: docker build -t kaduhod/fin .
+        run: docker build --network=host -t kaduhod/fin .
       - name: Subir build
         run: docker push kaduhod/fin
 
