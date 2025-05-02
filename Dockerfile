@@ -10,7 +10,6 @@ COPY . .
 
 COPY go.mod .
 COPY go.sum .
-RUN go mod tidy
 RUN go build --ldflags "-extldflags -static" -o main .
 
 FROM alpine:latest
