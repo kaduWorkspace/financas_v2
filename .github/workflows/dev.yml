@@ -18,4 +18,14 @@ jobs:
         run: docker build --network=host -t kaduhod/fin .
       - name: Subir build
         run: docker push kaduhod/fin
+  deploy:
+    runs-on: [ self-hosted, linux ]
+    steps:
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+      - name:
+        run: chmod +x deploy.dev.sh
+      - name: Deploy
+        run: ./deploy.dev.sh
 
