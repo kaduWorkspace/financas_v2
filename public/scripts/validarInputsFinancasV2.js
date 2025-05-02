@@ -82,7 +82,7 @@ const mascara_monetaria = valor => {
     return resultado;
 }
 const evento_mascara_monetaria = e => {
-    e.target.value = "R$ " + mascara_monetaria(e.target.value)
+    e.target.value = mascara_monetaria(e.target.value)
 }
 data_final_opcoes.addEventListener('change', (e) => {
     e.target.value == "data_especifica"
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
     valor_aporte.addEventListener('input', evento_mascara_monetaria)
     valor_inicial.addEventListener('input', evento_mascara_monetaria)
     valor_taxa_anual.addEventListener('input', e => {
-        e.target.value = "% " + mascara_monetaria(e.target.value)
+        e.target.value = mascara_monetaria(e.target.value)
     })
     document.body.addEventListener("htmx:configRequest", event => {
         if(event.detail.elt.id === "formulario_calcular") {
