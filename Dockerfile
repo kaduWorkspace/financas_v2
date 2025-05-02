@@ -8,6 +8,8 @@ ENV GO111MODULE=on \
 WORKDIR /build
 COPY . .
 
+COPY go.mod .
+COPY go.sum .
 RUN go mod tidy
 RUN go build --ldflags "-extldflags -static" -o main .
 
