@@ -19,6 +19,7 @@ jobs:
       - name: Subir build
         run: docker push kaduhod/fin
   deploy:
+    needs: build
     runs-on: [ self-hosted, linux ]
     steps:
       - uses: actions/setup-go@v4
