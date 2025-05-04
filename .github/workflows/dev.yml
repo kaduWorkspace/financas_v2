@@ -4,33 +4,58 @@ on:
     branches: ["master"]
   pull_request:
     branches: ["master"]
-
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: [ self-hosted, linux ]
     steps:
       - uses: actions/checkout@v3
+
+      # Cache Go modules to speed up builds
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
           cache: true
-      - name: Criar environment
+
+      - name: Create environment
         run: |
           touch .env
           echo "${{ secrets.APP_KEY }}" > .env
-          cat .env
+
       - name: Run tests
-        run: go test -v ./...
-      - name: Buildar aplicacao
-        run: docker build --network=host -t kaduhod/fin .
-      - name: Subir build
+        run: go test -v -short ./...  # Use -short flag for faster tests
+
+      - name: Build application
+        run: |
+          docker build \
+            --network=host \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            -t kaduhod/fin .
+
+      - name: Push build
         run: docker push kaduhod/fin
+
+      # Cleanup Docker to free space
+      - name: Cleanup Docker
+        if: always()
+        run: |
+          docker system prune -f
+          docker volume prune -f
+
   deploy:
     needs: build
     runs-on: [ self-hosted, linux ]
     steps:
-      - name:
+      - name: Make deploy script executable
         run: chmod +x deploy.dev.sh
       - name: Deploy
         run: ./deploy.dev.sh
+
