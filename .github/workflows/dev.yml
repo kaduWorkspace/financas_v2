@@ -7,6 +7,17 @@ on:
 
   workflow_dispatch:
 jobs:
+  test:
+    runs-on: [ self-hosted, linux ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+      - name: Run tests
+        run: go test -v ./...
+
   build:
     runs-on: [ self-hosted, linux ]
     steps:
@@ -32,4 +43,3 @@ jobs:
         run: chmod +x deploy.dev.sh
       - name: Deploy
         run: ./deploy.dev.sh
-
