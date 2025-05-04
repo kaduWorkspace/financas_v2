@@ -10,12 +10,14 @@ COPY . .
 
 COPY go.mod .
 COPY go.sum .
-COPY .env .env
 RUN go mod tidy
+RUN echo "y" | go run . artisan key:generate
 RUN go build --ldflags "-extldflags -static" -o main .
 
-FROM alpine:latest
+# Generate application key
+COPY .env .env
 
+FROM alpine:latest
 WORKDIR /www
 
 COPY --from=builder /build/main /www/
