@@ -13,7 +13,7 @@ jobs:
       - name: "Debug"
         run: ls -lah | grep "deploy*"
       - name: "Permissao de execucao"
-        run: chmod +x deploy.prod.sh
+        run: chmod +x deploy.sh
       - name: Deploy
-        run: ./deploy.prod.sh
+        run: ./deploy.sh
 
