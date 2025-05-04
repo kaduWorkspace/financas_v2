@@ -15,7 +15,7 @@ RUN echo "y" | go run . artisan key:generate
 RUN go build --ldflags "-extldflags -static" -o main .
 
 # Generate application key
-COPY .env .env
+COPY .env.exemple .env
 
 FROM alpine:latest
 WORKDIR /www
