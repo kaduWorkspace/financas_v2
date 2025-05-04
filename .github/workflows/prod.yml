@@ -11,7 +11,7 @@ jobs:
     runs-on: [ self-hosted, linux ]
     steps:
       - name: "Debug"
-        run: ls -lah | grep "deploy.sh"
+        run: ls -lah
       - name: "Permissao de execucao"
         run: chmod +x deploy.sh
       - name: Deploy
