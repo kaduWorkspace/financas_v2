@@ -1,0 +1,18 @@
+name: CI
+on:
+  push:
+    branches: ["prod"]
+  pull_request:
+    branches: ["prod"]
+
+  workflow_dispatch:
+jobs:
+  deploy:
+    needs: build
+    runs-on: [ self-hosted, linux ]
+    steps:
+      - name:
+        run: chmod +x deploy.prod.sh
+      - name: Deploy
+        run: ./deploy.prod.sh
+
