@@ -14,8 +14,6 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-      - name: "Initialize app"
-        run: go run . artisan key:generate --force
       - name: Buildar aplicacao
         run: docker build --network=host -t kaduhod/fin .
       - name: Subir build
