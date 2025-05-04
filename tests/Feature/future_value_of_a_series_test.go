@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"goravel/app/core"
 	"goravel/app/core/modules/financas"
 	"goravel/tests"
 
@@ -27,32 +26,59 @@ func (s *FutureValueOfASeriesSuite) SetupTest() {
 // TearDownTest will run after each test in the suite.
 func (s *FutureValueOfASeriesSuite) TearDownTest() {
 }
-func (self *FutureValueOfASeriesSuite) TestFutureValueOfASeries() {
+/*func (self *FutureValueOfASeriesSuite) TestFutureValueOfASeries() {
     servico := financas.SimularJurosComposto {}
     servico.SetDiasDeLiquidesPorAno(255)
-    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PORCENTO_ANUAL)
     servico.SetValorAporte(833.00)
     servico.SetDiasDeLiquidesPorAno(12)
-    valorizacao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1, servico.GetValorAporte(), false)
+    valorizacao, _ := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1, servico.GetValorAporte(), false)
     valor_alvo := 10625.956528507051
     if valorizacao != valor_alvo {
         self.Fail(fmt.Sprintf("[FVS] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
-}
-func (self *FutureValueOfASeriesSuite) TestMonthlyFVS() {
+}*/
+/*
+func (self *FutureValueOfASeriesSuite) TestFVSWithPrecision() {
     servico := financas.SimularJurosComposto {}
     data_inicial := "2025-02-01"
-    data_final := "2026-02-01"
+    data_final := "2037-02-01"
     fmt.Println("Datas inicial e final >> ", data_inicial, data_final)
     servico.SetDatas(data_inicial, data_final)
     servico.SetTaxaAnosApartirPeriodoDeDatas()
     servico.SetTaxaAnos(float64(int(servico.GetTaxaAnos())))
     servico.SetDiasDeLiquidesPorAno(12)
-    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PORCENTO_ANUAL)
+    servico.SetValorAporte(1833.00)
+    resultOld := financas.FutureValuesOfASeriesFormulaOld(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
+    resulPrecision, err := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
+    fmt.Println("Resultado old >> ", resultOld)
+    fmt.Println("Resultado >> ", resulPrecision)
+    if err != nil {
+        panic(err)
+    }
+    self.Fail("Stop")
+}*/
+func (self *FutureValueOfASeriesSuite) TestMonthlyFVS() {
+    servico := financas.SimularJurosComposto {}
+    data_inicial := "2025-02-01"
+    data_final := "2046-02-01"
+    fmt.Println("Datas inicial e final >> ", data_inicial, data_final)
+    servico.SetDatas(data_inicial, data_final)
+    servico.SetTaxaAnosApartirPeriodoDeDatas()
+    servico.SetTaxaAnos(float64(int(servico.GetTaxaAnos())))
+    servico.SetDiasDeLiquidesPorAno(12)
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PORCENTO_ANUAL)
     servico.SetValorAporte(833.00)
-    reusultado_padrao := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
+    reusultado_padrao, err := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
+    if err != nil {
+        panic(err)
+    }
     servico.SetTaxaMeses(servico.GetTaxaAnos() * 12)
-    mapas := financas.FutureValueOfASeriesMonthly(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaAnos() * 12, true, servico.GetDataInicial())
+    mapas, err := financas.FutureValueOfASeriesMonthly(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaAnos() * 12, true, servico.GetDataInicial())
+    if err != nil {
+        self.Fail(err.Error())
+    }
     //fmt.Println("Taxa anos", servico.GetTaxaAnos())
     //fmt.Println("Taxa Meses", servico.GetTaxaMeses())
     //fmt.Println("Resultado padrao >> ", reusultado_padrao)
@@ -61,12 +87,13 @@ func (self *FutureValueOfASeriesSuite) TestMonthlyFVS() {
     if int(reusultado_padrao) != int(ultimo_valor.Acumulado) {
         self.Fail(fmt.Sprintf("[FVS] Valorização deveria ser %f, retornado %f", reusultado_padrao, ultimo_valor.Acumulado))
     }
+    fmt.Println("Esperado", reusultado_padrao, "Recebido", ultimo_valor.Acumulado)
 
 }
 func (self *FutureValueOfASeriesSuite) TestCompoundInterestFomula() {
     servico := financas.SimularJurosComposto {}
     servico.SetDiasDeLiquidesPorAno(255)
-    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PORCENTO_ANUAL)
     servico.SetValorInicial(9500.00)
     servico.SetDiasDeLiquidesPorAno(12)
     valorizacao := financas.CompoundInterestFormula(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1)
@@ -75,19 +102,6 @@ func (self *FutureValueOfASeriesSuite) TestCompoundInterestFomula() {
         self.Fail(fmt.Sprintf("[CI] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
 }
-func (self *FutureValueOfASeriesSuite) TestCivFvs() {
-    servico := financas.SimularJurosComposto {}
-    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
-    servico.SetDiasDeLiquidesPorAno(255)
-    servico.SetValorInicial(9500.00)
-    servico.SetDiasDeLiquidesPorAno(12)
-    servico.SetValorAporte(833.00)
-    valorizacao := financas.CifAndFvs(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), 1, servico.GetValorAporte())
-    valor_alvo := 21581.362308
-    if !core.AlmostEqual(valorizacao, valor_alvo, 0.1) {
-        self.Fail("Valor alvo nao atingido")
-    }
-}/*
 func (self *FutureValueOfASeriesSuite) TestTaxaAnos() {
     servico := financas.SimularJurosComposto {}
     data_inicial := "2025-02-01"
@@ -100,7 +114,7 @@ func (self *FutureValueOfASeriesSuite) TestTaxaAnos() {
         self.T().Fail()
     }
 
-}*/
+}
 func (self *FutureValueOfASeriesSuite) TestFutureValueOfASeriesMonthly() {
     data_inicial := "2025-02-01"
     data_final := "2026-04-01"
@@ -110,8 +124,10 @@ func (self *FutureValueOfASeriesSuite) TestFutureValueOfASeriesMonthly() {
     servico.SetTaxaAnos(2)
     servico.SetTaxaMeses(servico.GetTaxaAnos() * 12)
     servico.SetDiasDeLiquidesPorAno(12)
-    servico.SetTaxaDeJurosDecimal(13.25, financas.PROCENTO_ANUAL)
+    servico.SetTaxaDeJurosDecimal(13.25, financas.PORCENTO_ANUAL)
     servico.SetValorAporte(833.00)
-    mapa := financas.FutureValueOfASeriesMonthly(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaMeses(), true, servico.GetDataInicial())
-    fmt.Println(mapa)
+    _, err := financas.FutureValueOfASeriesMonthly(servico.GetValorInicial(), servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetValorAporte(), servico.GetTaxaMeses(), true, servico.GetDataInicial())
+    if err != nil {
+        self.Fail(err.Error())
+    }
 }

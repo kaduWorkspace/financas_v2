@@ -11,7 +11,7 @@ import (
 )
 type TIPO_TAXA_JUROS int
 const (
-    PROCENTO_ANUAL TIPO_TAXA_JUROS = iota
+    PORCENTO_ANUAL TIPO_TAXA_JUROS = iota
 )
 // Sempre será pré fixado, pois a taxa é fixada antes do inicio do investimento e se mantem ate o final.
 type SimularJurosComposto struct {
@@ -52,7 +52,7 @@ func (self *SimularJurosComposto) SetDiasDeLiquidesPorAno(quantidade int) {
     self.diasLiquidez = float64(quantidade)
 }
 func (self *SimularJurosComposto) SetTaxaDeJurosDecimal(valor float64, tipo TIPO_TAXA_JUROS) error {
-    if tipo == PROCENTO_ANUAL {
+    if tipo == PORCENTO_ANUAL {
         self.taxaJurosDecimal = valor / 100
         return nil
     }
