@@ -38,18 +38,18 @@ func (s *FutureValueOfASeriesSuite) TearDownTest() {
         self.Fail(fmt.Sprintf("[FVS] Valorização deveria ser %f, retornado %f", valor_alvo, valorizacao))
     }
 }*/
-/*
+
 func (self *FutureValueOfASeriesSuite) TestFVSWithPrecision() {
     servico := financas.SimularJurosComposto {}
     data_inicial := "2025-02-01"
-    data_final := "2037-02-01"
+    data_final := "2036-02-01"
     fmt.Println("Datas inicial e final >> ", data_inicial, data_final)
     servico.SetDatas(data_inicial, data_final)
     servico.SetTaxaAnosApartirPeriodoDeDatas()
     servico.SetTaxaAnos(float64(int(servico.GetTaxaAnos())))
     servico.SetDiasDeLiquidesPorAno(12)
     servico.SetTaxaDeJurosDecimal(13.25, financas.PORCENTO_ANUAL)
-    servico.SetValorAporte(1833.00)
+    servico.SetValorAporte(833.00)
     resultOld := financas.FutureValuesOfASeriesFormulaOld(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
     resulPrecision, err := financas.FutureValuesOfASeriesFormula(servico.GetTaxaDeJurosDecimal(), servico.GetDiasDeLiquidezPorAno(), servico.GetTaxaAnos(), servico.GetValorAporte(), true)
     fmt.Println("Resultado old >> ", resultOld)
@@ -57,12 +57,12 @@ func (self *FutureValueOfASeriesSuite) TestFVSWithPrecision() {
     if err != nil {
         panic(err)
     }
-    self.Fail("Stop")
-}*/
+    //self.Fail("Stop")
+}
 func (self *FutureValueOfASeriesSuite) TestMonthlyFVS() {
     servico := financas.SimularJurosComposto {}
     data_inicial := "2025-02-01"
-    data_final := "2046-02-01"
+    data_final := "2036-02-01"
     fmt.Println("Datas inicial e final >> ", data_inicial, data_final)
     servico.SetDatas(data_inicial, data_final)
     servico.SetTaxaAnosApartirPeriodoDeDatas()

@@ -8,7 +8,7 @@ import (
 
 	"github.com/shopspring/decimal"
 )
-
+const decimalPrecision = 16
 func DecimalPow(base decimal.Decimal, exponent int64) decimal.Decimal {
 	result := decimal.NewFromInt(1)
 	for i := int64(0); i < exponent; i++ {
@@ -35,27 +35,31 @@ func FutureValuesOfASeriesFormula(taxa_juros_decimal, dias_liquidos, anos, valor
     dias_liquidos_decimal := decimal.NewFromFloat(dias_liquidos)
     anos_decimal := decimal.NewFromFloat(anos)
     valor_aporte_decimal := decimal.NewFromFloat(valor_aporte)
-    //log.Printf("Input values - taxa_juros_decimal: %f, dias_liquidos: %f, anos: %f, valor_aporte: %f, aporte_primeiro_dia: %t",taxa_juros_decimal, dias_liquidos, anos, valor_aporte, aporte_primeiro_dia)
-    //log.Printf("Converted taxa_juros_decimal to decimal: %s", taxa_juros_decimal_decimal.String())
-    //log.Printf("Converted dias_liquidos to decimal: %s", dias_liquidos_decimal.String())
-    //log.Printf("Converted anos to decimal: %s", anos_decimal.String())
-    //log.Printf("Converted valor_aporte to decimal: %s", valor_aporte_decimal.String())
+
+    if dias_liquidos_decimal.IsZero() {
+        return 0, fmt.Errorf("dias_liquidos cannot be zero")
+    }
+
     fator_crescimento := DecimalPow(
-        taxa_juros_decimal_decimal.Div(dias_liquidos_decimal).Add(decimal.NewFromInt(1)),
+        taxa_juros_decimal_decimal.DivRound(dias_liquidos_decimal, decimalPrecision).Add(decimal.NewFromInt(1)),
         dias_liquidos_decimal.Mul(anos_decimal).IntPart(),
     ).Sub(decimal.NewFromInt(1))
-    fator_mutiplicacao := fator_crescimento.Div( taxa_juros_decimal_decimal.Div(decimal.NewFromInt(12)) )
 
-    //fmt.Println("Fator de crescimento >> ", fator_crescimento)
-    //fmt.Println("Fator de multiplicaçao >> ", fator_mutiplicacao)
+    fator_mutiplicacao := fator_crescimento.DivRound(
+        taxa_juros_decimal_decimal.DivRound(decimal.NewFromInt(12), decimalPrecision),
+        decimalPrecision,
+    )
+
     valor_futuro := valor_aporte_decimal.Mul(fator_mutiplicacao)
     if aporte_primeiro_dia {
         result := valor_futuro.Mul(
-            taxa_juros_decimal_decimal.Div(decimal.NewFromInt(12)).Add(decimal.NewFromInt(1)),
+            taxa_juros_decimal_decimal.DivRound(decimal.NewFromInt(12), decimalPrecision).Add(decimal.NewFromInt(1)),
         )
-        return result.InexactFloat64(), nil
+        float_result, _ := result.Round(decimalPrecision).Float64()
+        return float_result, nil
     }
-    return valor_futuro.InexactFloat64(), nil
+    float_result, _ := valor_futuro.Round(decimalPrecision).Float64()
+    return float_result, nil
 }
 func CompoundInterestFormula(valor_inicial, taxa_juros_decimal, dias_liquidos, anos float64) float64 {
 //    fmt.Println("Args CIV >> ", valor_inicial, taxa_juros_decimal, dias_liquidos, anos)
@@ -85,7 +89,7 @@ func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquido
     var mapa_meses []FVSMonthlyMap
     quantidade_meses_int := int(quantidade_meses)
     //resto_quantidade_meses := quantidade_meses - float64(quantidade_meses_int)
-    taxa_mensal :=  decimal.NewFromFloat(taxa_juros_decimal).Div(decimal.NewFromInt(12))
+    taxa_mensal :=  decimal.NewFromFloat(taxa_juros_decimal).DivRound(decimal.NewFromInt(12), decimalPrecision)
     aux_date := data_inicial
     valor_aporte_decimal := decimal.NewFromFloat(valor_aporte)
     for mes := 0; mes < quantidade_meses_int; mes++ {
@@ -97,12 +101,14 @@ func FutureValueOfASeriesMonthly(valor_inicial, taxa_juros_decimal, dias_liquido
         if !aporte_primeiro_dia {
             valor_acumulado = valor_acumulado.Add(valor_aporte_decimal)
         }
+        juros_float, _ := juros.Round(decimalPrecision).Float64()
+        acumulado_float, _ := valor_acumulado.Round(decimalPrecision).Float64()
         curr := FVSMonthlyMap{
-            Juros: juros.InexactFloat64(),
-            Acumulado: valor_acumulado.InexactFloat64(),
+            Juros: juros_float,
+            Acumulado: acumulado_float,
             Mes: mes +1,
-            JurosFormatado: core.FormatarValorMonetario(juros.InexactFloat64()),
-            AcumuladoFormatado: core.FormatarValorMonetario(valor_acumulado.InexactFloat64()),
+            JurosFormatado: core.FormatarValorMonetario(juros_float),
+            AcumuladoFormatado: core.FormatarValorMonetario(acumulado_float),
             Data: aux_date,
         }
         mapa_meses = append(mapa_meses, curr)
