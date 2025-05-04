@@ -11,7 +11,6 @@ COPY . .
 COPY go.mod .
 COPY go.sum .
 RUN go mod tidy
-RUN echo "y" | go run . artisan key:generate
 RUN go build --ldflags "-extldflags -static" -o main .
 
 # Generate application key

@@ -15,6 +15,11 @@ jobs:
         with:
           go-version: '1.24'
           cache: true
+      - name: Criar environment
+        run: |
+          touch .env
+          echo "${{ secrets.APP_KEY }}" > .env
+          cat .env
       - name: Buildar aplicacao
         run: docker build --network=host -t kaduhod/fin .
       - name: Subir build
