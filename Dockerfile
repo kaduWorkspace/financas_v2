@@ -13,9 +13,6 @@ COPY go.sum .
 RUN go mod tidy
 RUN go build --ldflags "-extldflags -static" -o main .
 
-# Generate application key
-COPY .env.exemple .env
-
 FROM alpine:latest
 WORKDIR /www
 
