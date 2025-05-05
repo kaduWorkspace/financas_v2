@@ -56,97 +56,28 @@
             .animate-fade-in {
                 animation: fade-in 0.8s ease-out forwards;
             }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .card {
+                background: rgba(15, 23, 42, 0.7);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
         </style>
     </head>
     <body class="bg-gradient text-gray-200 flex flex-col min-h-screen">
         <!-- Header com Navegação -->
-        <header class="fixed top-0 left-0 w-full bg-opacity-90 bg-gray-900 z-50 shadow-md transition-all duration-300">
-            <div class="container mx-auto flex justify-between items-center px-6 py-4">
-                <div class="flex items-center">
-                    <img src="/public/images/logo-simples.svg" alt="Logo" class="w-10 h-10 mr-3">
-                    <div>
-                        <h1 class="text-xl font-bold text-white">Simular Investimento <span class="text-teal-400">JC</span></h1>
-                        <span class="px-2 py-0.5 bg-teal-400 text-gray-900 text-xs font-semibold rounded-full shadow-sm">BETA</span>
-                    </div>
-                </div>
-
-                <nav class="hidden md:flex space-x-6">
-                    <a href="#formulario_calcular" class="nav-link text-gray-300 hover:text-teal-400 transition-colors duration-300">Simular</a>
-                    <a href="#contato" class="nav-link text-gray-300 hover:text-teal-400 transition-colors duration-300">Contato</a>
-                </nav>
-
-                <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Menu Mobile -->
-            <div id="mobile-menu" class="hidden md:hidden bg-gray-900 pb-4 animate-fade-in">
-                <nav class="flex flex-col space-y-1 px-6 pt-2 pb-3">
-                    <a href="#formulario_calcular" class="text-gray-300 hover:text-teal-400 py-2">Simular</a>
-                    <a href="#contato" class="text-gray-300 hover:text-teal-400 py-2">Contato</a>
-                </nav>
-            </div>
-        </header>
-
-        <main class="flex-grow pt-20">
+        {{ template "header" }}
+        <main class="flex-grow pt-20" id="main-content">
             <!-- Wrapper para Formulário e Resultados -->
-            {{ template "financas_result_wrapper" . }}
+            {{ template "index" . }}
         </main>
 
-        <!-- Footer com Contato -->
-        <footer class="bg-gray-900 text-gray-300 pt-8 pb-6 mt-auto">
-            <div class="container mx-auto px-6">
-                <div class="grid md:grid-cols-2 gap-8 mb-8">
-                    <div>
-                        <div class="flex items-center mb-4">
-                            <img src="/public/images/logo-simples.svg" alt="Logo" class="w-10 h-10 mr-3">
-                            <h3 class="text-xl font-bold text-white">Simular Investimento <span class="text-teal-400">JC</span></h3>
-                        </div>
-                        <p class="text-gray-400 mb-4">Ferramentas de simulação financeira para ajudar no planejamento do seu futuro.</p>
-                    </div>
-
-                    <div id="contato">
-                        <h3 class="text-lg font-semibold mb-4 text-white">Entre em contato</h3>
-                        <div class="flex space-x-4 mb-4">
-                            <a href="https://github.com/KaduHod" target="_blank" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors">
-                                <i class="fab fa-github text-lg"></i>
-                            </a>
-                            <a href="https://www.linkedin.com/in/carlosjrribas98/" target="_blank" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors">
-                                <i class="fab fa-linkedin-in text-lg"></i>
-                            </a>
-                            <a href="mailto:carlosjr.ribas@gmail.com" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors">
-                                <i class="fas fa-envelope text-lg"></i>
-                            </a>
-                        </div>
-                        <p class="text-gray-400 text-sm">carlosjr.ribas@gmail.com</p>
-                    </div>
-                </div>
-
-                <div class="pt-6 border-t border-gray-800 text-center text-sm text-gray-500">
-                    <p>&copy; 2025 Simular Investimento JC. Todos os direitos reservados.</p>
-                </div>
-            </div>
-        </footer>
-
-        <script>
-            // Menu Mobile Toggle
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            // Offset main content for fixed header
-            const header = document.getElementsByTagName('header')[0];
-            const headerHeight = header.offsetHeight;
-            const main = document.getElementsByTagName('main')[0];
-            main.style.paddingTop = `${headerHeight}px`;
-        </script>
-        <script src="/public/scripts/validarInputsFinancasV2.js"></script>
+        {{ template "footer" }}
+        <script src="/public/scripts/inputValidators.js"></script>
     </body>
 </html>
 {{ end }}

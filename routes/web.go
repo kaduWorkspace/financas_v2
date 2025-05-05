@@ -13,6 +13,9 @@ func Web() {
     facades.Route().Fallback(func (ctx http.Context) http.Response {
         return ctx.Response().Redirect(http.StatusSeeOther, "/")
     })
-    facades.Route()/*.Middleware(middleware.CreateCsrfTokenMiddleware())*/.Get("/", financasController.Index)
+    facades.Route().Get("/", financasController.Index)
+    facades.Route().Get("/home", financasController.Home)
+    facades.Route().Middleware(middleware.CreateCsrfTokenMiddleware()).Get("/simulador", financasController.Simulador)
+    //facades.Route()/*.Middleware(middleware.CreateCsrfTokenMiddleware())*/.Get("/", financasController.Index)
     facades.Route().Middleware(middleware.ValidateCsrfTokenMiddleware()).Post("v2/simular-jc", financasController.CalcularV2)
 }

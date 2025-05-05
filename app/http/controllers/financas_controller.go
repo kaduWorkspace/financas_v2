@@ -26,8 +26,24 @@ func NewFinancasController() *FinancasController {
         },
 	}
 }
-
 func (r *FinancasController) Index(ctx http.Context) http.Response {
+    return ctx.Response().View().Make("financas")
+}
+
+func (r *FinancasController) Simulador(ctx http.Context) http.Response {
+    contexto_view := map[string]any{}
+    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
+    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
+    erro := ctx.Request().Query("erro")
+    if  erro != "" {
+        contexto_view["panic"] = erro
+    }
+    return ctx.Response().View().Make("financas_result_wrapper", contexto_view)
+}
+func (r *FinancasController) Home(ctx http.Context) http.Response {
+    return  ctx.Response().View().Make("index")
+}
+/*func (r *FinancasController) Index(ctx http.Context) http.Response {
     contexto_view := map[string]any{}
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
@@ -36,7 +52,7 @@ func (r *FinancasController) Index(ctx http.Context) http.Response {
         contexto_view["panic"] = erro
     }
     return ctx.Response().View().Make("financas", contexto_view)
-}
+}*/
 func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     var post_calcular_cdb requests.PostSimularCdb
 
