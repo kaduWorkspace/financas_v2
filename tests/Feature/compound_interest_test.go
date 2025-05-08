@@ -67,3 +67,75 @@ func TestCompoundInterestCalculate(t *testing.T) {
         })
     }
 }
+
+func TestFutureValueOfASeries(t *testing.T) {
+	tests := []struct {
+		name                  string
+		interestRateDecimal   float64
+		periods               float64
+		contributionAmount    float64
+		contributionOnFirstDay bool
+		want                  float64
+	}{
+		{
+			name:                  "monthly contributions end period",
+			interestRateDecimal:   0.12, // 12% annual
+			periods:               12,   // 1 year monthly
+			contributionAmount:    100,
+			contributionOnFirstDay: false,
+			want:                  1268.25,
+		},
+		{
+			name:                  "monthly contributions start period",
+			interestRateDecimal:   0.12,
+			periods:               12,
+			contributionAmount:    100,
+			contributionOnFirstDay: true,
+			want:                  1280.93,
+		},
+		{
+			name:                  "quarterly contributions low rate",
+			interestRateDecimal:   0.01, // 1% annual
+			periods:               4,    // 1 year quarterly
+			contributionAmount:    500,
+			contributionOnFirstDay: false,
+			want:                  2007.51,
+		},
+		{
+			name:                  "weekly contributions high rate",
+			interestRateDecimal:   0.24, // 24% annual
+			periods:               52,   // 1 year weekly
+			contributionAmount:    10,
+			contributionOnFirstDay: true,
+			want:                  588.89,
+		},
+		{
+			name:                  "single contribution edge case",
+			interestRateDecimal:   0.05,
+			periods:               1,
+			contributionAmount:    1000,
+			contributionOnFirstDay: false,
+			want:                  1000.00,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fv := financas.FutureValueOfASeries{
+				InterestRateDecimal:   tt.interestRateDecimal,
+				Periods:               tt.periods,
+				ContributionAmount:    tt.contributionAmount,
+				ContributionOnFirstDay: tt.contributionOnFirstDay,
+			}
+			got := fv.Calculate()
+			if !almostEqual(got, tt.want, 0.01) {
+				t.Errorf("calculate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// Helper function to compare floating point numbers with tolerance
+func almostEqual(a, b, tolerance float64) bool {
+	return (a-b) < tolerance && (b-a) < tolerance
+}
