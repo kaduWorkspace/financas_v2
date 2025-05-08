@@ -1,6 +1,7 @@
 package Feature
 
 import (
+	"fmt"
 	"goravel/app/core/modules/financas"
 	"math"
 	"testing"
@@ -96,18 +97,18 @@ func TestFutureValueOfASeries(t *testing.T) {
 		{
 			name:                  "quarterly contributions low rate",
 			interestRateDecimal:   0.01, // 1% annual
-			periods:               4,    // 1 year quarterly
+			periods:               4,    // 4 months /4 anos e uns 4 meses
 			contributionAmount:    500,
 			contributionOnFirstDay: false,
-			want:                  2007.51,
+			want:                  2002.50,
 		},
 		{
 			name:                  "weekly contributions high rate",
 			interestRateDecimal:   0.24, // 24% annual
-			periods:               52,   // 1 year weekly
+			periods:               52,   // 52 months
 			contributionAmount:    10,
 			contributionOnFirstDay: true,
-			want:                  588.89,
+			want:                  918.16,
 		},
 		{
 			name:                  "single contribution edge case",
@@ -134,6 +135,67 @@ func TestFutureValueOfASeries(t *testing.T) {
 		})
 	}
 }
+func TestCompareFormulaWithLoop(t *testing.T) {
+    data := struct {
+        name                  string
+        interestRateDecimal   float64
+        periods               float64
+        contributionAmount    float64
+        contributionOnFirstDay bool
+    }{
+        name:                  "single contribution edge case",
+        interestRateDecimal:   0.1425,
+        periods:               36,
+        contributionAmount:    1000,
+        contributionOnFirstDay: true,
+    }
+    fv := financas.FutureValueOfASeries{
+        InterestRateDecimal:   data.interestRateDecimal,
+        Periods:               data.periods,
+        ContributionAmount:    data.contributionAmount,
+        ContributionOnFirstDay: data.contributionOnFirstDay,
+    }
+    one := fv.Calculate()
+    two := fv.CalculateWithPeriods(0)
+    if !almostEqual(one, two, 0.01) {
+        t.Errorf("one = %v, want %v", one, two)
+    }
+    fmt.Println(one, two)
+}
+/*func TestCompareFormulaWithLoop2(t *testing.T) {
+    data := struct {
+        name                  string
+        interestRateDecimal   float64
+        periods               float64
+        contributionAmount    float64
+        contributionOnFirstDay bool
+        want                  float64
+    }{
+        name:                  "single contribution edge case",
+        interestRateDecimal:   0.1425,
+        periods:               12,
+        contributionAmount:    1000,
+        contributionOnFirstDay: true,
+        want:                  1000.00,
+    }
+    fv := financas.FutureValueOfASeries{
+        InterestRateDecimal:   data.interestRateDecimal,
+        Periods:               data.periods,
+        ContributionAmount:    data.contributionAmount,
+        ContributionOnFirstDay: data.contributionOnFirstDay,
+    }
+    cp := financas.CompoundInterest{
+        InitialValue: 100,
+        Tax: 0.1425,
+        Months: 12,
+    }
+    one := fv.Calculate() + cp.Calculate()
+    two := fv.CalculateWithPeriods(100)
+    if !almostEqual(one, two, 0.0001) {
+        t.Errorf("one = %v, want %v", one, two)
+    }
+    fmt.Println(one, two)
+}*/
 
 // Helper function to compare floating point numbers with tolerance
 func almostEqual(a, b, tolerance float64) bool {
