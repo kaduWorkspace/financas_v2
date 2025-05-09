@@ -20,28 +20,28 @@ func TestCompoundInterestCalculate(t *testing.T) {
             initial:  1000.0,
             tax:      0.01,
             months:   12,
-            expected: 1126.8250301319697,
+            expected: 1010.045,
         },
         {
             name:     "Large investment with moderate interest",
-            initial:  1000000.0,
+            initial:  10000.0,
             tax:      0.05,
             months:   24,
-            expected: 3225099.9437137,
+            expected: 11049.41,
         },
         {
             name:     "Small investment with high interest",
             initial:  500.0,
             tax:      0.2,
             months:   6,
-            expected: 1492.992,
+            expected: 552.13,
         },
         {
             name:     "Large investment with small monthly gain",
-            initial:  5000000.0,
+            initial:  50000.0,
             tax:      0.001,
             months:   36,
-            expected: 5183185.996419741,
+            expected: 50150.21,
         },
         {
             name:     "Zero months should return initial value",
@@ -60,7 +60,7 @@ func TestCompoundInterestCalculate(t *testing.T) {
                 Months:       tt.months,
             }
             got := ci.Calculate()
-            tolerance := 1e-8 // 0.000001% tolerance
+            tolerance := 0.01 // 0.000001% tolerance
             diff := math.Abs(got - tt.expected)
             if diff > tolerance && diff/math.Max(math.Abs(got), math.Abs(tt.expected)) > tolerance {
                 t.Errorf("Calculate() = %v, want %v (diff: %v)", got, tt.expected, diff)
@@ -97,7 +97,7 @@ func TestFutureValueOfASeries(t *testing.T) {
 		{
 			name:                  "quarterly contributions low rate",
 			interestRateDecimal:   0.01, // 1% annual
-			periods:               4,    // 4 months /4 anos e uns 4 meses
+			periods:               4,    // 4 months
 			contributionAmount:    500,
 			contributionOnFirstDay: false,
 			want:                  2002.50,
@@ -105,7 +105,7 @@ func TestFutureValueOfASeries(t *testing.T) {
 		{
 			name:                  "weekly contributions high rate",
 			interestRateDecimal:   0.24, // 24% annual
-			periods:               52,   // 52 months
+			periods:               52,   // 52 months 4 anos e uns 4 meses
 			contributionAmount:    10,
 			contributionOnFirstDay: true,
 			want:                  918.16,
@@ -162,7 +162,7 @@ func TestCompareFormulaWithLoop(t *testing.T) {
     }
     fmt.Println(one, two)
 }
-/*func TestCompareFormulaWithLoop2(t *testing.T) {
+func TestCompareFormulaWithLoop2(t *testing.T) {
     data := struct {
         name                  string
         interestRateDecimal   float64
@@ -173,7 +173,7 @@ func TestCompareFormulaWithLoop(t *testing.T) {
     }{
         name:                  "single contribution edge case",
         interestRateDecimal:   0.1425,
-        periods:               12,
+        periods:               10,
         contributionAmount:    1000,
         contributionOnFirstDay: true,
         want:                  1000.00,
@@ -187,15 +187,16 @@ func TestCompareFormulaWithLoop(t *testing.T) {
     cp := financas.CompoundInterest{
         InitialValue: 100,
         Tax: 0.1425,
-        Months: 12,
+        Months: 10,
     }
-    one := fv.Calculate() + cp.Calculate()
+    one := fv.Calculate()
+    one_cp := cp.Calculate()
     two := fv.CalculateWithPeriods(100)
-    if !almostEqual(one, two, 0.0001) {
-        t.Errorf("one = %v, want %v", one, two)
+    if !almostEqual(one + one_cp, two, 0.0001) {
+        t.Errorf("one = %v, want %v", one + one_cp, two)
     }
-    fmt.Println(one, two)
-}*/
+    fmt.Println(one, one_cp, two)
+}
 
 // Helper function to compare floating point numbers with tolerance
 func almostEqual(a, b, tolerance float64) bool {

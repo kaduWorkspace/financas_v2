@@ -15,7 +15,7 @@ func (self *CompoundInterest) Calculate() float64 {
     decimalTax := decimal.NewFromFloat(self.Tax)
     decimalMonths := decimal.NewFromInt(int64(self.Months))
     futureValue := decimalInitialValue.Mul(
-        decimal.NewFromInt(1).Add(decimalTax).Pow(decimalMonths),
+        decimal.NewFromInt(1).Add(decimalTax.Div(decimal.NewFromInt(12))).Pow(decimalMonths),
     )
     result, _ := futureValue.Round(16).Float64()
     return result
