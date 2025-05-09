@@ -15,11 +15,17 @@ import (
 type FinancasController struct {
     simularJurosCompostoService financas.SimularJurosComposto
     analizarJurosCompostoService financas.AnalizarResultadoInvestimentoDeJurosComposto
+    compoundInterestService financas.CompoundInterest
+    futureValueOfASeriesService financas.FutureValueOfASeries
 }
 
 func NewFinancasController() *FinancasController {
     simularServiceJC := financas.SimularJurosComposto {}
+    cp := financas.CompoundInterest{}
+    fv := financas.FutureValueOfASeries{}
 	return &FinancasController{
+        compoundInterestService: cp,
+        futureValueOfASeriesService: fv,
         simularJurosCompostoService: simularServiceJC,
         analizarJurosCompostoService: financas.AnalizarResultadoInvestimentoDeJurosComposto {
             JcService : simularServiceJC,
@@ -43,16 +49,6 @@ func (r *FinancasController) Simulador(ctx http.Context) http.Response {
 func (r *FinancasController) Home(ctx http.Context) http.Response {
     return  ctx.Response().View().Make("index")
 }
-/*func (r *FinancasController) Index(ctx http.Context) http.Response {
-    contexto_view := map[string]any{}
-    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
-    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
-    erro := ctx.Request().Query("erro")
-    if  erro != "" {
-        contexto_view["panic"] = erro
-    }
-    return ctx.Response().View().Make("financas", contexto_view)
-}*/
 func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     var post_calcular_cdb requests.PostSimularCdb
 
@@ -77,9 +73,43 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         return ctx.Response().View().Make("financas_form", contexto_view)
     }
     if err := post_calcular_cdb.ValidarData(); err != nil {
-        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
+        return ctx.Response().Header("HX-Redirect", "/?erro=Data inválida!").Success().Data("text/plain", []byte(err.Error()))
     }
     contexto_view["message"] = "Simulação finalizada!"
+    periods, err := self.compoundInterestService.MonthsBetweenDates(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
+    if err != nil {
+        return ctx.Response().Header("HX-Redirect", "/?erro=Data inválida!").Success().Data("text/plain", []byte(err.Error()))
+    }
+
+    self.futureValueOfASeriesService.SetInterestRateDecimal(post_calcular_cdb.ValorTaxaAnual)
+    self.futureValueOfASeriesService.SetPeriods(float64(periods))
+    self.futureValueOfASeriesService.SetContributionAmount(post_calcular_cdb.ValorAporte)
+    self.futureValueOfASeriesService.SetContributionOnFirstDay(true)
+    fv, details := self.futureValueOfASeriesService.CalculateWithPeriods(post_calcular_cdb.ValorInicial)
+    self.analizarJurosCompostoService.SetValorFinal(fv)
+    self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(post_calcular_cdb.ValorInicial)
+    valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
+    retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
+    self.simularJurosCompostoService.SetValorGasto()
+    self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
+    valor_gasto := self.simularJurosCompostoService.GetValorGasto()
+    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(details, core.EhMobile(ctx.Request().Origin().UserAgent()))
+    tabela_json, err := json.Marshal(dados_tabela)
+    if err == nil {
+        contexto_view["tabela_json"] = string(tabela_json)
+    } else {
+        fmt.Println("ERRO AO GERAR TABELA json: ", err)
+    }
+    contexto_view["valorizacao"] = core.FormatarValorMonetario(valorizacao)
+    contexto_view["valor_investido"] = core.FormatarValorMonetario(valor_gasto)
+    contexto_view["valor_inicial"] = core.FormatarValorMonetario(post_calcular_cdb.ValorInicial)
+    contexto_view["valor_final"] = core.FormatarValorMonetario(self.analizarJurosCompostoService.GetValorFinal())
+    contexto_view["juros_rendido"] = core.FormatarValorMonetario(self.simularJurosCompostoService.GetValorJurosRendido())
+    contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
+    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
+    contexto_view["tabela"] = dados_tabela
+    contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
+/*
     self.simularJurosCompostoService.SetDatas(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
     self.simularJurosCompostoService.SetDiasDeLiquidesPorAno(post_calcular_cdb.DiasLiquidezPorAno)
     if err := self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas(); err != nil {
@@ -91,6 +121,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     } else {
         self.simularJurosCompostoService.SetTaxaAnos(float64(int(self.simularJurosCompostoService.GetTaxaAnos())))
     }
+
     self.simularJurosCompostoService.SetTaxaDeJurosDecimal(post_calcular_cdb.ValorTaxaAnual, financas.PORCENTO_ANUAL)
     var tipo_investimento financas.TIPO_INVESTIMENTO_ENUM
     self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
@@ -113,30 +144,9 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     if err != nil {
         fmt.Println(err)
         return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
-    }
-    self.analizarJurosCompostoService.SetValorFinal(resultado[len(resultado)-1].Acumulado)
-    self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
-    self.analizarJurosCompostoService.SetTipoInvestimento(tipo_investimento)
-    valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
-    retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
-    self.simularJurosCompostoService.SetValorGasto()
-    self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
-    valor_gasto := self.simularJurosCompostoService.GetValorGasto()
-    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(resultado, core.EhMobile(ctx.Request().Origin().UserAgent()))
-    tabela_json, err := json.Marshal(dados_tabela)
-    if err == nil {
-        contexto_view["tabela_json"] = string(tabela_json)
-    } else {
-        fmt.Println("ERRO AO GERAR TABELA json: ", err)
-    }
-    contexto_view["valorizacao"] = core.FormatarValorMonetario(valorizacao)
-    contexto_view["valor_investido"] = core.FormatarValorMonetario(valor_gasto)
-    contexto_view["valor_inicial"] = core.FormatarValorMonetario(post_calcular_cdb.ValorInicial)
-    contexto_view["valor_final"] = core.FormatarValorMonetario(self.analizarJurosCompostoService.GetValorFinal())
-    contexto_view["juros_rendido"] = core.FormatarValorMonetario(self.simularJurosCompostoService.GetValorJurosRendido())
-    contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
-    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
-    contexto_view["tabela"] = dados_tabela
-    contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
+    }*/
+    //self.analizarJurosCompostoService.SetValorFinal(resultado[len(resultado)-1].Acumulado)
+    //self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
+    //valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
     return ctx.Response().View().Make("financas_result", contexto_view)
 }

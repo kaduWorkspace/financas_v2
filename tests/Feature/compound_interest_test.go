@@ -122,16 +122,16 @@ func TestFutureValueOfASeries(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fv := financas.FutureValueOfASeries{
-				InterestRateDecimal:   tt.interestRateDecimal,
-				Periods:               tt.periods,
-				ContributionAmount:    tt.contributionAmount,
-				ContributionOnFirstDay: tt.contributionOnFirstDay,
-			}
+			fv := financas.FutureValueOfASeries{}
+            fv.SetInterestRateDecimal(tt.interestRateDecimal)
+            fv.SetPeriods(tt.periods)
+            fv.SetContributionAmount(tt.contributionAmount)
+            fv.SetContributionOnFirstDay(tt.contributionOnFirstDay)
 			got := fv.Calculate()
 			if !almostEqual(got, tt.want, 0.01) {
 				t.Errorf("calculate() = %v, want %v", got, tt.want)
 			}
+            fmt.Println(fmt.Sprintf("calculate() = %v, want %v", got, tt.want))
 		})
 	}
 }
@@ -149,14 +149,13 @@ func TestCompareFormulaWithLoop(t *testing.T) {
         contributionAmount:    1000,
         contributionOnFirstDay: true,
     }
-    fv := financas.FutureValueOfASeries{
-        InterestRateDecimal:   data.interestRateDecimal,
-        Periods:               data.periods,
-        ContributionAmount:    data.contributionAmount,
-        ContributionOnFirstDay: data.contributionOnFirstDay,
-    }
+    fv := financas.FutureValueOfASeries{}
+    fv.SetInterestRateDecimal(data.interestRateDecimal)
+    fv.SetPeriods(data.periods)
+    fv.SetContributionAmount(data.contributionAmount)
+    fv.SetContributionOnFirstDay(data.contributionOnFirstDay)
     one := fv.Calculate()
-    two := fv.CalculateWithPeriods(0)
+    two, _ := fv.CalculateWithPeriods(0)
     if !almostEqual(one, two, 0.01) {
         t.Errorf("one = %v, want %v", one, two)
     }
@@ -178,12 +177,11 @@ func TestCompareFormulaWithLoop2(t *testing.T) {
         contributionOnFirstDay: true,
         want:                  1000.00,
     }
-    fv := financas.FutureValueOfASeries{
-        InterestRateDecimal:   data.interestRateDecimal,
-        Periods:               data.periods,
-        ContributionAmount:    data.contributionAmount,
-        ContributionOnFirstDay: data.contributionOnFirstDay,
-    }
+    fv := financas.FutureValueOfASeries{}
+    fv.SetInterestRateDecimal(data.interestRateDecimal)
+    fv.SetPeriods(data.periods)
+    fv.SetContributionAmount(data.contributionAmount)
+    fv.SetContributionOnFirstDay(data.contributionOnFirstDay)
     cp := financas.CompoundInterest{
         InitialValue: 100,
         Tax: 0.1425,
@@ -191,7 +189,7 @@ func TestCompareFormulaWithLoop2(t *testing.T) {
     }
     one := fv.Calculate()
     one_cp := cp.Calculate()
-    two := fv.CalculateWithPeriods(100)
+    two, _ := fv.CalculateWithPeriods(100)
     if !almostEqual(one + one_cp, two, 0.0001) {
         t.Errorf("one = %v, want %v", one + one_cp, two)
     }

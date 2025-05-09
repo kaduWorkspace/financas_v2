@@ -5,6 +5,7 @@ import (
 )
 
 type CompoundInterest struct {
+    Investment
     InitialValue float64
     Tax  float64
     Months int
