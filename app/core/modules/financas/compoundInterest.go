@@ -11,7 +11,7 @@ type CompoundInterest struct {
     Months int
 }
 
-func (self *CompoundInterest) Calculate() float64 {
+func (self CompoundInterest) Calculate() float64 {
     decimalInitialValue := decimal.NewFromFloat(self.InitialValue)
     decimalTax := decimal.NewFromFloat(self.Tax)
     decimalMonths := decimal.NewFromInt(int64(self.Months))

@@ -1,6 +1,9 @@
 package financas
 
 import (
+	"goravel/app/core"
+	"time"
+
 	"github.com/shopspring/decimal"
 )
 
@@ -86,8 +89,20 @@ type Period struct {
     Accrued float64 `json:"accrued"`
     Period  int `json:"period"`
     Interest float64 `json:"interest"`
+    Date time.Time
 }
-func (self * FutureValueOfASeries) CalculateWithPeriods(initialValue float64) (float64, []Period) {
+func (self Period) ToFVSMonthlyMap() FVSMonthlyMap {
+    return FVSMonthlyMap{
+        Juros: self.Interest,
+        Data: self.Date,
+        Mes: self.Period,
+        DataMesAno: self.Date.Format("01/06"),
+        Acumulado: self.Accrued,
+        JurosFormatado: core.FormatarValorMonetario(self.Interest),
+        AcumuladoFormatado: core.FormatarValorMonetario(self.Accrued),
+    }
+}
+func (self FutureValueOfASeries) CalculateWithPeriods(initialValue float64) (float64, []Period) {
     decimalInitialValue := decimal.NewFromFloat(initialValue)
     decimalContribuitionAmount := decimal.NewFromFloat(self.contributionAmount)
     decimalInterestRateDecimal := decimal.NewFromFloat(self.interestRateDecimal).Div(decimal.NewFromInt(12))
