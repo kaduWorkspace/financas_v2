@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/goravel/framework/contracts/http"
+	"github.com/shopspring/decimal"
 )
 
 type FinancasController struct {
@@ -84,7 +85,8 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     if err != nil {
         return ctx.Response().Header("HX-Redirect", "/?erro=Data inválida!").Success().Data("text/plain", []byte(err.Error()))
     }
-    self.futureValueOfASeriesService.SetInterestRateDecimal(post_calcular_cdb.ValorTaxaAnual)
+    interest, _ := decimal.NewFromFloat(post_calcular_cdb.ValorTaxaAnual).Div(decimal.NewFromInt(100)).Round(16).Float64()
+    self.futureValueOfASeriesService.SetInterestRateDecimal(interest)
     self.futureValueOfASeriesService.SetPeriods(float64(periods))
     self.futureValueOfASeriesService.SetContributionAmount(post_calcular_cdb.ValorAporte)
     self.futureValueOfASeriesService.SetContributionOnFirstDay(true)
