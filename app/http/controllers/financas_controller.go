@@ -15,11 +15,17 @@ import (
 type FinancasController struct {
     simularJurosCompostoService financas.SimularJurosComposto
     analizarJurosCompostoService financas.AnalizarResultadoInvestimentoDeJurosComposto
+    compoundInterestService financas.CompoundInterest
+    futureValueOfASeriesService financas.FutureValueOfASeries
 }
 
 func NewFinancasController() *FinancasController {
     simularServiceJC := financas.SimularJurosComposto {}
+    cp := financas.CompoundInterest{}
+    fv := financas.FutureValueOfASeries{}
 	return &FinancasController{
+        compoundInterestService: cp,
+        futureValueOfASeriesService: fv,
         simularJurosCompostoService: simularServiceJC,
         analizarJurosCompostoService: financas.AnalizarResultadoInvestimentoDeJurosComposto {
             JcService : simularServiceJC,
@@ -43,16 +49,6 @@ func (r *FinancasController) Simulador(ctx http.Context) http.Response {
 func (r *FinancasController) Home(ctx http.Context) http.Response {
     return  ctx.Response().View().Make("index")
 }
-/*func (r *FinancasController) Index(ctx http.Context) http.Response {
-    contexto_view := map[string]any{}
-    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
-    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
-    erro := ctx.Request().Query("erro")
-    if  erro != "" {
-        contexto_view["panic"] = erro
-    }
-    return ctx.Response().View().Make("financas", contexto_view)
-}*/
 func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     var post_calcular_cdb requests.PostSimularCdb
 
@@ -77,52 +73,33 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         return ctx.Response().View().Make("financas_form", contexto_view)
     }
     if err := post_calcular_cdb.ValidarData(); err != nil {
-        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
+        return ctx.Response().Header("HX-Redirect", "/?erro=Data inválida!").Success().Data("text/plain", []byte(err.Error()))
     }
     contexto_view["message"] = "Simulação finalizada!"
-    self.simularJurosCompostoService.SetDatas(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
-    self.simularJurosCompostoService.SetDiasDeLiquidesPorAno(post_calcular_cdb.DiasLiquidezPorAno)
-    if err := self.simularJurosCompostoService.SetTaxaAnosApartirPeriodoDeDatas(); err != nil {
-        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
-    }
-    if self.simularJurosCompostoService.GetTaxaAnos() < 1 {
-        // escolheu 6 meses
-        self.simularJurosCompostoService.SetTaxaAnos(0.5)
-    } else {
-        self.simularJurosCompostoService.SetTaxaAnos(float64(int(self.simularJurosCompostoService.GetTaxaAnos())))
-    }
-    self.simularJurosCompostoService.SetTaxaDeJurosDecimal(post_calcular_cdb.ValorTaxaAnual, financas.PORCENTO_ANUAL)
-    var tipo_investimento financas.TIPO_INVESTIMENTO_ENUM
-    self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
-    if post_calcular_cdb.ValorAporte > 0 {
-        tipo_investimento = financas.JC_COM_APORTE_MENSAL_E_VALOR_INICIAL
-        self.simularJurosCompostoService.SetValorAporte(post_calcular_cdb.ValorAporte)
-
-        // Define o valor inicial: se ValorInicial > 0, usa ele; caso contrário, usa o ValorAporte
-        valorInicial := post_calcular_cdb.ValorInicial
-        if valorInicial <= 0 {
-            valorInicial = post_calcular_cdb.ValorAporte
-        }
-        self.simularJurosCompostoService.SetValorInicial(valorInicial)
-    } else if post_calcular_cdb.ValorInicial > 0 {
-        tipo_investimento = financas.JC_SEM_APORTE
-        self.simularJurosCompostoService.SetValorInicial(post_calcular_cdb.ValorInicial)
-    }
-    self.simularJurosCompostoService.SetTaxaMesesRangeData()
-    resultado, err := financas.FutureValueOfASeriesMonthly(self.simularJurosCompostoService.GetValorInicial(), self.simularJurosCompostoService.GetTaxaDeJurosDecimal(), self.simularJurosCompostoService.GetDiasDeLiquidezPorAno(),self.simularJurosCompostoService.GetValorAporte(), float64(int(self.simularJurosCompostoService.GetTaxaMeses())), true, self.simularJurosCompostoService.GetDataInicial())
+    periods, err := self.compoundInterestService.MonthsBetweenDates(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
     if err != nil {
-        fmt.Println(err)
-        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
+        return ctx.Response().Header("HX-Redirect", "/?erro=Data inválida!").Success().Data("text/plain", []byte(err.Error()))
     }
-    self.analizarJurosCompostoService.SetValorFinal(resultado[len(resultado)-1].Acumulado)
-    self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(self.simularJurosCompostoService.GetValorInicial())
-    self.analizarJurosCompostoService.SetTipoInvestimento(tipo_investimento)
+    months, err := self.compoundInterestService.GetDates(post_calcular_cdb.DataInicial, post_calcular_cdb.DataFinal)
+    if err != nil {
+        return ctx.Response().Header("HX-Redirect", "/?erro=Data inválida!").Success().Data("text/plain", []byte(err.Error()))
+    }
+    self.futureValueOfASeriesService.SetInterestRateDecimal(post_calcular_cdb.ValorTaxaAnual)
+    self.futureValueOfASeriesService.SetPeriods(float64(periods))
+    self.futureValueOfASeriesService.SetContributionAmount(post_calcular_cdb.ValorAporte)
+    self.futureValueOfASeriesService.SetContributionOnFirstDay(true)
+    fv, details := self.futureValueOfASeriesService.CalculateWithPeriods(post_calcular_cdb.ValorInicial)
+    for k, _ := range details {
+        details[k].Date = months[k]
+    }
+    self.analizarJurosCompostoService.SetValorFinal(fv)
+    self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(post_calcular_cdb.ValorInicial)
     valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
     retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
     self.simularJurosCompostoService.SetValorGasto()
     self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
     valor_gasto := self.simularJurosCompostoService.GetValorGasto()
-    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(resultado, core.EhMobile(ctx.Request().Origin().UserAgent()))
+    dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(details, core.EhMobile(ctx.Request().Origin().UserAgent()))
     tabela_json, err := json.Marshal(dados_tabela)
     if err == nil {
         contexto_view["tabela_json"] = string(tabela_json)
