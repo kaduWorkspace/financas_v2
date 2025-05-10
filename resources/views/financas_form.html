@@ -78,7 +78,7 @@
                         <input type="hidden" name="valor_taxa_anual" id="valor_taxa_anual_input">
                         <input id="valor_taxa_anual" type="text" step="any"
                             class="w-full bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg py-3 pl-10 pr-3 text-gray-200 placeholder-gray-500 focus:ring-2 focus:ring-teal-400 focus:border-transparent focus:outline-none transition-all duration-200"
-                            placeholder="Insira o valor" value="% {{ .taxa_selic }}">
+                            placeholder="Insira o valor" value="{{ .taxa_selic }}">
                     </div>
                     <span class="text-red-400 text-xs mt-1 hidden" id="error_valor_taxa_anual"></span>
                 </div>
@@ -157,5 +157,4 @@
         </form>
     </div>
 </div>
-<script src="/public/scripts/validarInputsFinancasV2.js"></script>
 {{ end }}
