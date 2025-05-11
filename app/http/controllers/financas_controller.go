@@ -91,16 +91,14 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     self.futureValueOfASeriesService.SetContributionAmount(post_calcular_cdb.ValorAporte)
     self.futureValueOfASeriesService.SetContributionOnFirstDay(true)
     fv, details := self.futureValueOfASeriesService.CalculateWithPeriods(post_calcular_cdb.ValorInicial)
+    self.analizarJurosCompostoService.SetValorFinal(fv)
+    valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
+    self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(post_calcular_cdb.ValorInicial)
+    retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
+    self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
     for k, _ := range details {
         details[k].Date = months[k]
     }
-    self.analizarJurosCompostoService.SetValorFinal(fv)
-    self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(post_calcular_cdb.ValorInicial)
-    valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
-    retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
-    self.simularJurosCompostoService.SetValorGasto()
-    self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
-    valor_gasto := self.simularJurosCompostoService.GetValorGasto()
     dados_tabela := self.analizarJurosCompostoService.AjustarDadosTabela(details, core.EhMobile(ctx.Request().Origin().UserAgent()))
     tabela_json, err := json.Marshal(dados_tabela)
     if err == nil {
@@ -108,11 +106,14 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     } else {
         fmt.Println("ERRO AO GERAR TABELA json: ", err)
     }
+    valorInvestidoDecimal := decimal.NewFromInt(int64(periods)).Mul(decimal.NewFromFloat(post_calcular_cdb.ValorAporte)).Add(decimal.NewFromFloat(post_calcular_cdb.ValorInicial)).Round(16)
+    valorInvestido, _ := valorInvestidoDecimal.Float64()
     contexto_view["valorizacao"] = core.FormatarValorMonetario(valorizacao)
-    contexto_view["valor_investido"] = core.FormatarValorMonetario(valor_gasto)
+    contexto_view["valor_investido"] = core.FormatarValorMonetario(valorInvestido)
     contexto_view["valor_inicial"] = core.FormatarValorMonetario(post_calcular_cdb.ValorInicial)
     contexto_view["valor_final"] = core.FormatarValorMonetario(self.analizarJurosCompostoService.GetValorFinal())
-    contexto_view["juros_rendido"] = core.FormatarValorMonetario(self.simularJurosCompostoService.GetValorJurosRendido())
+    jurosRendido, _ := decimal.NewFromFloat(fv).Sub(valorInvestidoDecimal).Round(16).Float64()
+    contexto_view["juros_rendido"] = core.FormatarValorMonetario(jurosRendido)
     contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
     contexto_view["tabela"] = dados_tabela
