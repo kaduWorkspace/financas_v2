@@ -102,6 +102,42 @@ func (self Period) ToFVSMonthlyMap() FVSMonthlyMap {
         AcumuladoFormatado: core.FormatarValorMonetario(self.Accrued),
     }
 }
+func (self FutureValueOfASeries) PredictFV(finalValue float64) float64 {
+    finalValueDecimal := decimal.NewFromFloat(finalValue)
+    decimalInterestRateDecimal := decimal.NewFromFloat(self.interestRateDecimal).Div(decimal.NewFromInt(12))
+    periodsIntDecimal := decimal.NewFromInt(int64(self.periods))
+    rateDividedPerPeriods := decimalInterestRateDecimal.Div(periodsIntDecimal)
+    onePlusRateDividedPerPeriods := decimal.NewFromInt(1).Add(rateDividedPerPeriods)
+    growthFactor := onePlusRateDividedPerPeriods.Pow(periodsIntDecimal).Div(rateDividedPerPeriods).Sub(decimal.NewFromInt(1)).Div(rateDividedPerPeriods)
+    if self.contributionOnFirstDay {
+        growthFactor = growthFactor.Mul(decimal.NewFromInt(1).Add(rateDividedPerPeriods))
+    }
+    contrinutionAmount, _ := finalValueDecimal.Div(growthFactor).Round(16).Float64()
+    return contrinutionAmount
+}
+func (self FutureValueOfASeries) PredictFVWithInitialValue(finalValue, initialValue float64) float64 {
+    finalValueDecimal := decimal.NewFromFloat(finalValue)
+    decimalInterestRateDecimal := decimal.NewFromFloat(self.interestRateDecimal).Div(decimal.NewFromInt(12))
+    periodsIntDecimal := decimal.NewFromInt(int64(self.periods))
+    rateDividedPerPeriods := decimalInterestRateDecimal.Div(periodsIntDecimal)
+    onePlusRateDividedPerPeriods := decimal.NewFromInt(1).Add(rateDividedPerPeriods)
+    growthFactor := onePlusRateDividedPerPeriods.Pow(periodsIntDecimal).Div(rateDividedPerPeriods).Sub(decimal.NewFromInt(1)).Div(rateDividedPerPeriods)
+    if self.contributionOnFirstDay {
+        growthFactor = growthFactor.Mul(decimal.NewFromInt(1).Add(rateDividedPerPeriods))
+    }
+    contrinutionAmount, _ := finalValueDecimal.Div(growthFactor).Div(self.compundInterest(initialValue)).Round(16).Float64()
+    return contrinutionAmount
+}
+
+func (self FutureValueOfASeries) compundInterest(initialValue float64) decimal.Decimal {
+    decimalInterestRateDecimal := decimal.NewFromFloat(self.interestRateDecimal).Div(decimal.NewFromInt(12))
+    decimalInitialValue := decimal.NewFromFloat(initialValue)
+    decimalMonths := decimal.NewFromInt(int64(self.periods))
+    futureValue := decimalInitialValue.Mul(
+        decimal.NewFromInt(1).Add(decimalInterestRateDecimal.Div(decimal.NewFromInt(12))).Pow(decimalMonths),
+    )
+    return futureValue
+}
 func (self FutureValueOfASeries) CalculateWithPeriods(initialValue float64) (float64, []Period) {
     decimalInitialValue := decimal.NewFromFloat(initialValue)
     decimalContribuitionAmount := decimal.NewFromFloat(self.contributionAmount)
