@@ -183,7 +183,7 @@ func (self *SimularJurosComposto) SetValorJurosRendido(valor_final float64) {
     if self.GetValorGasto() == 0.0 {
         self.SetValorGasto()
     }
-    valor_juros := valor_final - self.GetValorGasto()
+    valor_juros := valor_final - self.GetValorGasto() - self.GetValorInicial()
     self.valorJuros = valor_juros
 }
 func (self *SimularJurosComposto) GetValorJurosRendido() float64 {
