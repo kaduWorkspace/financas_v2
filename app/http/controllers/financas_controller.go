@@ -119,3 +119,9 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
     return ctx.Response().View().Make("financas_result", contexto_view)
 }
+func (self FinancasController) Predict(ctx http.Context) http.Response {
+    contexto_view := map[string]any{}
+    contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
+    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
+    return ctx.Response().View().Make("predict_fvs_form", contexto_view)
+}
