@@ -160,7 +160,7 @@ func (self FinancasController) PredictPost(ctx http.Context) http.Response {
     } else {
         result = self.futureValueOfASeriesService.PredictFV(post_predict.FutureValue)
     }
-    contexto_view["valor_final"] = core.FormatarValorMonetario(result)
+    contexto_view["valor_final"] = core.FormatarValorMonetario(post_predict.FutureValue)
     contexto_view["aporte_necessario"] = core.FormatarValorMonetario(result)
     contexto_view["valor_inicial"] = core.FormatarValorMonetario(float64(0))
     if post_predict.InitialValue > 0 {
