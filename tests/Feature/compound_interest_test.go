@@ -65,6 +65,7 @@ func TestCompoundInterestCalculate(t *testing.T) {
             if diff > tolerance && diff/math.Max(math.Abs(got), math.Abs(tt.expected)) > tolerance {
                 t.Errorf("Calculate() = %v, want %v (diff: %v)", got, tt.expected, diff)
             }
+            //fmt.Printf("Calculate() = %v, want %v (diff: %v)", got, tt.expected, diff)
         })
     }
 }
@@ -195,8 +196,104 @@ func TestCompareFormulaWithLoop2(t *testing.T) {
     }
     fmt.Println(one, one_cp, two)
 }
+func TestFutureValueOfASeries_PredictFV(t *testing.T) {
+	tests := []struct {
+		name                  string
+		interestRateDecimal   float64
+		periods               float64
+		contributionOnFirstDay bool
+		finalValue            float64
+		want                  float64
+	}{
+		{
+			name:                  "monthly contributions",
+			interestRateDecimal:   0.12,
+			periods:               12,
+			finalValue:            1280.93,
+			want:                  99.999,
+		},
+		{
+			name:                  "semester contributions",
+			interestRateDecimal:   0.01,
+			periods:               6,
+			finalValue:            2015.87,
+			want:                  334.99,
+		},
+	}
 
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fv := financas.FutureValueOfASeries{}
+			fv.SetInterestRateDecimal(tt.interestRateDecimal)
+			fv.SetPeriods(tt.periods)
+            fv.SetContributionOnFirstDay(true)
+			got := fv.PredictFV(tt.finalValue)
+			if !almostEqual(got, tt.want, 0.01) {
+				t.Errorf("PredictFV() = %v, want %v", got, tt.want)
+			}
+
+            fv.SetContributionAmount(got)
+            compare, _ := fv.CalculateWithPeriods(0)
+            if !almostEqual(tt.finalValue, compare, 0.001) {
+				t.Errorf("Compare() = %v, compare want %v", compare, tt.finalValue)
+            }
+            //fmt.Printf("PredictFV() = %v, want %v", got, tt.want)
+		})
+	}
+}
+func TestFutureValueOfASeries_PredictFVWithInitialValue(t *testing.T) {
+	tests := []struct {
+		name                  string
+		interestRateDecimal   float64
+		periods               float64
+		contributionOnFirstDay bool
+		finalValue            float64
+		initialValue          float64
+		want                  float64
+	}{
+		{
+			name:                  "with initial value end period",
+			interestRateDecimal:   0.12,
+			periods:               12,
+			contributionOnFirstDay: true,
+			finalValue:            2062.84,
+			initialValue:          500.00,
+			want:                  117.057, // Example value, adjust based on actual calculation
+		},
+		{
+			name:                  "with initial value start period",
+			interestRateDecimal:   0.12,
+			periods:               12,
+			contributionOnFirstDay: true,
+			finalValue:            2535.62,
+			initialValue:          300.00,
+			want:                  171.56, // Example value, adjust based on actual calculation
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fv := financas.FutureValueOfASeries{}
+			fv.SetInterestRateDecimal(tt.interestRateDecimal)
+			fv.SetPeriods(tt.periods)
+			fv.SetContributionOnFirstDay(tt.contributionOnFirstDay)
+
+			got := fv.PredictFVWithInitialValue(tt.finalValue, tt.initialValue)
+			if !almostEqual(got, tt.want, 0.1) {
+				t.Errorf("PredictFVWithInitialValue() = %v, want %v", got, tt.want)
+			}
+
+            //fmt.Printf("PredictFVWithInitialValue() = %v, want %v", got, tt.want)
+            fv.SetContributionAmount(got)
+            compare, _ := fv.CalculateWithPeriods(tt.initialValue)
+            //fmt.Println(periods, compare)
+            if !almostEqual(tt.finalValue, compare, 0.01) {
+				t.Errorf("Compare() = %v, want %v", compare, tt.finalValue)
+            }
+		})
+	}
+}
 // Helper function to compare floating point numbers with tolerance
 func almostEqual(a, b, tolerance float64) bool {
-	return (a-b) < tolerance && (b-a) < tolerance
+    return math.Abs(a-b) <= tolerance
 }

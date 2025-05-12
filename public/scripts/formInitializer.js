@@ -4,6 +4,7 @@
  */
 
 import { DateUtils, CurrencyUtils, FormUtils, StorageUtils } from './inputUtils.js';
+import setupFormValidation from './predict_form.js';
 
 /**
  * Setup form event listeners and initialize the form
@@ -91,18 +92,22 @@ export function initForm() {
 
 // Setup listeners for page load and htmx content swaps
 export function setupGlobalListeners() {
-  // Initialize on page load
-  if (document.getElementById('formulario_calcular')) {
-    initForm();
-  }
-
-  // Handle htmx content loaded events for dynamic page updates
-  document.body.addEventListener('htmx:afterSwap', (event) => {
-    // Check if our form is in the swapped content
-    if (event.detail.target.querySelector('#formulario_calcular')) {
-      initForm();
+    // Initialize on page load
+    if (document.getElementById('formulario_calcular')) {
+        initForm();
     }
-  });
+
+    // Handle htmx content loaded events for dynamic page updates
+    document.body.addEventListener('htmx:afterSwap', (event) => {
+        // Check if our form is in the swapped content
+        if (event.detail.target.querySelector('#formulario_calcular')) {
+            initForm();
+        }
+        if (event.detail.target.querySelector('#formulario_prever')) {
+
+            setupFormValidation();
+        }
+    });
 }
 
 // Auto-initialize when imported
