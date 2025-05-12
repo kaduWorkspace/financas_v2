@@ -31,7 +31,7 @@ jobs:
          touch .env
          echo "${{ secrets.APP_KEY }}" > .env
      - name: Copy env to project
-       run: scp .env deployer@172.17.0.2:/financas_v2/
+       run: scp .env deployer@172.17.0.2:~/financas_v2/.env
 
   tests:
     runs-on: [ self-hosted, linux ]
