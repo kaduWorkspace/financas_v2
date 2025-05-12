@@ -10,6 +10,7 @@ jobs:
   make_scripts_executable:
     runs-on: [ self-hosted, linux ]
     steps:
+      - uses: actions/checkout@v3
       - name: test
         run: ls -lah -tr
       - name: Make scripts executable
