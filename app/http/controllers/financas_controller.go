@@ -64,6 +64,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
         "csrf": ctx.Request().Session().Get("csrf_token"),
     }
     if err != nil {
+        fmt.Println(err)
         return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
     }
     if errors != nil && len(errors.All()) > 0 {
@@ -123,5 +124,46 @@ func (self FinancasController) Predict(ctx http.Context) http.Response {
     contexto_view := map[string]any{}
     contexto_view["csrf"] = ctx.Request().Session().Get("csrf_token")
     contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
-    return ctx.Response().View().Make("predict_fvs_form", contexto_view)
+    return ctx.Response().View().Make("predict_wrapper", contexto_view)
+}
+func (self FinancasController) PredictPost(ctx http.Context) http.Response {
+    var post_predict requests.PostPredict
+    err := ctx.Request().Bind(&post_predict)
+    if err != nil {
+        fmt.Println(err.Error())
+        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
+    }
+    ctx.Response().Header("HX-Reswap", "outerHTML")
+    errors, err := ctx.Request().ValidateRequest(&post_predict)
+    if err != nil {
+        fmt.Println(err.Error())
+        return ctx.Response().Header("HX-Redirect", "/?erro=Erro inexperado!").Success().Data("text/plain", []byte(err.Error()))
+    }
+    contexto_view := map[string]any{
+        "csrf": ctx.Request().Session().Get("csrf_token"),
+        "taxa_selic": strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1),
+    }
+    if errors != nil && len(errors.All()) > 0 {
+        contexto_view["erros_formulario"] = errors.All()
+        fmt.Println(errors)
+        ctx.Response().Writer().WriteHeader(http.StatusBadRequest)
+        ctx.Response().Header("HX-Retarget", "#form_container")
+        return ctx.Response().View().Make("predict_fvs_form", contexto_view)
+    }
+    self.futureValueOfASeriesService.SetContributionOnFirstDay(post_predict.ContributionOnFirstDay)
+    self.futureValueOfASeriesService.SetPeriods(float64(post_predict.Periods))
+    self.futureValueOfASeriesService.SetInterestRateDecimal(post_predict.Tax/100)
+    var result float64
+    if post_predict.InitialValue > 0 {
+        result = self.futureValueOfASeriesService.PredictFVWithInitialValue(post_predict.FutureValue, post_predict.InitialValue)
+    } else {
+        result = self.futureValueOfASeriesService.PredictFV(post_predict.FutureValue)
+    }
+    contexto_view["valor_final"] = core.FormatarValorMonetario(result)
+    contexto_view["aporte_necessario"] = core.FormatarValorMonetario(result)
+    contexto_view["valor_inicial"] = core.FormatarValorMonetario(float64(0))
+    if post_predict.InitialValue > 0 {
+        contexto_view["valor_inicial"] = core.FormatarValorMonetario(post_predict.InitialValue)
+    }
+    return ctx.Response().View().Make("predict_result", contexto_view)
 }

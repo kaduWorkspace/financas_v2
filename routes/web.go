@@ -19,4 +19,5 @@ func Web() {
     facades.Route().Get("/predict", financasController.Predict)
     //facades.Route()/*.Middleware(middleware.CreateCsrfTokenMiddleware())*/.Get("/", financasController.Index)
     facades.Route().Middleware(middleware.ValidateCsrfTokenMiddleware()).Post("v2/simular-jc", financasController.CalcularV2)
+    facades.Route().Middleware(middleware.ValidateCsrfTokenMiddleware()).Post("v2/predict", financasController.PredictPost)
 }

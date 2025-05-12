@@ -114,16 +114,13 @@ func (self FutureValueOfASeries) PredictFV(finalValue float64) float64 {
     contrinutionAmount, _ := finalValueDecimal.Div(growthFactor).Round(16).Float64()
     return contrinutionAmount
 }
-func (self FutureValueOfASeries) PredictFVWithInitialValue(finalValue, initialValue float64) float64 {
+func (self *FutureValueOfASeries) PredictFVWithInitialValue(finalValue, initialValue float64) float64 {
     finalValueDecimal := decimal.NewFromFloat(finalValue)
     decimalInterestRateDecimal := decimal.NewFromFloat(self.interestRateDecimal)
     periodsIntDecimal := decimal.NewFromInt(int64(self.periods))
     rateDividedPerPeriods := decimalInterestRateDecimal.Div(decimal.NewFromInt(12))
-
     onePlusRateDividedPerPeriods := decimal.NewFromInt(1).Add(rateDividedPerPeriods)
-
     growthFactor := onePlusRateDividedPerPeriods.Pow(periodsIntDecimal).Sub(decimal.NewFromInt(1)).Div(rateDividedPerPeriods)
-
     if self.contributionOnFirstDay {
         growthFactor = growthFactor.Mul(rateDividedPerPeriods.Add(decimal.NewFromInt(1)))
     }

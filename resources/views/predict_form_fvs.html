@@ -26,7 +26,7 @@
         </div>
 
         <!-- Formulário -->
-        <form id="formulario_prever" hx-post="/v2/prever-investimento" hx-target="#resultados_container" hx-swap="outerHTML" id="formulario_prever" class="space-y-6">
+        <form id="formulario_prever" hx-post="/v2/predict" hx-target="#resultados_container" hx-swap="outerHTML" id="formulario_prever" class="space-y-6">
             <!-- Valor futuro desejado -->
             <div class="form-group">
                 <label for="valor_futuro" class="block text-gray-300 text-sm font-medium mb-2">
@@ -49,7 +49,6 @@
             <div class="form-group">
                 <label for="taxa_juros_anual" class="block text-gray-300 text-sm font-medium mb-2">
                     Taxa de juros anual (%)
-
                     <span class="text-teal-400 text-xs ml-1">(Selic.: {{ .taxa_selic }}%)</span>
                 </label>
                 <div class="relative">
@@ -67,7 +66,7 @@
             <!-- Período de investimento -->
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="form-group">
-                    <label for="periodo_anos" class="block text-gray-300 text-sm font-medium mb-2">
+                    <label for="periodos" class="block text-gray-300 text-sm font-medium mb-2">
                         Período
                         <span class="text-teal-400 text-xs ml-1">(Ex.: 5 anos)</span>
                     </label>
@@ -75,16 +74,19 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <i class="far fa-calendar-alt"></i>
                         </span>
-                        <select id="periodo_anos" name="periodo_anos"
+                        <select id="periodos" name="periodos"
                             class="w-full bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg py-3 pl-10 pr-3 text-gray-200 focus:ring-2 focus:ring-teal-400 focus:border-transparent focus:outline-none transition-all duration-200">
                             <option value="6">6 meses</option>
                             <option value="12" selected>1 ano</option>
+                            <option value="24">2 anos</option>
+                            <option value="36">3 anos</option>
+                            <option value="48">4 anos</option>
                             <option value="60">5 anos</option>
                             <option value="120">10 anos</option>
                             <option value="240">20 anos</option>
                         </select>
                     </div>
-                    <span class="text-red-400 text-xs mt-1 hidden" id="error_periodo_anos"></span>
+                    <span class="text-red-400 text-xs mt-1 hidden" id="error_periodos"></span>
                 </div>
 
                 <div class="form-group">
@@ -146,5 +148,4 @@
         </form>
     </div>
 </div>
-<script type="module" src="public/scripts/predict_form.js"></script>
 {{ end }}
