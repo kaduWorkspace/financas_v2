@@ -10,6 +10,8 @@ jobs:
   make_scripts_executable:
     runs-on: [ self-hosted, linux ]
     steps:
+      - name: test
+        run: las -lah -tr
       - name: Make scripts executable
         run: chmod +x scripts/*
   checkout:
