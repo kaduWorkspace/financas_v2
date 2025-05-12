@@ -40,7 +40,7 @@ export const CurrencyUtils = {
     },
 
     toNumber(value) {
-        return Number(value.replaceAll('.', '').replaceAll(',', '.').replaceAll('R$', '').trim()) || 0;
+        return Number(Number(value.replaceAll('.', '').replaceAll(',', '.').replaceAll('R$', '').trim()).toFixed(2)) || 0;
     },
 
     toMonetaryValue(number) {
