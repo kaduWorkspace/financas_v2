@@ -45,10 +45,7 @@ function validateForm() {
 export default function setupFormValidation() {
     const form = document.getElementById('formulario_prever');
     if (!form) return;
-    form.addEventListener("input", e => {
-        const {target} = e
-        //if(["taxa_juros_anual", "valor_futuro", "valor_inicial"].includes(target.id)) return CurrencyUtils.handleCurrencyInput(e)
-    })
+    processInputsPredict();
     // Validate on input change
     document.getElementById('valor_futuro').addEventListener('input', () => validateField('valor_futuro'));
     document.getElementById('taxa_juros_anual').addEventListener('input', () => validateField('taxa_juros_anual'));
@@ -63,11 +60,6 @@ export default function setupFormValidation() {
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        } else {
-            // Format values for submission
-            const valorFuturoInput = document.getElementById('valor_futuro_input');
-            const taxaJurosInput = document.getElementById('taxa_juros_anual_input');
-            const valorInicialInput = document.getElementById('valor_inicial_input');
         }
     });
 }

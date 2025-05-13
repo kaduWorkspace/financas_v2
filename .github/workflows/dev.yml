@@ -7,55 +7,61 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  make_scripts_executable:
     runs-on: [ self-hosted, linux ]
     steps:
       - uses: actions/checkout@v3
+      - name: Make scripts executable
+        run: chmod +x scripts/*
+  checkout:
+    runs-on: [ self-hosted, linux ]
+    needs: make_scripts_executable
+    steps:
+      - name: Run checkout on homol
+        run: ./scripts/checkout.sh
 
-      # Cache Go modules to speed up builds
-      - uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+  create_env:
+    runs-on: [ self-hosted, linux ]
+    needs: checkout
+    steps:
+     - name: Create environment
+       run: |
+         touch .env
+         echo "${{ secrets.APP_KEY }}" > .env
+     - name: Copy env to project
+       run: scp .env deployer@172.17.0.2:~/financas_v2/.env
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-          cache: true
-
-      - name: Create environment
-        run: |
-          touch .env
-          echo "${{ secrets.APP_KEY }}" > .env
-
+  tests:
+    runs-on: [ self-hosted, linux ]
+    needs: create_env
+    steps:
       - name: Run tests
-        run: go test -v -short ./...  # Use -short flag for faster tests
+        run: ./scripts/tests.sh
 
-      - name: Build application
-        run: |
-          docker build \
-            --network=host \
-            --build-arg BUILDKIT_INLINE_CACHE=1 \
-            -t kaduhod/fin .
+  build_image:
+    runs-on: [ self-hosted, linux ]
+    needs: tests
+    steps:
+      - name: Run build
+        run: ./scripts/build_image.sh
 
-      - name: Push build
-        run: docker push kaduhod/fin
-
-      # Cleanup Docker to free space
-      - name: Cleanup Docker
-        if: always()
-        run: |
-          docker system prune -f
-          docker volume prune -f
+  push_image:
+    runs-on: [ self-hosted, linux ]
+    needs: build_image
+    steps:
+      - name: Run push
+        run: ./scripts/push_image.sh
 
   deploy:
-    needs: build
+    needs: build_image
     runs-on: [ self-hosted, linux ]
     steps:
-      - name: Make deploy script executable
-        run: chmod +x deploy.dev.sh
-      - name: Deploy
-        run: ./deploy.dev.sh
+      - name: Deploy DEV
+        run: ./scripts/deploy.dev.sh
 
+  clean_docker:
+    needs: push_image
+    runs-on: [ self-hosted, linux ]
+    steps:
+      - name: Clean unused images
+        run: ./scripts/clean_docker.sh
