@@ -1,4 +1,4 @@
-import { CurrencyUtils } from './inputUtils.js';
+import { CurrencyUtils, StorageUtils } from './inputUtils.js';
 
 // Function to validate individual fields
 function validateField(fieldId, isRequired = true) {
@@ -50,7 +50,8 @@ export default function setupFormValidation() {
     document.getElementById('valor_futuro').addEventListener('input', () => validateField('valor_futuro'));
     document.getElementById('taxa_juros_anual').addEventListener('input', () => validateField('taxa_juros_anual'));
     document.getElementById('valor_inicial').addEventListener('input', () => validateField('valor_inicial', false));
-
+    StorageUtils.loadInputValues(form);
+    form.addEventListener("input", e => StorageUtils.saveInputValues(form))
     // Validate before HTMX request
     form.addEventListener('htmx:beforeRequest', function(event) {
         if (!validateForm()) {
