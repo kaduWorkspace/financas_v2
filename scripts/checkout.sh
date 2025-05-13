@@ -19,10 +19,3 @@ ssh -t deployer@172.17.0.2 <<EOF
     git checkout master
     git pull
 EOF
-#docker build \
-#        --network=host \
-#        --build-arg BUILDKIT_INLINE_CACHE=1 \
-#        -t kaduhod/fin .
-
-#    docker push kaduhod/fin
-

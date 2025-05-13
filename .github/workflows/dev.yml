@@ -11,8 +11,6 @@ jobs:
     runs-on: [ self-hosted, linux ]
     steps:
       - uses: actions/checkout@v3
-      - name: test
-        run: ls -lah -tr
       - name: Make scripts executable
         run: chmod +x scripts/*
   checkout:
@@ -58,7 +56,7 @@ jobs:
     needs: build_image
     runs-on: [ self-hosted, linux ]
     steps:
-      - name: Deploy
+      - name: Deploy DEV
         run: ./scripts/deploy.dev.sh
 
   clean_docker:

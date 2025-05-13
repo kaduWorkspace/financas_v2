@@ -235,7 +235,6 @@ export const FormUtils = {
     validateRequest(event) {
         const validacoes = Validators.validateInputs(true);
         if (validacoes) {
-            console.log(validacoes);
             validacoes.forEach(validacao => {
                 const errorSpan = document.getElementById(validacao[0]);
                 if (errorSpan) {

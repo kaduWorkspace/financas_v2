@@ -65,7 +65,13 @@ func (self *AnalizarResultadoInvestimentoDeJurosComposto) GetDiferencaRetorno(va
     return self.GetValorFinal() - valor_inicial
 }
 func (self *AnalizarResultadoInvestimentoDeJurosComposto) SetRetornoSobreOInvestimento(valor_inicial float64) {
-    self.retornoSobreOInvestimento = (self.resultadoInvestimento * 100) / valor_inicial
+    var divisor float64
+    if valor_inicial <= 0 {
+        divisor = 1
+    } else {
+        divisor = valor_inicial
+    }
+    self.retornoSobreOInvestimento = (self.resultadoInvestimento * 100) / divisor
 }
 func (self *AnalizarResultadoInvestimentoDeJurosComposto) GetRetornoSobreOInvestimento() float64 {
     return self.retornoSobreOInvestimento
