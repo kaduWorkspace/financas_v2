@@ -104,7 +104,6 @@ export function setupGlobalListeners() {
             initForm();
         }
         if (event.detail.target.querySelector('#formulario_prever')) {
-
             setupFormValidation();
         }
     });
