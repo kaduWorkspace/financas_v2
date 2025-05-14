@@ -14,23 +14,18 @@ import (
 )
 
 type FinancasController struct {
-    simularJurosCompostoService financas.SimularJurosComposto
     analizarJurosCompostoService financas.AnalizarResultadoInvestimentoDeJurosComposto
     compoundInterestService financas.CompoundInterest
     futureValueOfASeriesService financas.FutureValueOfASeries
 }
 
 func NewFinancasController() *FinancasController {
-    simularServiceJC := financas.SimularJurosComposto {}
     cp := financas.CompoundInterest{}
     fv := financas.FutureValueOfASeries{}
 	return &FinancasController{
         compoundInterestService: cp,
         futureValueOfASeriesService: fv,
-        simularJurosCompostoService: simularServiceJC,
-        analizarJurosCompostoService: financas.AnalizarResultadoInvestimentoDeJurosComposto {
-            JcService : simularServiceJC,
-        },
+        analizarJurosCompostoService: financas.AnalizarResultadoInvestimentoDeJurosComposto {},
 	}
 }
 func (r *FinancasController) Index(ctx http.Context) http.Response {
@@ -93,10 +88,9 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     self.futureValueOfASeriesService.SetContributionOnFirstDay(true)
     fv, details := self.futureValueOfASeriesService.CalculateWithPeriods(post_calcular_cdb.ValorInicial)
     self.analizarJurosCompostoService.SetValorFinal(fv)
-    valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(self.simularJurosCompostoService.GetValorInicial())
+    valorizacao := self.analizarJurosCompostoService.GetDiferencaRetorno(post_calcular_cdb.ValorInicial)
     self.analizarJurosCompostoService.SetRetornoSobreOInvestimento(post_calcular_cdb.ValorInicial)
     retorno_sobre_investimento := self.analizarJurosCompostoService.GetRetornoSobreOInvestimento()
-    self.simularJurosCompostoService.SetValorJurosRendido(self.analizarJurosCompostoService.GetValorFinal())
     for k, _ := range details {
         details[k].Date = months[k]
     }
@@ -116,7 +110,7 @@ func (self *FinancasController) CalcularV2(ctx http.Context) http.Response {
     jurosRendido, _ := decimal.NewFromFloat(fv).Sub(valorInvestidoDecimal).Round(16).Float64()
     contexto_view["juros_rendido"] = core.FormatarValorMonetario(jurosRendido)
     contexto_view["retorno_sobre_investimento"] = int(retorno_sobre_investimento)
-    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(self.simularJurosCompostoService.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
+    contexto_view["taxa_selic"] = strings.Replace(strconv.FormatFloat(core.GetTaxaSelic(), 'f', 2, 64), ".", ",", -1)
     contexto_view["tabela"] = dados_tabela
     contexto_view["aporte"] = core.FormatarValorMonetario(post_calcular_cdb.ValorAporte)
     return ctx.Response().View().Make("financas_result", contexto_view)
