@@ -45,13 +45,13 @@ function validateForm() {
 export default function setupFormValidation() {
     const form = document.getElementById('formulario_prever');
     if (!form) return;
-    processInputsPredict();
     // Validate on input change
     document.getElementById('valor_futuro').addEventListener('input', () => validateField('valor_futuro'));
     document.getElementById('taxa_juros_anual').addEventListener('input', () => validateField('taxa_juros_anual'));
     document.getElementById('valor_inicial').addEventListener('input', () => validateField('valor_inicial', false));
     StorageUtils.loadInputValues(form);
     form.addEventListener("input", e => StorageUtils.saveInputValues(form))
+    processInputsPredict();
     // Validate before HTMX request
     form.addEventListener('htmx:beforeRequest', function(event) {
         if (!validateForm()) {
