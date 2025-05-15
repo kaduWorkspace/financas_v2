@@ -10,7 +10,6 @@ const (
     JC_COM_APORTE_MENSAL_E_VALOR_INICIAL
 )
 type AnalizarResultadoInvestimentoDeJurosComposto struct {
-    JcService SimularJurosComposto
     tipoInvestimento TIPO_INVESTIMENTO_ENUM `json: "tipo_investimento" form:"tipo_investimento"`
     resultadoInvestimento float64 `json:"resultado_investimento" form:"resultado_investimento"`
     retornoSobreOInvestimento float64 `json:"retorno_sobre_o_investimento" form:"retorno_sobre_o_investimento"`
