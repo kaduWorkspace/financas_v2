@@ -14,6 +14,7 @@ func Web() {
         return ctx.Response().Redirect(http.StatusSeeOther, "/")
     })
     facades.Route().Get("/", financasController.Index)
+    facades.Route().Get("/test", financasController.Test)
     facades.Route().Get("/home", financasController.Home)
     facades.Route().Middleware(middleware.CreateCsrfTokenMiddleware()).Get("/simulador", financasController.Simulador)
     facades.Route().Get("/predict", financasController.Predict)

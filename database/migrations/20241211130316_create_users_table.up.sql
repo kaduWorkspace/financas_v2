@@ -1,8 +1,9 @@
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY NOT NULL,
-    username text NOT NULL UNIQUE,
-    password text NOT NULL,
-    created_at timestamp NOT NULL,
-    updated_at timestamp NOT NULL,
-    deleted_at timestamp
+  id SERIAL PRIMARY KEY,
+  username   TEXT NOT NULL,
+  email      TEXT NOT NULL UNIQUE,
+  password   TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP,
+  deleted_at TIMESTAMP
 );

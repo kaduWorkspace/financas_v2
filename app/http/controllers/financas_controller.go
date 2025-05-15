@@ -6,10 +6,12 @@ import (
 	"goravel/app/core"
 	"goravel/app/core/modules/financas"
 	"goravel/app/http/requests"
+	"goravel/app/models"
 	"strconv"
 	"strings"
 
 	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/facades"
 	"github.com/shopspring/decimal"
 )
 
@@ -27,6 +29,13 @@ func NewFinancasController() *FinancasController {
         futureValueOfASeriesService: fv,
         analizarJurosCompostoService: financas.AnalizarResultadoInvestimentoDeJurosComposto {},
 	}
+}
+func (r *FinancasController) Test(ctx http.Context) http.Response {
+    var user models.User
+    if err := facades.Orm().Query().First(&user); err != nil {
+        return ctx.Response().String(500, err.Error())
+    }
+    return ctx.Response().Json(200, user)
 }
 func (r *FinancasController) Index(ctx http.Context) http.Response {
     return ctx.Response().View().Make("financas")
